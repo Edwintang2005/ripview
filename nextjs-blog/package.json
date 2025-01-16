@@ -3,7 +3,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint ../nextjs-blog/**/*.js"
   },
   "dependencies": {
     "next": "latest",
@@ -12,5 +13,13 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "eslint": "^9.18.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "globals": "^15.14.0"
   }
 }
