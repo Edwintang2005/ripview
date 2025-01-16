@@ -11,6 +11,21 @@ A recreation of the popular transport app built on a Next.Js stack, porting into
 This starts a server that you can use for development on port 3000, you can access this on:
 > http://localhost:3000
 
+# Linting
+Linting is done with `eslint`. To lint the NextJS project follow these steps:
+
+1 - change into the `nextjs-blog` directory with `cd nextjs-blog`
+2 - run eslint with `npm run lint`
+
+After following these steps, the terminal should look something like this:
+```bash
+$ cd nextjs-blog
+$ npm run lint
+
+> lint
+> eslint ../nextjs-blog/**/*.js
+
+```
 
 # Contributors:
 - Edwin Tang ([@edwintang2005](https://github.com/Edwintang2005))
