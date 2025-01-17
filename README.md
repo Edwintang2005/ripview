@@ -3,10 +3,15 @@ A recreation of the popular transport app built on a Next.Js stack, porting into
 
 # Current way to start the app and development server:
 1.  There is a directory called nextjs-blog which is home to all of our NextJS files. CD into this (run the following command in terminal):
-``` cd nextjs-blog ```
+```bash 
+$ cd ripview 
+```
 
 2. To start the server, you can run the following command:
-```npm run dev```
+```bash
+$ npm run dev
+
+```
 
 This starts a server that you can use for development on port 3000, you can access this on:
 > http://localhost:3000
@@ -14,12 +19,12 @@ This starts a server that you can use for development on port 3000, you can acce
 # Linting
 Linting is done with `eslint`. To lint the NextJS project follow these steps:
 
-1 - change into the `nextjs-blog` directory with `cd nextjs-blog`
+1 - change into the `ripview` directory with `cd ripview`
 2 - run eslint with `npm run lint`
 
 After following these steps, the terminal should look something like this:
 ```bash
-$ cd nextjs-blog
+$ cd ripview
 $ npm run lint
 
 > lint
