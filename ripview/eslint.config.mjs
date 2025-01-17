@@ -1,53 +1,21 @@
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import jest from "eslint-plugin-jest";
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
+
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
 });
 
-export default [{
-    ignores: [],
-}, ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended"), {
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
-        jest,
-    },
-
-    languageOptions: {
-        globals: {
-            ...globals.node,
-            ...globals.jest,
-            document: "readonly",
-            navigator: "readonly",
-            window: "readonly",
-        },
-
-        parser: tsParser,
-        ecmaVersion: 2022,
-        sourceType: "module",
-
-        parserOptions: {
-            ecmaFeatures: {
-                jsx: true,
-            },
-        },
-    },
-
+const eslintConfig = [
+  ...compat.config({
+    extends: ["next/core-web-vitals", "next/typescript"],
     rules: {
-        "@typescript-eslint/no-var-requires": 0,
-        "no-unused-vars": "off",
-
-        "@typescript-eslint/no-unused-vars": ["error", {
+      "@typescript-eslint/no-var-requires": 0,
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["error", {
             args: "none",
             caughtErrors: "none",
             ignoreRestSiblings: true,
@@ -439,5 +407,8 @@ export default [{
 
         "yield-star-spacing": ["error", "both"],
         yoda: ["error", "never"],
-    },
-}];
+    }
+  }),
+];
+
+export default eslintConfig;
