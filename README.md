@@ -27,9 +27,23 @@ After following these steps, the terminal should look something like this:
 $ cd ripview
 $ npm run lint
 
-> lint
-> eslint ../nextjs-blog/**/*.js
+> ripview@{version_number} lint
+> next lint
 
+```
+
+# Testing (Jest)
+Testing is done with `jest`. To test the NextJS project follow these steps:
+1 - change into the `ripview` directory with `cd ripview`
+2 - run jest with `npm test`
+
+After following these steps, the terminal should look something like this:
+```bash
+$ cd ripview
+$ npm test
+
+> ripview@{version_number} test
+> jest
 ```
 
 # Contributors:
