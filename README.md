@@ -19,8 +19,8 @@ This starts a server that you can use for development on port 3000, you can acce
 # Linting
 Linting is done with `eslint`. To lint the NextJS project follow these steps:
 
-1 - change into the `ripview` directory with `cd ripview`
-2 - run eslint with `npm run lint`
+1. change into the `ripview` directory with `cd ripview`
+2. run eslint with `npm run lint`
 
 After following these steps, the terminal should look something like this:
 ```bash
