@@ -92,6 +92,14 @@ a.secondary {
     min-width: 180px;
 }
 
+.navBar {
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    display: flex;
+    background-color: var(--gray-rgb);
+}
+
 .header {
     float: left;
     text-align: center;
@@ -182,9 +190,12 @@ a.secondary {
 
 @media (prefers-color-scheme: dark) {
     .logo {
-        filter: invert();
+        position: inherit;
     }
+}
+
+@media (prefers-color-scheme: light) {
     .lightLogo {
-        
+        position: inherit;
     }
 }
