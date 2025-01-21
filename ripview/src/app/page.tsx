@@ -5,20 +5,27 @@ import styles from "./page.module.css";
 import Image from "next/image";
 import CsvHandler from "../components/CsvHandler";
 
+function Header() {
+    return<div className={styles.header}>
+        <Image
+        className={styles.lightLogo}
+        src="/favicon/favicon.svg"
+        alt="RipView logo"
+        width={180}
+        height={38}
+        priority
+        />
+        <h1>RipView</h1>
+    </div>;
+}
+
 export default function Home() {
     const [csvData, setCsvData] = useState<string[][]>([]);
 
     return (
         <div className={styles.page}>
             <main className={styles.main}>
-                <Image
-                    className={styles.logo}
-                    src="/next.svg"
-                    alt="Next.js logo"
-                    width={180}
-                    height={38}
-                    priority
-                />
+                <Header></Header>
 
                 <div className={styles.csvContainer}>
 
