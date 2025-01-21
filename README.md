@@ -52,5 +52,7 @@ $ npm test
 - Rickey Lin ([@0xRickey](https://github.com/0xRickey))
 - Roger Yao ([@rogeryao824](https://github.com/rogeryao824))
 
-# Sources and documentation used:
+# Sources and Documentation Used:
 - [NextJs Setup Guide](https://nextjs.org/learn-pages-router/basics/create-nextjs-app/setup)
+- [Location facilities](https://opendata.transport.nsw.gov.au/data/dataset/public-transport-location-facilities-and-operators/resource/e9d94351-f22d-46ea-b64d-10e7e238368a) documentation by Transport Open Data. This resource gives information about the locations of train stations, wharves & bus interchanges in the form of several formats such as `.csv`, `.tsv`, `.json`, `.xml`. There is also the option of using the Data API provided, note there is a limitation to 5 calls per day. 
+- [How to Load Data from a File in Next.js?](https://www.geeksforgeeks.org/how-to-load-data-from-a-file-in-next-js/) documentation by GeeksForGeeks.
