@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import styles from "./page.module.css";
 import Image from "next/image";
-import CsvHandler from "../components/CsvHandler";
+import Form from 'next/form';
 import StationJson from "./data/stationsInformation.json";
 
 function Header() {
@@ -24,16 +24,30 @@ export default function Home() {
     const [csvData, setCsvData] = useState<string[][]>([]);
     var records = StationJson.records;
     records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
+
+    const handleTripPlan = async (event: FormEvent<HTMLFormElement>) => {
+        // event.preventDefault();
+        console.log(event.target.dispatchEvent);
+        
+    };
+
     return (
         <div className={styles.page}>
             <main className={styles.main}>
                 <Header></Header>
-                <h2>Station Names</h2>
-                <ul>
-                  {records.map((post) => (
-                    <li key={post[1]}>{'Name: ' + post[1] + ', TSN: ' + post[2]}</li>
-                  ))}
-                </ul>
+                <h2>Choose a station</h2>
+                <form onSubmit={handleTripPlan}>
+                    <div className= {styles.listInput}>
+                        <select name="stations" id="stations">
+                            <option key = {null} defaultValue={"---"}>{"---"}</option>
+                            {records.map((post) => (
+                              <option key={post[2]} value={post[2]}>{post[1]}</option>
+                            ))}
+                        </select>
+                        <button type="submit">Find Trips</button>
+                    </div>
+                </form>
+                
             </main>
             <footer className={styles.footer}>
                 <a

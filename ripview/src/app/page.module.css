@@ -135,6 +135,10 @@ a.secondary {
     border-radius: 8px;
 }
 
+.listInput {
+    position: relative;
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
     a.primary:hover {
