@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from 'next/navigation';
 // import { planTrip } from '../apiCalls';
 
 export default function Home() {
@@ -11,5 +11,4 @@ export default function Home() {
     return (
         <h1>Trip From {fromStation} to {toStation}!</h1>
     );
-
 }

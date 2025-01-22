@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import React from 'react';
 
 // Props for the CsvHandler component
 interface CsvHandlerProps {
