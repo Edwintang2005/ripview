@@ -22,13 +22,14 @@ function Header() {
 
 export default function Home() {
     const [csvData, setCsvData] = useState<string[][]>([]);
+    const [selectedStation, setSelectedStation] = useState<string | null>(null);
     var records = StationJson.records;
     records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
 
     const handleTripPlan = async (event: FormEvent<HTMLFormElement>) => {
-        // event.preventDefault();
+        event.preventDefault();
         console.log(event.target.dispatchEvent);
-        
+        console.log("Selected Station ID: ", selectedStation);
     };
 
     return (
@@ -38,7 +39,7 @@ export default function Home() {
                 <h2>Choose a station</h2>
                 <form onSubmit={handleTripPlan}>
                     <div className= {styles.listInput}>
-                        <select name="stations" id="stations">
+                        <select name="stations" id="stations" onChange={(e) => setSelectedStation(e.target.value)}>
                             <option key = {null} defaultValue={"---"}>{"---"}</option>
                             {records.map((post) => (
                               <option key={post[2]} value={post[2]}>{post[1]}</option>
