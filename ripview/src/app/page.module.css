@@ -136,7 +136,10 @@ a.secondary {
 }
 
 .listInput {
-    position: relative;
+    position: static;
+    display: flex;
+    flex-direction: row;
+    align-items:flex-end;
 }
 
 /* Enable hover only on non-touch devices */

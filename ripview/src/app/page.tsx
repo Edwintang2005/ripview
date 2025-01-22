@@ -36,18 +36,30 @@ export default function Home() {
         <div className={styles.page}>
             <main className={styles.main}>
                 <Header></Header>
-                <h2>Choose a station</h2>
-                <form onSubmit={handleTripPlan}>
+                <h2>Plan a trip!!</h2>
+                <Form action="/tripPlanning">
                     <div className= {styles.listInput}>
-                        <select name="stations" id="stations" onChange={(e) => setSelectedStation(e.target.value)}>
-                            <option key = {null} defaultValue={"---"}>{"---"}</option>
-                            {records.map((post) => (
-                              <option key={post[2]} value={post[2]}>{post[1]}</option>
-                            ))}
-                        </select>
-                        <button type="submit">Find Trips</button>
+                        <label> From:
+                            <select name="fromStations" id="fromStations" onChange={(e) => setSelectedStation(e.target.value)}>
+                                <option key = {null} defaultValue={"---"}>{"---"}</option>
+                                {records.map((post) => (
+                                  <option key={post[2]} value={post[2]}>{post[1]}</option>
+                                ))}
+                            </select>
+                        </label>
                     </div>
-                </form>
+                    <div className={styles.listInput}>
+                        <label> To:
+                            <select name="toStations" id="toStations" onChange={(e) => setSelectedStation(e.target.value)}>
+                                <option key = {null} defaultValue={"---"}>{"---"}</option>
+                                {records.map((post) => (
+                                  <option key={post[2]} value={post[2]}>{post[1]}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                    <button type="submit">Find Trips</button>
+                </Form>
                 
             </main>
             <footer className={styles.footer}>
