@@ -92,6 +92,23 @@ a.secondary {
     min-width: 180px;
 }
 
+.navBar {
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    display: flex;
+    background-color: var(--gray-rgb);
+}
+
+.header {
+    float: left;
+    text-align: center;
+    grid-row-start: auto;
+    align-items: center;
+    display: flex;
+    gap: 0px;
+}
+
 .footer {
     grid-row-start: 3;
     display: flex;
@@ -116,6 +133,10 @@ a.secondary {
     background-color: var(--container-bg);
     color: var(--foreground);
     border-radius: 8px;
+}
+
+.listInput {
+    position: relative;
 }
 
 /* Enable hover only on non-touch devices */
@@ -173,6 +194,12 @@ a.secondary {
 
 @media (prefers-color-scheme: dark) {
     .logo {
-        filter: invert();
+        position: inherit;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .lightLogo {
+        position: inherit;
     }
 }

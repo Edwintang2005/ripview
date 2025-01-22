@@ -1,107 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import styles from "./page.module.css";
 import Image from "next/image";
-import CsvHandler from "../components/CsvHandler";
+import Form from 'next/form';
+import StationJson from "./data/stationsInformation.json";
+
+function Header() {
+    return<div className={styles.navBar}>
+        <Image
+        className={styles.lightLogo}
+        src="/favicon/favicon.svg"
+        alt="RipView logo"
+        width={180}
+        height={38}
+        priority
+        />
+        <h1>RipView</h1>
+    </div>;
+}
 
 export default function Home() {
     const [csvData, setCsvData] = useState<string[][]>([]);
+    const [selectedStation, setSelectedStation] = useState<string | null>(null);
+    var records = StationJson.records;
+    records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
+
+    const handleTripPlan = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        console.log(event.target.dispatchEvent);
+        console.log("Selected Station ID: ", selectedStation);
+    };
 
     return (
         <div className={styles.page}>
             <main className={styles.main}>
-                <Image
-                    className={styles.logo}
-                    src="/next.svg"
-                    alt="Next.js logo"
-                    width={180}
-                    height={38}
-                    priority
-                />
-
-                <div className={styles.csvContainer}>
-
-                    {/* Title */}
-                    <h1 style={{ marginBottom: "20px", color: "var(--foreground)" }}>
-                        Transport Location Data
-                    </h1>
-
-                    {/* Handles the file upload
-                    When a file is loaded, send the data to setCsvData to store it */}
-                    <CsvHandler onDataLoaded={setCsvData} />
-
-                    {/* Display table IFF there is data
-                    && is like, if csvData has anything in it, then show the following */}
-                    {csvData.length > 0 && (
-                        // Set the overflow to auto so that the table can scroll{/*  */}
-                        <div style={{ overflowX: "auto" }}>
-                            <table
-                                style={{
-                                    borderCollapse: "collapse",
-                                    width: "100%",
-                                    marginTop: "20px",
-                                    color: "var(--foreground)",
-                                }}
-                            >
-                                {/* For each row, create a table row, 
-                                then for each piece of data, 
-                                create a table cell and add data and style it */}
-                                <tbody>
-                                    {csvData.map((row, index) => (
-                                        <tr key={index}>
-                                            {row.map((cell, cellIndex) => (
-                                                <td
-                                                    key={cellIndex}
-                                                    style={{
-                                                        border: "1px solid var(--border-color)",
-                                                        padding: "8px",
-                                                        color: "var(--foreground)",
-                                                    }}
-                                                >
-                                                    {cell}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-
-                <ol>
-                    <li>
-                        Get started by editing <code>src/app/page.tsx</code>.
-                    </li>
-                    <li>Save and see your changes instantly.</li>
-                </ol>
-
-                <div className={styles.ctas}>
-                    <a
-                        className={styles.primary}
-                        href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Image
-                            className={styles.logo}
-                            src="/vercel.svg"
-                            alt="Vercel logomark"
-                            width={20}
-                            height={20}
-                        />
-                        Deploy now
-                    </a>
-                    <a
-                        href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.secondary}
-                    >
-                        Read our docs
-                    </a>
-                </div>
+                <Header></Header>
+                <h2>Choose a station</h2>
+                <form onSubmit={handleTripPlan}>
+                    <div className= {styles.listInput}>
+                        <select name="stations" id="stations" onChange={(e) => setSelectedStation(e.target.value)}>
+                            <option key = {null} defaultValue={"---"}>{"---"}</option>
+                            {records.map((post) => (
+                              <option key={post[2]} value={post[2]}>{post[1]}</option>
+                            ))}
+                        </select>
+                        <button type="submit">Find Trips</button>
+                    </div>
+                </form>
+                
             </main>
             <footer className={styles.footer}>
                 <a
