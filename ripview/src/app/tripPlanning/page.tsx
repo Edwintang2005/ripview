@@ -1,14 +1,30 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { planTrip } from '../apiCalls';
+import { FetchtripData } from '../api/apiCalls';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+    const [jsonData, setjsonData] = useState({});
     const searchParams = useSearchParams();
-    const fromStation = searchParams.get('fromStations');
-    const toStation = searchParams.get('toStations');
-    console.log(planTrip((fromStation as string), (toStation as string)));
+    let fromStation = searchParams.get('fromStations');
+    let toStation = searchParams.get('toStations');
+    useEffect(() => {
+        async function fetchPosts() {
+            const tripData = {
+                fromStation: fromStation as string,
+                toStation: toStation as string,
+            };
+            const data = await FetchtripData(tripData);
+            setjsonData(data);
+        }
+        fetchPosts();
+    }, []);
+    console.log(jsonData);
     return (
-        <h1>Trip From {fromStation} to {toStation}!</h1>
+        <div>
+            <h1>Trip From {fromStation} to {toStation}!</h1>
+            <h2>Check console</h2>
+        </div>
     );
 }

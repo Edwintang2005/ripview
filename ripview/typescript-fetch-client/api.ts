@@ -2915,14 +2915,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         tfnswTripRequest2(outputFormat: 'rapidJSON', coordOutputFormat: 'EPSG:4326', depArrMacro: 'dep' | 'arr', typeOrigin: 'any' | 'coord', nameOrigin: string, typeDestination: 'any' | 'coord', nameDestination: string, itdDate?: string, itdTime?: string, calcNumberOfTrips?: number, wheelchair?: 'on', excludedMeans?: 'checkbox' | '1' | '2' | '4' | '5' | '7' | '9' | '11', exclMOT1?: '1', exclMOT2?: '1', exclMOT4?: '1', exclMOT5?: '1', exclMOT7?: '1', exclMOT9?: '1', exclMOT11?: '1', tfNSWTR?: 'true', version?: string, itOptionsActive?: number, computeMonomodalTripBicycle?: boolean, cycleSpeed?: number, bikeProfSpeed?: 'EASIER' | 'MODERATE' | 'MOST_DIRECT', maxTimeBicycle?: number, onlyITBicycle?: number, useElevationData?: number, elevFac?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TripRequestResponse> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).tfnswTripRequest2(outputFormat, coordOutputFormat, depArrMacro, typeOrigin, nameOrigin, typeDestination, nameDestination, itdDate, itdTime, calcNumberOfTrips, wheelchair, excludedMeans, exclMOT1, exclMOT2, exclMOT4, exclMOT5, exclMOT7, exclMOT9, exclMOT11, tfNSWTR, version, itOptionsActive, computeMonomodalTripBicycle, cycleSpeed, bikeProfSpeed, maxTimeBicycle, onlyITBicycle, useElevationData, elevFac, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
+            return async (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                console.log(basePath + localVarFetchArgs.url);
+                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
             };
         },
     }
