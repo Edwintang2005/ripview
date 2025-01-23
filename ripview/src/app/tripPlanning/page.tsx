@@ -5,7 +5,7 @@ import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-    const [jsonData, setjsonData] = useState({});
+    const [jsonData, setjsonData] = useState([""]);
     const searchParams = useSearchParams();
     let fromStation = searchParams.get('fromStations');
     let toStation = searchParams.get('toStations');
@@ -24,7 +24,9 @@ export default function Home() {
     return (
         <div>
             <h1>Trip From {fromStation} to {toStation}!</h1>
-            <h2>Check console</h2>
+            <ul>
+                {jsonData.map((post, index) => (<li key={index}>{post}</li>))}
+            </ul>
         </div>
     );
 }

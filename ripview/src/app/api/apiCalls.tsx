@@ -19,19 +19,25 @@ async function planTrip(fromId:string, toId:string) {
     return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', 'dep', 'any', fromId, 'any', toId ,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
 }
 
-export async function FetchtripData(props: TripData) {
+export async function FetchtripData(props: TripData): Promise<string[]> {
     let jsonObj = await planTrip((props.fromStation), (props.toStation));
-    return jsonObj.toString();
+    return tripResponseToJson(jsonObj);
 }
 
 // Function working on to convert TripRequestResponse to a processable format.
-// function tripResponseToJson(res: TripRequestResponse): string {
-//     if (res['journeys'] == null) {
-//         return "ERROR";
-//     }
-//     var json = {};
-//     for (let x in res['journeys']) {
-//         json = 
-//     }
-//     return json.toString();
-// }
+function tripResponseToJson(res: TripRequestResponse): string[] {
+    if (res['journeys'] == null) {
+        return ["ERROR"];
+    }
+    var legs : string[] = [];
+    res['journeys'].forEach((x) => {
+        var legsInfo = "";
+        x['legs']?.forEach((a) => {
+            const dest = a['destination'];
+            const transport = a['transportation'];
+            legsInfo += 'Leg Info -> Name: ' + dest?.name + ' leaving at: ' + dest?.departureTimeEstimated + ' on ' + transport?.product + '. ';
+        })
+        legs.push(legsInfo);
+    })
+    return legs;
+}
