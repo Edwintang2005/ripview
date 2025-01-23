@@ -26,6 +26,10 @@ export async function FetchtripData(props: TripData): Promise<string[][]> {
 }
 
 // Function working on to convert TripRequestResponse to a processable format.
+// TripRequestResponse is like this -> .journeys = [TripRequestResponseJourney], this holds all possible trips
+// TripRequestResponseJourney is like this -> .legs = [TripRequestResponseJourneyLeg], this holds all the legs for each trip
+// TripRequestResponseJourneyLeg is like this -> .coords, .destination, .distance, .duration, .hints, .infos, .interchange, .origin, .stopSequence, .transportation
+// Both .destination and .origin are TripRequestResponseJourneyLegStop, which holds information about name, platform etc.
 function tripResponseToJson(res: TripRequestResponse): string[][] {
     if (res.journeys == null) {
         return [['ERROR']];
