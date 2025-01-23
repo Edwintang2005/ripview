@@ -16,30 +16,31 @@ async function planTrip(fromId:string, toId:string) {
     const config = new Configuration();
     config.apiKey = process.env.TPNSWAPIKEY;
     const apiPlanner = new DefApi(config);
-    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', 'dep', 'any', fromId, 'any', toId, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
+    const numberOfPossibleJourneys = 10;
+    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', 'dep', 'any', fromId, 'any', toId, undefined, undefined, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
 }
 
-export async function FetchtripData(props: TripData): Promise<string[]> {
+export async function FetchtripData(props: TripData): Promise<string[][]> {
     const jsonObj = await planTrip((props.fromStation), (props.toStation));
     return tripResponseToJson(jsonObj);
 }
 
 // Function working on to convert TripRequestResponse to a processable format.
-function tripResponseToJson(res: TripRequestResponse): string[] {
+function tripResponseToJson(res: TripRequestResponse): string[][] {
     if (res.journeys == null) {
-        return ['ERROR'];
+        return [['ERROR']];
     }
-    const legs : string[] = [];
+    const legs : string[][] = [];
     res.journeys.forEach((x) => {
-        let legsInfo = '';
+        const legsInfo: string[] = [];
         if (x.legs == null) {
-            legsInfo = 'No Legs!';
+            legsInfo.push('No Legs!');
         } else {
             x.legs.forEach((a) => {
                 const origin = a.origin;
                 const dest = a.destination;
                 const transport = a.transportation;
-                legsInfo += 'Leg Info -> From: ' + origin?.name + ' To: ' + dest?.name + ' arriving at: ' + dest?.arrivalTimePlanned + ' on ' + transport?.name + '. ';
+                legsInfo.push('From: ' + origin?.name + ' To: ' + dest?.name + ' arriving at: ' + dest?.arrivalTimePlanned + ' on ' + transport?.name + '.');
             });
         }
         legs.push(legsInfo);
