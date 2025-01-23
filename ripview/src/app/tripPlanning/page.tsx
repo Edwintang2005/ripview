@@ -5,10 +5,10 @@ import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-    const [jsonData, setjsonData] = useState([""]);
+    const [jsonData, setjsonData] = useState(['']);
     const searchParams = useSearchParams();
-    let fromStation = searchParams.get('fromStations');
-    let toStation = searchParams.get('toStations');
+    const fromStation = searchParams.get('fromStations');
+    const toStation = searchParams.get('toStations');
     useEffect(() => {
         async function fetchPosts() {
             const tripData = {
@@ -19,7 +19,7 @@ export default function Home() {
             setjsonData(data);
         }
         fetchPosts();
-    }, []);
+    }, [fromStation, toStation]);
     console.log(jsonData);
     return (
         <div>
