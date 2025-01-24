@@ -9,11 +9,18 @@ export default function Home() {
     const searchParams = useSearchParams();
     const fromStation = searchParams.get('fromStations');
     const toStation = searchParams.get('toStations');
+    const isArr = searchParams.get('depOrArr')?.includes('arr');
+    const dtime = searchParams.get('time') as string;
+    const date = dtime.split('T')[0].replaceAll('-', '');
+    const time = dtime.split('T')[1].replace(':', '');
     useEffect(() => {
         async function fetchPosts() {
             const tripData = {
                 fromStation: fromStation?.split('~')[0] as string,
                 toStation: toStation?.split('~')[0] as string,
+                isArr: isArr as boolean,
+                date: date,
+                time: time
             };
             const data = await FetchtripData(tripData);
             setjsonData(data);

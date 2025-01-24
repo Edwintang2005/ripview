@@ -5,12 +5,16 @@ import { Configuration } from '../../../typescript-fetch-client';
 interface TripData{
     fromStation:string;
     toStation:string;
+    isArr:boolean;
+    date:string;
+    time:string;
 }
 // Function that could be used to find a stop, this just gets the url params we would need to get stop info
 // async function searchStop(searchString:string) {
 //     const tfStopRequester = DefaultApiFetchParamCreator().tfnswStopfinderRequest;
 //     return tfStopRequester('rapidJSON', `&#x60;${searchString}&#x60;`, 'EPSG:4326', 'stop', 'true');
 // }
+
 
 /**
  * Function to plan a trip from one station to another using the Transport for NSW API.
@@ -19,13 +23,17 @@ interface TripData{
  * @param toId - The ID of the station to arrive at.
  * @returns A promise that resolves to the trip data.
  */
-async function planTrip(fromId:string, toId:string) {
+async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, time:string) {
     const config = new Configuration();
     config.apiKey = process.env.TPNSWAPIKEY;
     const apiPlanner = new DefApi(config);
     // This limits the number of possible journeys to retrieve
     const numberOfPossibleJourneys = 10;
-    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', 'dep', 'any', fromId, 'any', toId, undefined, undefined, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
+    let depOrArr: 'dep' | 'arr' = 'dep';
+    if (isArr) {
+        depOrArr = 'arr'
+    }
+    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, date, time, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
 }
 
 /**
@@ -35,7 +43,7 @@ async function planTrip(fromId:string, toId:string) {
  * @returns A promise that resolves to the trip data in a processable format.
  */
 export async function FetchtripData(props: TripData): Promise<string[][]> {
-    const jsonObj = await planTrip((props.fromStation), (props.toStation));
+    const jsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, props.date, props.time);
     return tripResponseToJson(jsonObj);
 }
 
