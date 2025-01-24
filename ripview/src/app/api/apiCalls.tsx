@@ -6,6 +6,8 @@ interface TripData{
     fromStation:string;
     toStation:string;
     isArr:boolean;
+    date:string;
+    time:string;
 }
 // Function that could be used to find a stop, this just gets the url params we would need to get stop info
 // async function searchStop(searchString:string) {
@@ -13,7 +15,7 @@ interface TripData{
 //     return tfStopRequester('rapidJSON', `&#x60;${searchString}&#x60;`, 'EPSG:4326', 'stop', 'true');
 // }
 
-async function planTrip(fromId:string, toId:string, isArr:boolean) {
+async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, time:string) {
     const config = new Configuration();
     config.apiKey = process.env.TPNSWAPIKEY;
     const apiPlanner = new DefApi(config);
@@ -22,11 +24,11 @@ async function planTrip(fromId:string, toId:string, isArr:boolean) {
     if (isArr) {
         depOrArr = 'arr'
     }
-    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, undefined, undefined, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
+    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, date, time, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
 }
 
 export async function FetchtripData(props: TripData): Promise<string[][]> {
-    const jsonObj = await planTrip(props.fromStation, props.toStation, props.isArr);
+    const jsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, props.date, props.time);
     return tripResponseToJson(jsonObj);
 }
 
