@@ -10,7 +10,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "es6-promise": "^4.2.8",
     "next": "15.1.4",
+    "portable-fetch": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

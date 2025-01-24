@@ -1,6 +1,30 @@
 # ripview
 A recreation of the popular transport app built on a Next.Js stack, porting into the Transport NSW apis.
 
+# Setting up TPNSW API key
+As the api key used to query TPNSW servers is private, this is how you can set up your codebase to correctly include your personal API key. 
+
+You can create your own API key by following the how to create a TPNSW API key website linked below, or [here](https://opendata.transport.nsw.gov.au/developers/userguide).
+
+To configure your api key, observe `ripview/env.dist`. This is a file that contains the format for the `.env` file you will be creating. Inside `env.dist`, you will observe this line:
+```bash
+TPNSWAPIKEY="apikey {yourKeyHere}"
+```
+Simply replace "{yourKeyHere}" with your personal API key. For example, if your api key was "hello", this is what your file will look like:
+```bash
+TPNSWAPIKEY="apikey hello"
+```
+
+This will tell Next.Js what value to load into the environment variable.
+
+Finally, all you will need to do is rename this file from `env.dist` into `.env`.
+You can accomplish this by simply running these commands:
+```bash
+$ cd ripview
+$ mv env.dist .env
+```
+This will rename the file into a format that the Next.Js environment will know to check in for environment variables.
+
 # Current way to start the app and development server:
 1.  There is a directory called nextjs-blog which is home to all of our NextJS files. CD into this (run the following command in terminal):
 ```bash 
@@ -56,3 +80,4 @@ $ npm test
 - [NextJs Setup Guide](https://nextjs.org/learn-pages-router/basics/create-nextjs-app/setup)
 - [Location facilities](https://opendata.transport.nsw.gov.au/data/dataset/public-transport-location-facilities-and-operators/resource/e9d94351-f22d-46ea-b64d-10e7e238368a) documentation by Transport Open Data. This resource gives information about the locations of train stations, wharves & bus interchanges in the form of several formats such as `.csv`, `.tsv`, `.json`, `.xml`. There is also the option of using the Data API provided, note there is a limitation to 5 calls per day. 
 - [How to Load Data from a File in Next.js?](https://www.geeksforgeeks.org/how-to-load-data-from-a-file-in-next-js/) documentation by GeeksForGeeks.
+- [How to create a TPNSW API key](https://opendata.transport.nsw.gov.au/developers/userguide)
