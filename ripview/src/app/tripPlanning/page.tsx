@@ -13,7 +13,6 @@ export default function Home() {
     const dtime = searchParams.get('time') as string;
     const date = dtime.split('T')[0].replaceAll('-', '');
     const time = dtime.split('T')[1].replace(':', '');
-    console.log(date + time);
     useEffect(() => {
         async function fetchPosts() {
             const tripData = {
