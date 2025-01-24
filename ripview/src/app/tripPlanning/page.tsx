@@ -12,18 +12,17 @@ export default function Home() {
     useEffect(() => {
         async function fetchPosts() {
             const tripData = {
-                fromStation: fromStation as string,
-                toStation: toStation as string,
+                fromStation: fromStation?.split('~')[0] as string,
+                toStation: toStation?.split('~')[0] as string,
             };
             const data = await FetchtripData(tripData);
             setjsonData(data);
         }
         fetchPosts();
     }, [fromStation, toStation]);
-    console.log(jsonData);
     return (
         <div>
-            <h1>Trip From {fromStation} to {toStation}!</h1>
+            <h1>Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!</h1>
             {jsonData.map((p, i) => (
                 <div key={i}>
                     <h2>Trip Option Number {i + 1}:</h2>

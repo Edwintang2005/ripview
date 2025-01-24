@@ -42,7 +42,7 @@ export default function Home() {
                             <select name='fromStations' id='fromStations' onChange={(e) => setSelectedStation(e.target.value)}>
                                 <option key = {null} defaultValue={'---'}>{'---'}</option>
                                 {records.map((post) => (
-                                  <option key={post[2]} value={post[2]}>{post[1]}</option>
+                                  <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
                                 ))}
                             </select>
                         </label>
@@ -52,7 +52,7 @@ export default function Home() {
                             <select name='toStations' id='toStations' onChange={(e) => setSelectedStation(e.target.value)}>
                                 <option key = {null} defaultValue={'---'}>{'---'}</option>
                                 {records.map((post) => (
-                                  <option key={post[2]} value={post[2]}>{post[1]}</option>
+                                  <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
                                 ))}
                             </select>
                         </label>
