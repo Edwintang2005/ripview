@@ -44,10 +44,31 @@ function tripResponseToJson(res: TripRequestResponse): string[][] {
                 const origin = a.origin;
                 const dest = a.destination;
                 const transport = a.transportation;
-                legsInfo.push('From: ' + origin?.name + ' To: ' + dest?.name + ' arriving at: ' + dest?.arrivalTimePlanned + ' on ' + transport?.name + '.');
+
+                // Convert the arrival time to a more readable format
+                const arrivalTimeUTC = dest?.arrivalTimePlanned;
+                const arrivalTimeAET = arrivalTimeUTC ? convertToEasternTime(arrivalTimeUTC) : 'Unknown time';
+
+                legsInfo.push(`From: ${origin?.name} To: ${dest?.name} arriving at: ${arrivalTimeAET} on ${transport?.name}.`);
             });
         }
         legs.push(legsInfo);
     });
     return legs;
+}
+
+// Helper function to convert UTC time to Australia Eastern Time
+function convertToEasternTime(utcTime: string): string {
+    const date = new Date(utcTime);
+    const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'Australia/Sydney',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    };
+    return new Intl.DateTimeFormat('en-AU', options).format(date);
 }
