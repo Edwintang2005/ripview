@@ -24,12 +24,6 @@ export default function Home() {
     const [selectedStation, setSelectedStation] = useState<string | null>(null);
     let records = StationJson.records;
     records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
-
-    // const handleTripPlan = async (event: FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-    //     console.log(event.target.dispatchEvent);
-    //     console.log('Selected Station ID: ', selectedStation);
-    // };
     console.log(selectedStation);
     return (
         <div className={styles.page}>
@@ -58,7 +52,7 @@ export default function Home() {
                         </label>
                     </div>
                     <div className={styles.listInput}>
-                        <input type='radio' id='arr' name='depOrArr' value='arr' checked={true} ></input>
+                        <input type='radio' id='arr' name='depOrArr' value='arr' defaultChecked={true} ></input>
                         <label htmlFor="arr">arr</label>
                         <input type='radio' id='dep' name='depOrArr' value='dep'></input>
                         <label htmlFor="dep">dep</label>

@@ -15,7 +15,6 @@ interface TripData{
 //     return tfStopRequester('rapidJSON', `&#x60;${searchString}&#x60;`, 'EPSG:4326', 'stop', 'true');
 // }
 
-
 /**
  * Function to plan a trip from one station to another using the Transport for NSW API.
  *
@@ -31,8 +30,8 @@ async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, 
     const numberOfPossibleJourneys = 10;
     let depOrArr: 'dep' | 'arr' = 'dep';
     if (isArr) {
-        depOrArr = 'arr'
-    }
+        depOrArr = 'arr';
+    };
     return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, date, time, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
 }
 

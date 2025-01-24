@@ -26,7 +26,7 @@ export default function Home() {
             setjsonData(data);
         }
         fetchPosts();
-    }, [fromStation, toStation]);
+    }, [fromStation, toStation, isArr, date, time]);
     return (
         <div>
             <h1>Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!</h1>
