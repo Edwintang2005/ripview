@@ -64,9 +64,8 @@ export default function Home() {
                         <label htmlFor="dep">dep</label>
                     </div>
                     <div className={styles.listInput}>
-                        <label> At:
-                            <input type='datetime-local' id='time'></input>
-                        </label>
+                        <label> At:</label>
+                        <input type='datetime-local' id='time' name='time'></input>
                     </div>
                     <button type='submit'>Find Trips</button>
                 </Form>
