@@ -14,7 +14,7 @@ interface TripData{
 
 /**
  * Function to plan a trip from one station to another using the Transport for NSW API.
- * 
+ *
  * @param fromId - The ID of the station to depart from.
  * @param toId - The ID of the station to arrive at.
  * @returns A promise that resolves to the trip data.
@@ -30,7 +30,7 @@ async function planTrip(fromId:string, toId:string) {
 
 /**
  * Fetches trip data for a given journey and converts it to a processable format for the frontend.
- * 
+ *
  * @param props - The TripData object containing the station IDs for the trip.
  * @returns A promise that resolves to the trip data in a processable format.
  */
@@ -47,15 +47,15 @@ export async function FetchtripData(props: TripData): Promise<string[][]> {
 
 /**
  * Converts a TripRequestResponse object to processable format for the frontend
- * 
+ *
  * Note that the response object contains multiple journeys, each of which may consist of multiple legs.
- * 
+ *
  * - TripRequestResponse:
  *     - journeys: TripRequestResponseJourney[], an array of journeys representing all possible trips
- * 
+ *
  * - TripRequestResponseJourney:
  *    - legs: TripRequestResponseJourneyLeg[], an array of legs representing the different parts of a journey
- * 
+ *
  * - TripRequestResponseJourneyLeg:
  *    - coords: Coordinates of the leg.
  *    - destination: TripRequestResponseJourneyLegStop, the destination stop of the leg.
@@ -67,10 +67,10 @@ export async function FetchtripData(props: TripData): Promise<string[][]> {
  *    - origin: TripRequestResponseJourneyLegStop, the origin stop of the leg.
  *    - stopSequence: Sequence of stops in the leg.
  *    - transportation: Information about the transportation mode.
- * 
+ *
  * - TripRequestResponseJourneyLegStop:
  *   - name: Name of the stop, including the platform.
- * 
+ *
  * The function processes each journey and its legs, extracting the relevant information and converting it to a format that can be displayed on the frontend. It converts the departure and arrival times to Australia Eastern Time (AET) and the duration from seconds to hours and minutes.
  * @param res - The TripRequestResponse object containing the journeys and legs.
  * @returns An array of journeys, each represented as an array of strings for display on the frontend.
@@ -114,14 +114,13 @@ function tripResponseToJson(res: TripRequestResponse): string[][] {
             });
         }
         journeys.push(journeyDetails);
-
     });
     return journeys;
 }
 
 /**
  * Helper function to convert UTC time to Australia Eastern Time (AET).
- * 
+ *
  * @param utcTime - The UTC time string to convert.
  * @returns The time string converted to AET.
  *  */
