@@ -57,6 +57,16 @@ export default function Home() {
                             </select>
                         </label>
                     </div>
+                    <div className={styles.listInput}>
+                        <input type='radio' id='arr' name='depOrArr' value='arr' checked={true} ></input>
+                        <label htmlFor="arr">arr</label>
+                        <input type='radio' id='dep' name='depOrArr' value='dep'></input>
+                        <label htmlFor="dep">dep</label>
+                    </div>
+                    <div className={styles.listInput}>
+                        <label> At:</label>
+                        <input type='datetime-local' id='time' name='time'></input>
+                    </div>
                     <button type='submit'>Find Trips</button>
                 </Form>
 
