@@ -34,25 +34,30 @@ function tripResponseToJson(res: TripRequestResponse): string[][] {
     if (res.journeys == null) {
         return [['ERROR']];
     }
-    const legs : string[][] = [];
+    const legs: string[][] = [];
     res.journeys.forEach((x) => {
-        const legsInfo: string[] = [];
         if (x.legs == null) {
-            legsInfo.push('No Legs!');
+            legs.push(['No Legs!']);
         } else {
             x.legs.forEach((a) => {
                 const origin = a.origin;
                 const dest = a.destination;
                 const transport = a.transportation;
 
-                // Convert the arrival time to a more readable format
+                const departureTimeUTC = origin?.departureTimePlanned;
+                const departureTimeAET = departureTimeUTC ? convertToEasternTime(departureTimeUTC) : 'Unknown time';
+
                 const arrivalTimeUTC = dest?.arrivalTimePlanned;
                 const arrivalTimeAET = arrivalTimeUTC ? convertToEasternTime(arrivalTimeUTC) : 'Unknown time';
 
-                legsInfo.push(`From: ${origin?.name} To: ${dest?.name} arriving at: ${arrivalTimeAET} on ${transport?.name}.`);
+                // Convert the object to an array of strings so that it can be displayed with <li> tags
+                legs.push([
+                    `From: ${origin?.name}. Departing at: ${departureTimeAET}`,
+                    `To: ${dest?.name}. Arriving at ${arrivalTimeAET}`,
+                    `On: ${transport?.name}`
+                ]);
             });
         }
-        legs.push(legsInfo);
     });
     return legs;
 }
