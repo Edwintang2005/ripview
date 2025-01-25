@@ -1,8 +1,9 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
+
 
 export default function Home() {
     const [jsonData, setjsonData] = useState([['Loading...']]);
@@ -13,6 +14,9 @@ export default function Home() {
     const dtime = searchParams.get('time') as string;
     const date = dtime.split('T')[0].replaceAll('-', '');
     const time = dtime.split('T')[1].replace(':', '');
+
+    const router = useRouter();
+
     useEffect(() => {
         async function fetchPosts() {
             const tripData = {
@@ -29,6 +33,7 @@ export default function Home() {
     }, [fromStation, toStation, isArr, date, time]);
     return (
         <div>
+            <button onClick={() => router.back()}>Back</button>
             <h1>Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!</h1>
             {jsonData.map((p, i) => (
                 <div key={i}>
