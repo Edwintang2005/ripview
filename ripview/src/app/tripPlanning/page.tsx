@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
-
+import styles from './tripPlanning.module.css';
 
 export default function Home() {
     const [jsonData, setjsonData] = useState([['Loading...']]);
@@ -31,15 +31,76 @@ export default function Home() {
         }
         fetchPosts();
     }, [fromStation, toStation, isArr, date, time]);
+
+    // Function to check if the trip has multiple legs
+    const hasMultipleLegs = (trip: string[]) => {
+        return trip.filter((info) => info.startsWith('From:')).length > 1;
+    };
+
+    // Function to get the number of legs in the trip
+    const getNumberOfLegs = (trip: string[]) => {
+        return trip.filter((info) => info.startsWith('From:')).length;
+    }
+
+    // Function to format the trip information
+    const formatTripInfo = (info: string) => {
+        if (info.startsWith('From:')) {
+            const [location, time] = info.split('Departing at:');
+            return (
+                <>
+                    <div>{location.trim()}</div>
+                    <div className={styles.timeInfo}>Departing at: {time.trim()}</div>
+                </>
+            );
+        }
+        if (info.startsWith('To:')) {
+            const [location, time] = info.split('Arriving at');
+            return (
+                <>
+                    <div>{location.trim()}</div>
+                    <div className={styles.timeInfo}>Arriving at: {time.trim()}</div>
+                </>
+            );
+        }
+        return <div>{info}</div>;
+    };
+
     return (
-        <div>
-            <button onClick={() => router.back()}>Back</button>
-            <h1>Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!</h1>
-            {jsonData.map((p, i) => (
-                <div key={i}>
-                    <h2>Trip Option Number {i + 1}:</h2>
-                    <ul>
-                        {p.map((post, index) => (<li key={index}>{post}</li>))}
+        <div className={styles.container}>
+            <button className={styles.backButton} onClick={() => router.back()}>
+                Back
+            </button>
+            <h1 className={styles.pageTitle}>
+                Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!
+            </h1>
+            {jsonData.map((trip, tripIndex) => (
+                <div key={tripIndex} className={styles.tripOption}>
+                    <h2>Trip Option Number {tripIndex + 1}:</h2>
+                    {/* Show a warning if the trip has any train changes */}
+                    {hasMultipleLegs(trip) && (
+                        <div className={styles.legsInfo}>
+                            Requires {getNumberOfLegs(trip) - 1} train change{getNumberOfLegs(trip) - 1 > 1 ? 's' : ''}
+                        </div>
+                    )}
+                    {/* List of trip details */}
+                    <ul className={styles.tripList}>
+                        {trip.map((info, infoIndex) => {
+                            const isNewLeg = info.startsWith('From:') && infoIndex !== 0;
+                            const isTransportation = info.startsWith('On:');
+                            const isDuration = info.startsWith('Duration:');
+                            
+                            return (
+                                <li key={infoIndex}>
+                                    {isNewLeg && <hr className={styles.legDivider} />}
+                                    <div className={`
+                                        ${isTransportation ? styles.transportInfo : ''}
+                                        ${isDuration ? styles.durationInfo : ''}
+                                    `}>
+                                        {formatTripInfo(info)}
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
             ))}

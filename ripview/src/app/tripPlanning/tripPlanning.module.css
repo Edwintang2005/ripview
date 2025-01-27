@@ -1,0 +1,100 @@
+.container {
+    padding: 1.25rem;
+    max-width: 75rem;
+    margin: 0 auto;
+}
+
+.backButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 0.3125rem;
+    background-color: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.backButton:hover {
+    background-color: rgba(45, 45, 45, 0.25);
+}
+
+.pageTitle {
+    margin: 1.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.tripOption {
+    margin-bottom: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 0.3125rem;
+    background-color: rgba(31, 31, 31, 0.1);
+    transition: all 0.3s ease;
+}
+
+.tripOption:hover {
+    background-color: rgba(45, 45, 45, 0.25);
+}
+
+.tripOption h2 {
+    margin-bottom: 0.9375rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.tripList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.tripList li {
+    margin: 0.625rem 0;
+}
+
+.tripList li div {
+    margin: 0.3125rem 0;
+    line-height: 1.5;
+}
+
+.timeInfo {
+    color: var(--foreground);
+    opacity: 0.8;
+    font-size: 0.95rem;
+    margin-left: 1.25rem;
+}
+
+.legDivider {
+    margin: 1.25rem 0;
+    border: none;
+    border-top: 1px solid var(--border-color, #333);
+    opacity: 0.3;
+}
+
+.transportInfo {
+    margin-top: 0.625rem;
+    font-weight: 500;
+}
+
+.durationInfo {
+    color: var(--foreground);
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.legsInfo {
+    margin: -0.625rem 0 0.9375rem 0;
+    padding: 0.375rem 0.75rem 0.375rem 0.5rem;
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--foreground);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.legsInfo::before {
+    content: "⚠️";
+}
