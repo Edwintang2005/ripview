@@ -1,7 +1,18 @@
+.pageTitle,
+.tripOption h2,
+.tripList li,
+.timeInfo,
+.transportInfo,
+.durationInfo,
+.legsInfo {
+    font-family: inherit;
+}
+
 .container {
     padding: 1.25rem;
     max-width: 75rem;
     margin: 0 auto;
+    font-family: inherit;
 }
 
 .backButton {
@@ -68,7 +79,7 @@
     margin: 1.25rem 0;
     border: none;
     border-top: 1px solid var(--border-color, #333);
-    opacity: 0.3;
+    opacity: 0.5;
 }
 
 .transportInfo {

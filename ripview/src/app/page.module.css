@@ -7,67 +7,68 @@
     --button-secondary-hover: #f2f2f2;
 
     display: grid;
-    grid-template-rows: 20px 1fr 20px;
+    grid-template-rows: 1.25rem 1fr 1.25rem;
     align-items: center;
     justify-items: center;
     min-height: 100svh;
-    padding: 80px;
-    gap: 64px;
+    padding: 5rem;
+    gap: 4rem;
     font-family: var(--font-geist-sans);
-}
-
-@media (prefers-color-scheme: dark) {
-    .page {
-        --gray-rgb: 255, 255, 255;
-        --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-        --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-        --button-primary-hover: #ccc;
-        --button-secondary-hover: #1a1a1a;
-    }
 }
 
 .main {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 2rem;
     grid-row-start: 2;
+    width: 100%;
+    max-width: 37.5rem;
+}
+
+.main h2 {
+    text-align: center;
 }
 
 .main ol {
     font-family: var(--font-geist-mono);
     padding-left: 0;
     margin: 0;
-    font-size: 14px;
-    line-height: 24px;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
     letter-spacing: -0.01em;
     list-style-position: inside;
 }
 
 .main li:not(:last-of-type) {
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .main code {
     font-family: inherit;
     background: var(--gray-alpha-100);
-    padding: 2px 4px;
-    border-radius: 4px;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
     font-weight: 600;
+}
+
+.main form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .ctas {
     display: flex;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .ctas a {
     appearance: none;
-    border-radius: 128px;
-    height: 48px;
-    padding: 0 20px;
+    border-radius: 8rem;
+    height: 3rem;
+    padding: 0 1.25rem;
     border: none;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     transition:
         background 0.2s,
         color 0.2s,
@@ -76,28 +77,48 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: 1rem;
+    line-height: 1.25rem;
     font-weight: 500;
 }
 
 a.primary {
     background: var(--foreground);
     color: var(--background);
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 a.secondary {
     border-color: var(--gray-alpha-200);
-    min-width: 180px;
+    min-width: 11.25rem;
 }
 
 .navBar {
     position: sticky;
     top: 0;
-    overflow: hidden;
     display: flex;
-    background-color: var(--gray-rgb);
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--background);
+    border-bottom: 0.0625rem solid var(--gray-alpha-200);
+    z-index: 10;
+    width: 100%;
+}
+
+
+.navBar h1 {
+    flex: 1;
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 0;
+    padding-right: 180px; /* Match the logo width to maintain true center */
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
 }
 
 .header {
@@ -106,40 +127,171 @@ a.secondary {
     grid-row-start: auto;
     align-items: center;
     display: flex;
-    gap: 0px;
+    gap: 0;
+}
+
+.header {
+    float: left;
+    text-align: center;
+    grid-row-start: auto;
+    align-items: center;
+    display: flex;
+    gap: 0;
 }
 
 .footer {
     grid-row-start: 3;
     display: flex;
-    gap: 24px;
+    gap: 1.5rem;
 }
 
 .footer a {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.footer img {
-    flex-shrink: 0;
+    gap: 0.5rem;
 }
 
 .csvContainer {
     width: 100%;
-    max-width: 1200px;
+    max-width: 75rem;
     margin: 2rem auto;
     padding: 1rem;
     background-color: var(--container-bg);
     color: var(--foreground);
-    border-radius: 8px;
+    border-radius: 0.5rem;
 }
 
 .listInput {
-    position: static;
     display: flex;
-    flex-direction: row;
-    align-items:flex-end;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.listInput label {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.listInput select {
+    padding: 0.75rem;
+    border: 0.0625rem solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans);
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: none;
+}
+
+.listInput select:focus {
+    outline: none;
+    border-color: var(--foreground);
+}
+
+.timePreference {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+    width: 100%;
+}
+
+.radioGroup {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+    justify-content: center;
+}
+
+.radioGroup input[type="radio"] {
+    margin: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+    accent-color: var(--foreground);
+}
+
+.radioGroup label {
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.95rem;
+}
+
+.timeSelection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    background-color: var(--gray-alpha-100);
+    border: 0.0625rem solid var(--gray-alpha-200);
+    transition: background-color 0.2s ease;
+}
+
+.dateTimeInput {
+    margin-top: 0.5rem;
+}
+
+.dateTimeInput input {
+    padding: 0.75rem;
+    border: 0.0625rem solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans);
+    width: 100%;
+    max-width: 12.5rem;
+    transition: border-color 0.2s ease;
+}
+
+.dateTimeInput input:focus {
+    outline: none;
+    border-color: var(--foreground);
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Update submitButton styles */
+.submitButton {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 2rem;
+    background-color: var(--foreground);
+    color: var(--background);
+    font-family: var(--font-geist-sans);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+}
+
+.submitButton:hover {
+    background-color: var(--button-primary-hover);
+    transform: translateY(-0.0625rem);
+}
+
+.submitButton:active {
+    transform: translateY(0);
+}
+
+.listInput,
+.timePreference,
+.timeSelection {
+    width: 100%;
 }
 
 /* Enable hover only on non-touch devices */
@@ -156,14 +308,14 @@ a.secondary {
 
     .footer a:hover {
         text-decoration: underline;
-        text-underline-offset: 4px;
+        text-underline-offset: 0.25rem;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) { /* 600px */
     .page {
-        padding: 32px;
-        padding-bottom: 80px;
+        padding: 2rem;
+        padding-bottom: 5rem;
     }
 
     .main {
@@ -179,9 +331,9 @@ a.secondary {
     }
 
     .ctas a {
-        font-size: 14px;
-        height: 40px;
-        padding: 0 16px;
+        font-size: 0.875rem;
+        height: 2.5rem;
+        padding: 0 1rem;
     }
 
     a.secondary {
@@ -193,13 +345,55 @@ a.secondary {
         align-items: center;
         justify-content: center;
     }
+
+    .timeSelection {
+        padding: 1rem;
+    }
+
+    .dateTimeInput input {
+        max-width: 100%;
+    }
+
+    .radioGroup {
+        gap: 1rem;
+    }
+
+    .submitButton {
+        width: 100%;
+        max-width: 18.75rem;
+    }
 }
 
 @media (prefers-color-scheme: dark) {
+    .page {
+        --gray-rgb: 255, 255, 255;
+        --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+        --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+        --button-primary-hover: #ccc;
+        --button-secondary-hover: #1a1a1a;
+    }
+
     .logo {
         position: inherit;
     }
+
+    .timeSelection {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .dateTimeInput input,
+    .listInput select {
+        background-color: var(--background);
+        border-color: var(--gray-alpha-200);
+    }
+
+    .dateTimeInput input:focus,
+    .listInput select:focus {
+        border-color: var(--foreground);
+    }
 }
+
 
 @media (prefers-color-scheme: light) {
     .lightLogo {

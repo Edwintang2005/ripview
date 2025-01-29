@@ -11,7 +11,17 @@ export default function Home() {
     const fromStation = searchParams.get('fromStations');
     const toStation = searchParams.get('toStations');
     const isArr = searchParams.get('depOrArr')?.includes('arr');
-    const dtime = searchParams.get('time') as string;
+
+    const getCurrentDateTime = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${
+            String(now.getMonth() + 1).padStart(2, '0')}-${
+            String(now.getDate()).padStart(2, '0')}T${
+            String(now.getHours()).padStart(2, '0')}:${
+            String(now.getMinutes()).padStart(2, '0')}`;
+    };
+
+    const dtime = searchParams.get('time') || getCurrentDateTime();
     const date = dtime.split('T')[0].replaceAll('-', '');
     const time = dtime.split('T')[1].replace(':', '');
 
@@ -46,19 +56,25 @@ export default function Home() {
     const formatTripInfo = (info: string) => {
         if (info.startsWith('From:')) {
             const [location, time] = info.split('Departing at:');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
             return (
                 <>
                     <div>{location.trim()}</div>
-                    <div className={styles.timeInfo}>Departing at: {time.trim()}</div>
+                    <div className={styles.timeInfo}>
+                        Departing at: {formattedTime}
+                    </div>
                 </>
             );
         }
         if (info.startsWith('To:')) {
             const [location, time] = info.split('Arriving at');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
             return (
                 <>
                     <div>{location.trim()}</div>
-                    <div className={styles.timeInfo}>Arriving at: {time.trim()}</div>
+                    <div className={styles.timeInfo}>
+                        Arriving at: {formattedTime}
+                    </div>
                 </>
             );
         }
