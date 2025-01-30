@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono as GeistMono } from 'next/font/google';
-import '.././globals.css';
+import '../globals.css';
 import { ReactNode } from 'react';
 
 const geistSans = Geist({
-    variable: '--font-geist-sans',
     subsets: ['latin'],
+    display: 'swap',
+    adjustFontFallback: true,
 });
 
 const geistMono = GeistMono({
-    variable: '--font-geist-mono',
     subsets: ['latin'],
+    display: 'swap',
+    adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -24,8 +26,8 @@ export default function RootLayout({
     children: ReactNode;
 }>) {
     return (
-        <html lang='en'>
-            <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <html lang='en' className={geistSans.className}>
+            <body className={geistSans.className}>
                 {children}
             </body>
         </html>

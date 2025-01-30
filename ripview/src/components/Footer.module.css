@@ -1,0 +1,31 @@
+.footer {
+    grid-row-start: 3;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    border-top: 1px solid var(--gray-alpha-200);
+}
+
+.footer a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .footer a:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.25rem;
+    }
+}
+
+@media (max-width: 37.5rem) {
+    .footer {
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+}

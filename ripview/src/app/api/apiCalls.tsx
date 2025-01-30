@@ -28,11 +28,12 @@ async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, 
     const apiPlanner = new DefApi(config);
     // This limits the number of possible journeys to retrieve
     const numberOfPossibleJourneys = 10;
+    const isWheelchairAccessible = undefined; // Can be 'on' if on
     let depOrArr: 'dep' | 'arr' = 'dep';
     if (isArr) {
         depOrArr = 'arr';
     };
-    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, date, time, numberOfPossibleJourneys, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'true');
+    return apiPlanner.tfnswTripRequest2('rapidJSON', 'EPSG:4326', depOrArr, 'any', fromId, 'any', toId, date, time, numberOfPossibleJourneys, isWheelchairAccessible, 'checkbox', undefined, undefined, '1', '1', '1', '1', '1', 'true');
 }
 
 /**
