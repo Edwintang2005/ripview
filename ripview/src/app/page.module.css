@@ -238,6 +238,10 @@ a.secondary {
 
 .dateTimeInput {
     margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 .dateTimeInput input {
@@ -250,6 +254,7 @@ a.secondary {
     width: 100%;
     max-width: 12.5rem;
     transition: border-color 0.2s ease;
+    margin: 0 auto;
 }
 
 .dateTimeInput input:focus {
@@ -263,7 +268,6 @@ a.secondary {
     width: 100%;
 }
 
-/* Update submitButton styles */
 .submitButton {
     margin-top: 1.5rem;
     padding: 0.75rem 1.5rem;

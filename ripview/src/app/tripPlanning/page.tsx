@@ -11,6 +11,32 @@ export default function Home() {
     const fromStation = searchParams.get('fromStations');
     const toStation = searchParams.get('toStations');
     const isArr = searchParams.get('depOrArr')?.includes('arr');
+    const timePreference = searchParams.get('timePreference');
+    const time = searchParams.get('time');
+
+    // Format the datetime for display
+    const formatDateTime = (dateTimeStr: string) => {
+        const dt = new Date(dateTimeStr);
+        return dt.toLocaleString('en-AU', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        });
+    };
+
+    // Get time preference text
+    const getTimePreferenceText = () => {
+        if (timePreference === 'current') {
+            return 'Current time';
+        } else {
+            return isArr 
+                ? `Arrive by ${formatDateTime(time!)}`
+                : `Depart at ${formatDateTime(time!)}`;
+        }
+    };
 
     const getCurrentDateTime = () => {
         const now = new Date();
@@ -23,7 +49,7 @@ export default function Home() {
 
     const dtime = searchParams.get('time') || getCurrentDateTime();
     const date = dtime.split('T')[0].replaceAll('-', '');
-    const time = dtime.split('T')[1].replace(':', '');
+    const timeValue = dtime.split('T')[1].replace(':', '');
 
     const router = useRouter();
 
@@ -34,7 +60,7 @@ export default function Home() {
                 toStation: toStation?.split('~')[0] as string,
                 isArr: isArr as boolean,
                 date: date,
-                time: time
+                time: timeValue
             };
             const data = await FetchtripData(tripData);
             setjsonData(data);
@@ -89,6 +115,9 @@ export default function Home() {
             <h1 className={styles.pageTitle}>
                 Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!
             </h1>
+            <div className={styles.tripDetails}>
+                <p>Showing trips for: {getTimePreferenceText()}</p>
+            </div>
             {jsonData.map((trip, tripIndex) => (
                 <div key={tripIndex} className={styles.tripOption}>
                     <h2>Trip Option Number {tripIndex + 1}:</h2>

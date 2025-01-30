@@ -26,6 +26,11 @@ function Header() {
 export default function Home() {
     const router = useRouter();
 
+    const getCurrentDateTime = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    };
+
     // Refresh the page when the back button is pressed so fonts are loaded correctly
     useEffect(() => {
         // Listen for popstate event (back button)
@@ -45,6 +50,7 @@ export default function Home() {
     const [selectedStation, setSelectedStation] = useState<string | null>(null);
     const [showDateTime, setShowDateTime] = useState(false);
     const [timePreference, setTimePreference] = useState('current');
+    const [selectedDateTime, setSelectedDateTime] = useState(getCurrentDateTime());
 
     let records = StationJson.records;
     records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
@@ -60,10 +66,7 @@ export default function Home() {
         }
     };
 
-    const getCurrentDateTime = () => {
-        const now = new Date();
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    };
+
 
     return (
         <div className={styles.page}>
@@ -126,12 +129,14 @@ export default function Home() {
                             <label htmlFor="specific">Specific time</label>
                         </div>
 
-                        {/* Hidden input for current time */}
-                        <input
-                            type='hidden'
-                            name='time'
-                            value={getCurrentDateTime()}
-                        />
+                         {/* Hidden input - only use current time when timePreference is 'current' */}
+                         {timePreference === 'current' && (
+                            <input
+                                type='hidden'
+                                name='time'
+                                value={getCurrentDateTime()}
+                            />
+                        )}
 
                         {showDateTime && (
                             <div className={styles.timeSelection}>
@@ -146,7 +151,8 @@ export default function Home() {
                                         type='datetime-local'
                                         id='time'
                                         name='time'
-                                        defaultValue={getCurrentDateTime()}
+                                        value={selectedDateTime}
+                                        onChange={(e) => setSelectedDateTime(e.target.value)}
                                         step="60" // This restricts to minutes only (no seconds)
                                     />
                                 </div>

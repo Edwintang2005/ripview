@@ -109,3 +109,18 @@
 .legsInfo::before {
     content: "⚠️";
 }
+
+.tripDetails {
+    margin: -0.5rem 0 1.5rem 0;
+    padding: 0.75rem 1rem;
+    background-color: var(--gray-alpha-100);
+    border: 1px solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--foreground);
+}
+
+.tripDetails p::before {
+    content: "🕒";
+    margin-right: 0.5rem;
+}
