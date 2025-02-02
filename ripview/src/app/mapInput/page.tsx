@@ -5,8 +5,8 @@ import { useCallback, useState } from 'react';
 import { redirect } from 'next/navigation';
 
 export default function Home() {
-    const [fromId, setFromId] = useState('');
-    const [toId, setToId] = useState('');
+    let fromId = '';
+    let toId = '';
     const handleSVGClick = useCallback((event: React.MouseEvent<SVGSVGElement>) => {
         let target = event.target;
         let clickedId = '';
@@ -28,11 +28,11 @@ export default function Home() {
         console.log('Clicked ID:', clickedId);
         clickedId = clickedId.replace(/[^0-9\.]+/g, '');
         if (clickedId !== '') {
-            if (fromId === '') {
-                setFromId(clickedId);
-            } else if (toId === '') {
-                setToId(clickedId);
-                redirect(`tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`)
+            if (fromId == '') {
+                fromId = clickedId;
+            } else if (toId == '') {
+                toId = clickedId;
+                redirect(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`)
             }
         }
     }, []);
