@@ -298,6 +298,10 @@ a.secondary {
     width: 100%;
 }
 
+.mapDiv {
+    background-color: white;
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
     a.primary:hover {
