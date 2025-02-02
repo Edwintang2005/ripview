@@ -300,6 +300,7 @@ a.secondary {
 
 .mapDiv {
     background-color: white;
+    pointer-events: all;
 }
 
 /* Enable hover only on non-touch devices */

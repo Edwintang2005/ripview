@@ -41,3 +41,7 @@ a {
         color-scheme: dark;
     }
 }
+
+svg, svg * {
+    pointer-events: all;
+}

@@ -5,7 +5,6 @@ import { useCallback } from 'react';
 
 export default function Home() {
     const handleSVGClick = useCallback((event: { target: { id: any; }; }) => {
-        console.log("Function called");
         const clickedId = event.target.id;
         console.log('Clicked ID:', clickedId);
     }, []);
