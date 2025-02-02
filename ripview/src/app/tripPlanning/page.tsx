@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
+import { getStationNameFromId } from '@/utils/getData';
 import styles from './tripPlanning.module.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,6 +18,9 @@ export default function Home() {
     const isArr = searchParams.get('depOrArr')?.includes('arr');
     const timePreference = searchParams.get('timePreference');
     const time = searchParams.get('time');
+
+    const fromName = getStationNameFromId(fromStation as string);
+    const toName = getStationNameFromId(toStation as string);
 
     useEffect(() => {
         // Set current page
@@ -87,8 +91,8 @@ export default function Home() {
 
         async function fetchPosts() {
             const tripData = {
-                fromStation: fromStation?.split('~')[0] as string,
-                toStation: toStation?.split('~')[0] as string,
+                fromStation: fromStation as string,
+                toStation: toStation as string,
                 isArr: isArr as boolean,
                 date: date,
                 time: timeValue
@@ -177,7 +181,7 @@ export default function Home() {
                 <BackButton />
                 <div className={styles.tripContent}>
                     <h1 className={styles.pageTitle}>
-                        Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!
+                        Trip From {fromName} to {toName}!
                     </h1>
                     <div className={styles.tripDetails}>
                         <p>Showing trips for: {getTimePreferenceText()}</p>

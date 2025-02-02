@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
-import Image from 'next/image';
 import Form from 'next/form';
-import StationJson from './data/stationsInformation.json';
+import { getStationIdEntries } from '@/utils/getData';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -38,8 +37,7 @@ export default function Home() {
     const [timePreference, setTimePreference] = useState('current');
     const [selectedDateTime, setSelectedDateTime] = useState(getCurrentDateTime());
 
-    let records = StationJson.records;
-    records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
+    const records = getStationIdEntries();
 
     const handleTimePreferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -68,7 +66,7 @@ export default function Home() {
                             >
                                 <option key={null} defaultValue={'---'}>{'---'}</option>
                                 {records.map((post) => (
-                                    <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
+                                    <option key={post[2]} value={post[2]}>{post[1]}</option>
                                 ))}
                             </select>
                         </label>
@@ -84,7 +82,7 @@ export default function Home() {
                             >
                                 <option key={null} defaultValue={'---'}>{'---'}</option>
                                 {records.map((post) => (
-                                    <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
+                                    <option key={post[2]} value={post[2]}>{post[1]}</option>
                                 ))}
                             </select>
                         </label>
