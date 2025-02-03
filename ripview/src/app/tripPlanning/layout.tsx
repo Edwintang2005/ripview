@@ -20,16 +20,10 @@ export const metadata: Metadata = {
     description: 'Transcend the TripView Experience',
 };
 
-export default function RootLayout({
+export default function TripPlanningLayout({
     children,
 }: Readonly<{
     children: ReactNode;
 }>) {
-    return (
-        <html lang='en' className={geistSans.className}>
-            <body className={geistSans.className}>
-                {children}
-            </body>
-        </html>
-    );
+    return children;
 }
