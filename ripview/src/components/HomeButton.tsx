@@ -13,7 +13,7 @@ export default function HomeButton({ className = '' }: { className?: string }) {
     };
 
     return (
-        <button 
+        <button
             onClick={handleHomeClick}
             className={`${styles.homeButton} ${className}`}
         >

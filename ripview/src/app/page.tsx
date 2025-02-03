@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, ChangeEvent } from 'react';
 import styles from './page.module.css';
 import Form from 'next/form';
 import { getStationIdEntries } from '@/utils/getData';
@@ -9,8 +8,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function Home() {
-    const router = useRouter();
-
     const getCurrentDateTime = () => {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -39,7 +36,7 @@ export default function Home() {
 
     const records = getStationIdEntries();
 
-    const handleTimePreferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleTimePreferenceChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === 'specific') {
             setShowDateTime(true);

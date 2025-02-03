@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
 import { getStationNameFromId } from '@/utils/getData';
@@ -85,10 +85,7 @@ export default function Home() {
     const date = dtime.split('T')[0].replaceAll('-', '');
     const timeValue = dtime.split('T')[1].replace(':', '');
 
-    const router = useRouter();
-
     useEffect(() => {
-
         async function fetchPosts() {
             const tripData = {
                 fromStation: fromStation as string,
@@ -133,7 +130,7 @@ export default function Home() {
             setjsonData(data);
         }
         fetchPosts();
-    }, [fromStation, toStation, isArr, date, time]);
+    }, [fromStation, toStation, isArr, date, time, timeValue]);
 
     // Function to check if the trip has multiple legs
     const hasMultipleLegs = (trip: string[]) => {
@@ -143,7 +140,7 @@ export default function Home() {
     // Function to get the number of legs in the trip
     const getNumberOfLegs = (trip: string[]) => {
         return trip.filter((info) => info.startsWith('From:')).length;
-    }
+    };
 
     // Function to format the trip information
     const formatTripInfo = (info: string) => {

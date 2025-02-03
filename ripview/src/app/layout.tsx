@@ -1,16 +1,10 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono as GeistMono } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import './globals.css';
 import { ReactNode } from 'react';
-import NavigationHandler from '@/components/NavigationHandler';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
-    subsets: ['latin'],
-});
-
-const geistMono = GeistMono({
-    variable: '--font-geist-mono',
     subsets: ['latin'],
 });
 
