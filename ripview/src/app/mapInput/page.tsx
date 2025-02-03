@@ -1,13 +1,13 @@
 'use client';
 import styles from '../page.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
-import { useCallback, useState } from 'react';
+import { useCallback, MouseEvent } from 'react';
 import { redirect } from 'next/navigation';
 
 export default function Home() {
     let fromId = '';
     let toId = '';
-    const handleSVGClick = useCallback((event: React.MouseEvent<SVGSVGElement>) => {
+    const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
         let clickedId = '';
         while (target instanceof SVGElement) {
@@ -26,19 +26,19 @@ export default function Home() {
             }
         }
         console.log('Clicked ID:', clickedId);
-        clickedId = clickedId.replace(/[^0-9\.]+/g, '');
+        clickedId = clickedId.replace(/[^0-9.]+/g, '');
         if (clickedId !== '') {
             if (fromId == '') {
                 fromId = clickedId;
             } else if (toId == '') {
                 toId = clickedId;
-                redirect(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`)
+                redirect(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
             }
         }
     }, []);
     return (
         <div className={styles.mapDiv} >
-            <MySVG 
+            <MySVG
                 onClick={handleSVGClick}
             />
         </div>
