@@ -1,0 +1,32 @@
+.backButton {
+    padding: 0.5rem;
+    width: fit-content;
+    border: 1px solid var(--gray-alpha-200);
+    border-radius: 0.375rem;
+    background-color: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0rem 1rem 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.backButton:hover {
+    background-color: var(--gray-alpha-100);
+    transform: translateX(-2px);
+}
+
+.backButton i {
+    font-size: 1rem;
+}
+
+@media (max-width: 37.5rem) {
+    .backButton {
+        padding: 0.375rem;
+        height: 1.75rem;
+        min-width: 1.75rem;
+    }
+}
