@@ -8,6 +8,7 @@ import Form from 'next/form';
 import StationJson from './data/stationsInformation.json';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import StationSelect from '@/components/StationSelect';
 
 export default function Home() {
     const router = useRouter();
@@ -37,9 +38,17 @@ export default function Home() {
     const [showDateTime, setShowDateTime] = useState(false);
     const [timePreference, setTimePreference] = useState('current');
     const [selectedDateTime, setSelectedDateTime] = useState(getCurrentDateTime());
+    const [fromStation, setFromStation] = useState('');
+    const [toStation, setToStation] = useState('');
 
     let records = StationJson.records;
     records = records.filter((a) => /Train|Metro/.test((a[10] as string)));
+
+    // Create a list of stations with id and name
+    const stations = records.map(record => ({
+        id: record[2] as string,
+        name: record[1] as string
+    }));
 
     const handleTimePreferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -52,42 +61,37 @@ export default function Home() {
         }
     };
 
+    // Handle form submission
+    const handleSubmit = (e: React.FormEvent) => {
+        if (!fromStation || !toStation) {
+            e.preventDefault();
+            alert('Please select both stations');
+            return;
+        }
+    };
+
     return (
         <div className={styles.page}>
             <main className={styles.main}>
                 <Header />
                 <h2>Plan a trip!!</h2>
-                <Form action='/tripPlanning'>
+                <Form action='/tripPlanning' onSubmit={handleSubmit}>
                     <div className={styles.listInput}>
-                        <label>
-                            <span>From:</span>
-                            <select
-                                name='fromStations'
-                                id='fromStations'
-                                onChange={(e) => setSelectedStation(e.target.value)}
-                            >
-                                <option key={null} defaultValue={'---'}>{'---'}</option>
-                                {records.map((post) => (
-                                    <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
-                                ))}
-                            </select>
-                        </label>
+                        <StationSelect
+                            label="From:"
+                            name="fromStations"
+                            stations={stations}
+                            onChange={(value) => setFromStation(value)}
+                        />
                     </div>
 
                     <div className={styles.listInput}>
-                        <label>
-                            <span>To:</span>
-                            <select
-                                name='toStations'
-                                id='toStations'
-                                onChange={(e) => setSelectedStation(e.target.value)}
-                            >
-                                <option key={null} defaultValue={'---'}>{'---'}</option>
-                                {records.map((post) => (
-                                    <option key={post[2]} value={post[2] + '~' + post[1]}>{post[1]}</option>
-                                ))}
-                            </select>
-                        </label>
+                        <StationSelect
+                            label="To:"
+                            name="toStations"
+                            stations={stations}
+                            onChange={(value) => setToStation(value)}
+                        />
                     </div>
 
                     <div className={styles.timePreference}>
