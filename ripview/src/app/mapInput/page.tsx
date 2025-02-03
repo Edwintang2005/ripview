@@ -31,13 +31,20 @@ export default function Home() {
         console.log('Clicked ID:', clickedId);
         clickedId = clickedId.replace(/[^0-9.]+/g, '');
         if (clickedId !== '') {
-            if (fromId == '') {
-                fromId = clickedId;
-                targetStore.setAttribute('class', 'Sydney_Trains_Network_Map_svg__clicked');
-            } else if (toId == '' && clickedId != fromId) {
-                toId = clickedId;
-                targetStore.setAttribute('class', 'Sydney_Trains_Network_Map_svg__clicked');
-                router.push(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
+            const stationGroup = (target as SVGElement).closest('g');
+            if (stationGroup) {
+                const circle = stationGroup.querySelector('circle');
+                const path = stationGroup.querySelector('path');
+                if (fromId === '') {
+                    fromId = clickedId;
+                    if (circle) circle.style.fill = '#00ff00';
+                    if (path) path.style.fill = '#00ff00';
+                } else if (toId === '' && clickedId !== fromId) {
+                    toId = clickedId;
+                    if (circle) circle.style.fill = '#00ff00';
+                    if (path) path.style.fill = '#00ff00';
+                    router.push(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
+                }
             }
         }
     }, []);
