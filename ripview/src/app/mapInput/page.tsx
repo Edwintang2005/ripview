@@ -10,6 +10,9 @@ export default function Home() {
     let toId = '';
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
+        let targetStore = event.target as SVGElement;
+        targetStore.setAttribute('fill', 'red');
+        console.log(target);
         let clickedId = '';
         while (target instanceof SVGElement) {
             if (target.id) {
@@ -31,7 +34,7 @@ export default function Home() {
         if (clickedId !== '') {
             if (fromId == '') {
                 fromId = clickedId;
-            } else if (toId == '') {
+            } else if (toId == '' && clickedId != fromId) {
                 toId = clickedId;
                 router.push(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
             }
