@@ -2,9 +2,10 @@
 import styles from '../page.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
 import { useCallback, MouseEvent } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+    const router = useRouter();
     let fromId = '';
     let toId = '';
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
@@ -32,7 +33,7 @@ export default function Home() {
                 fromId = clickedId;
             } else if (toId == '') {
                 toId = clickedId;
-                redirect(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
+                router.push(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
             }
         }
     }, []);
