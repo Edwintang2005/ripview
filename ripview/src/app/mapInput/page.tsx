@@ -10,9 +10,8 @@ export default function Home() {
     let toId = '';
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
-        let targetStore = event.target as SVGElement;
-        targetStore.setAttribute('fill', 'red');
-        console.log(target);
+        const targetStore = event.target as SVGElement;
+        console.log(targetStore);
         let clickedId = '';
         while (target instanceof SVGElement) {
             if (target.id) {
@@ -34,8 +33,10 @@ export default function Home() {
         if (clickedId !== '') {
             if (fromId == '') {
                 fromId = clickedId;
+                targetStore.setAttribute('class', 'Sydney_Trains_Network_Map_svg__clicked');
             } else if (toId == '' && clickedId != fromId) {
                 toId = clickedId;
+                targetStore.setAttribute('class', 'Sydney_Trains_Network_Map_svg__clicked');
                 router.push(`/tripPlanning?fromStations=${fromId}&toStations=${toId}&timePreference=current&time=`);
             }
         }
