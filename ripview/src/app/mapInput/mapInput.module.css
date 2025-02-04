@@ -1,0 +1,7 @@
+.mapDiv {
+    background-color: black;
+    pointer-events: all;
+    margin: auto;
+    width: 70%;
+    font-family: inherit;
+}
