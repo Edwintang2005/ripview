@@ -48,7 +48,6 @@ export default function Home() {
         if (!fromStationId || !toStationId) {
             e.preventDefault();
             alert('Please select both stations');
-            return;
         }
     };
 
@@ -58,13 +57,13 @@ export default function Home() {
                 <Header />
                 <h2>Plan a trip!!</h2>
                 <Form action='/tripPlanning' onSubmit={handleSubmit}>
-                    <StationSelect 
+                    <StationSelect
                         label="From"
                         name="fromStations"
                         onChange={setFromStationId}
                         records={records}
                     />
-                    <StationSelect 
+                    <StationSelect
                         label="To"
                         name="toStations"
                         onChange={setToStationId}
