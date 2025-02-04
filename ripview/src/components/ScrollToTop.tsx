@@ -12,7 +12,6 @@ export default function ScrollToTop() {
 
         return () => {
             const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-            
             // Clear the timeout if it exists
             clearTimeout(scrollTimeout);
 

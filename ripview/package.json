@@ -10,11 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@svgr/webpack": "^8.1.0",
     "es6-promise": "^4.2.8",
     "next": "15.1.4",
     "portable-fetch": "^3.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "svgo": "^3.3.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

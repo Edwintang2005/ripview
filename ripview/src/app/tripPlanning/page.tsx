@@ -1,8 +1,9 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { useState, useEffect } from 'react';
+import { getStationNameFromId } from '@/utils/getData';
 import styles from './tripPlanning.module.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,6 +18,9 @@ export default function Home() {
     const isArr = searchParams.get('depOrArr')?.includes('arr');
     const timePreference = searchParams.get('timePreference');
     const time = searchParams.get('time');
+
+    const fromName = getStationNameFromId(fromStation as string);
+    const toName = getStationNameFromId(toStation as string);
 
     useEffect(() => {
         // Set current page
@@ -81,14 +85,11 @@ export default function Home() {
     const date = dtime.split('T')[0].replaceAll('-', '');
     const timeValue = dtime.split('T')[1].replace(':', '');
 
-    const router = useRouter();
-
     useEffect(() => {
-
         async function fetchPosts() {
             const tripData = {
-                fromStation: fromStation?.split('~')[0] as string,
-                toStation: toStation?.split('~')[0] as string,
+                fromStation: fromStation as string,
+                toStation: toStation as string,
                 isArr: isArr as boolean,
                 date: date,
                 time: timeValue
@@ -129,7 +130,7 @@ export default function Home() {
             setjsonData(data);
         }
         fetchPosts();
-    }, [fromStation, toStation, isArr, date, time]);
+    }, [fromStation, toStation, isArr, date, time, timeValue]);
 
     // Function to check if the trip has multiple legs
     const hasMultipleLegs = (trip: string[]) => {
@@ -139,7 +140,7 @@ export default function Home() {
     // Function to get the number of legs in the trip
     const getNumberOfLegs = (trip: string[]) => {
         return trip.filter((info) => info.startsWith('From:')).length;
-    }
+    };
 
     // Function to format the trip information
     const formatTripInfo = (info: string) => {
@@ -174,16 +175,14 @@ export default function Home() {
         sessionStorage.setItem('lastPage', window.location.pathname + window.location.search);
         router.push(`/tripPlanning/trip/${tripIndex}`);
     };
-
     return (
         <div className={styles.page}>
             <Header />
-
             <main className={styles.main}>
                 <BackButton />
                 <div className={styles.tripContent}>
                     <h1 className={styles.pageTitle}>
-                        Trip From {fromStation?.split('~')[1]} to {toStation?.split('~')[1]}!
+                        Trip From {fromName} to {toName}!
                     </h1>
                     <div className={styles.tripDetails}>
                         <p>Showing trips for: {getTimePreferenceText()}</p>

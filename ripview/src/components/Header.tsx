@@ -1,7 +1,9 @@
 import Image from 'next/image';
 import styles from './Header.module.css';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
+    const router = useRouter();
     return (
         <div className={styles.navBar}>
             <Image
@@ -13,6 +15,7 @@ export default function Header() {
                 priority
             />
             <h1>RipView</h1>
+            <button onClick={() => router.push('/mapInput')}> Map </button>
         </div>
     );
 }
