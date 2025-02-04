@@ -1,5 +1,5 @@
 'use client';
-import styles from '../page.module.css';
+import styles from './mapInput.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
 import { useCallback, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';

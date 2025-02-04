@@ -1,0 +1,18 @@
+{
+    "display": "standalone",
+    "short_name": "RipView",
+    "icons": [
+        {
+            "src": "favicon/apple-touch-icon.png"
+        },
+        {
+            "src": "favicon/web-app-manifest-192x192.png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "favicon/web-app-manifest-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

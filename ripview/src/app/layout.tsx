@@ -28,6 +28,7 @@ export default function RootLayout({
                     crossOrigin="anonymous"
                     referrerPolicy="no-referrer"
                 />
+                <link rel='manifest' href='/site.webmanifest'/>
             </head>
             <body className={geistSans.variable}>
                 {children}

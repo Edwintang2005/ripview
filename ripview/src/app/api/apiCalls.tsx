@@ -116,7 +116,7 @@ function tripResponseToJson(res: TripRequestResponse): string[][] {
                 journeyDetails.push(
                     `From: ${origin?.name}. Departing at: ${departureTimeAET}`,
                     `To: ${dest?.name}. Arriving at ${arrivalTimeAET}`,
-                    `On: ${transport?.name}`,
+                    `On: ${transport?.name || transport?.product?.name}`,
                     `Duration: ${formattedDuration}`
                 );
             });

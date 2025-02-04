@@ -170,7 +170,6 @@ export default function Home() {
         }
         return <div>{info}</div>;
     };
-
     return (
         <div className={styles.page}>
             <Header />
