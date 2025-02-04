@@ -170,11 +170,6 @@ export default function Home() {
         }
         return <div>{info}</div>;
     };
-
-    const handleTripClick = (tripIndex: number) => {
-        sessionStorage.setItem('lastPage', window.location.pathname + window.location.search);
-        router.push(`/tripPlanning/trip/${tripIndex}`);
-    };
     return (
         <div className={styles.page}>
             <Header />
@@ -188,18 +183,7 @@ export default function Home() {
                         <p>Showing trips for: {getTimePreferenceText()}</p>
                     </div>
                     {jsonData.map((trip, tripIndex) => (
-                        <div
-                            key={tripIndex}
-                            className={`${styles.tripOption} ${styles.clickable}`}
-                            onClick={() => handleTripClick(tripIndex)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    handleTripClick(tripIndex);
-                                }
-                            }}
-                        >
+                        <div key={tripIndex} className={styles.tripOption}>
                             <h2>Trip Option Number {tripIndex + 1}:</h2>
                             {hasMultipleLegs(trip) && (
                                 <div className={styles.legsInfo}>
