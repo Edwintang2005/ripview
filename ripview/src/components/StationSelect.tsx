@@ -3,31 +3,27 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './StationSelect.module.css';
 
-interface Station {
-    id: string;
-    name: string;
-}
-
 interface StationSelectProps {
     label: string;
     name: string;
-    stations: Station[];
     onChange: (value: string) => void;
+    records: (string | number)[][];
 }
 
-export default function StationSelect({ label, name, stations, onChange }: StationSelectProps) {
+export default function StationSelect({ label, name, onChange, records }: StationSelectProps) {
     const [inputValue, setInputValue] = useState('');
     const [isOpen, setIsOpen] = useState(false);
-    const [filteredStations, setFilteredStations] = useState<Station[]>(stations);
+    const [filteredStations, setFilteredStations] = useState<(string | number)[][]>(records);
+    const [selectedId, setSelectedId] = useState('');
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     // Filter stations based on input
     useEffect(() => {
-        const filtered = stations.filter(station =>
-            station.name.toLowerCase().includes(inputValue.toLowerCase())
+        const filtered = records.filter(station =>
+            String(station[1]).toLowerCase().includes(inputValue.toLowerCase())
         );
         setFilteredStations(filtered);
-    }, [inputValue, stations]);
+    }, [inputValue, records]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -49,25 +45,21 @@ export default function StationSelect({ label, name, stations, onChange }: Stati
     // Handle key down event to select the first match when tab is pressed
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Tab' && filteredStations.length > 0) {
-            // Don't prevent default tab behavior
             const firstMatch = filteredStations[0];
-            setInputValue(firstMatch.name);
-            onChange(`${firstMatch.id}~${firstMatch.name}`);
+            setInputValue(String(firstMatch[1]));
+            setSelectedId(String(firstMatch[2]));
+            onChange(String(firstMatch[2]));
             setIsOpen(false);
         }
     };
 
     // Handle station selection
-    const handleStationSelect = (station: Station) => {
-        setInputValue(station.name);
-        onChange(`${station.id}~${station.name}`);
+    const handleStationSelect = (station: (string | number)[]) => {
+        const stationId = String(station[2]);
+        setInputValue(String(station[1]));
+        setSelectedId(stationId);
+        onChange(stationId);
         setIsOpen(false);
-    };
-
-    // Get the current selected station's full value (id~name format)
-    const getSelectedValue = () => {
-        const selectedStation = filteredStations.find(s => s.name === inputValue);
-        return selectedStation ? `${selectedStation.id}~${selectedStation.name}` : '';
     };
 
     return (
@@ -87,10 +79,10 @@ export default function StationSelect({ label, name, stations, onChange }: Stati
                 <ul className={styles.dropdown}>
                     {filteredStations.map((station) => (
                         <li
-                            key={station.id}
+                            key={String(station[2])}
                             onClick={() => handleStationSelect(station)}
                         >
-                            {station.name}
+                            {String(station[1])}
                         </li>
                     ))}
                     {filteredStations.length === 0 && (
@@ -101,7 +93,7 @@ export default function StationSelect({ label, name, stations, onChange }: Stati
             <input
                 type="hidden"
                 name={name}
-                value={getSelectedValue()}
+                value={selectedId}
             />
         </div>
     );
