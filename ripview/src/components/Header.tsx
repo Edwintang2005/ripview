@@ -15,7 +15,9 @@ export default function Header() {
                 priority
             />
             <h1>RipView</h1>
-            <button onClick={() => router.push('/mapInput')}> Map </button>
+            <button className={styles.mapButton} onClick={() => router.push('/mapInput')}>
+                Map
+            </button>
         </div>
     );
 }
