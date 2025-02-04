@@ -19,7 +19,7 @@ export default function RootLayout({
     children: ReactNode;
 }>) {
     return (
-        <html lang='en'>
+        <html lang='en' className={geistSans.variable}>
             <head>
                 <link
                     rel="stylesheet"
@@ -30,7 +30,7 @@ export default function RootLayout({
                 />
                 <link rel='manifest' href='/site.webmanifest'/>
             </head>
-            <body className={geistSans.variable}>
+            <body>
                 {children}
             </body>
         </html>

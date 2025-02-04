@@ -1,0 +1,71 @@
+.stationSelect {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.stationSelect label {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.stationSelect input[type="text"] {
+    padding: 0.75rem;
+    border: 0.0625rem solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans);
+    width: 100%;
+    transition: border-color 0.2s ease;
+}
+
+.stationSelect input[type="text"]:focus {
+    outline: none;
+    border-color: var(--foreground);
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 5rem;
+    right: 0;
+    max-height: 15rem;
+    overflow-y: auto;
+    background-color: var(--background);
+    border: 0.0625rem solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.dropdown li {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown li:hover {
+    background-color: var(--gray-alpha-100);
+}
+
+.noResults {
+    color: var(--foreground);
+    opacity: 0.6;
+    cursor: default !important;
+}
+
+@media (max-width: 37.5rem) {
+    .stationSelect label {
+        grid-template-columns: 3.5rem 1fr;
+        gap: 0.5rem;
+    }
+
+    .dropdown {
+        left: 4rem;
+    }
+} 

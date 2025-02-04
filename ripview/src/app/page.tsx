@@ -6,6 +6,7 @@ import Form from 'next/form';
 import { getStationIdEntries } from '@/utils/getData';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import StationSelect from '@/components/StationSelect';
 
 export default function Home() {
     const getCurrentDateTime = () => {
@@ -15,21 +16,17 @@ export default function Home() {
 
     // Refresh the page when the back button is pressed so fonts are loaded correctly
     useEffect(() => {
-        // Listen for popstate event (back button)
-        window.addEventListener('popstate', () => {
-            // Refresh the page
+        const handlePopState = () => {
             window.location.reload();
-        });
-
+        };
+        window.addEventListener('popstate', handlePopState);
         return () => {
-            // Cleanup listener
-            window.removeEventListener('popstate', () => {
-                window.location.reload();
-            });
+            window.removeEventListener('popstate', handlePopState);
         };
     }, []);
 
-    const [selectedStation, setSelectedStation] = useState<string | null>(null);
+    const [fromStationId, setFromStationId] = useState<string>('');
+    const [toStationId, setToStationId] = useState<string>('');
     const [showDateTime, setShowDateTime] = useState(false);
     const [timePreference, setTimePreference] = useState('current');
     const [selectedDateTime, setSelectedDateTime] = useState(getCurrentDateTime());
@@ -47,43 +44,31 @@ export default function Home() {
         }
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+        if (!fromStationId || !toStationId) {
+            e.preventDefault();
+            alert('Please select both stations');
+        }
+    };
+
     return (
         <div className={styles.page}>
             <main className={styles.main}>
                 <Header />
                 <h2>Plan a trip!!</h2>
-                <Form action='/tripPlanning'>
-                    <div className={styles.listInput}>
-                        <label>
-                            <span>From:</span>
-                            <select
-                                name='fromStations'
-                                id='fromStations'
-                                onChange={(e) => setSelectedStation(e.target.value)}
-                            >
-                                <option key={null} defaultValue={'---'}>{'---'}</option>
-                                {records.map((post) => (
-                                    <option key={post[2]} value={post[2]}>{post[1]}</option>
-                                ))}
-                            </select>
-                        </label>
-                    </div>
-
-                    <div className={styles.listInput}>
-                        <label>
-                            <span>To:</span>
-                            <select
-                                name='toStations'
-                                id='toStations'
-                                onChange={(e) => setSelectedStation(e.target.value)}
-                            >
-                                <option key={null} defaultValue={'---'}>{'---'}</option>
-                                {records.map((post) => (
-                                    <option key={post[2]} value={post[2]}>{post[1]}</option>
-                                ))}
-                            </select>
-                        </label>
-                    </div>
+                <Form action='/tripPlanning' onSubmit={handleSubmit}>
+                    <StationSelect
+                        label="From"
+                        name="fromStations"
+                        onChange={setFromStationId}
+                        records={records}
+                    />
+                    <StationSelect
+                        label="To"
+                        name="toStations"
+                        onChange={setToStationId}
+                        records={records}
+                    />
 
                     <div className={styles.timePreference}>
                         <div className={styles.radioGroup}>
