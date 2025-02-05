@@ -172,8 +172,9 @@ export default function Home() {
     };
     return (
         <div className={styles.page}>
-            <Header />
+            
             <main className={styles.main}>
+                <Header />
                 <BackButton />
                 <div className={styles.tripContent}>
                     <h1 className={styles.pageTitle}>
@@ -212,8 +213,8 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
+                <Footer />
             </main>
-            <Footer />
             <ScrollToTop />
         </div>
     );

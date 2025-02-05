@@ -22,7 +22,7 @@
     justify-items: center;
     min-height: 100svh;
     padding: 0 0 2rem 0;
-    gap: 1rem;
+    gap: 4rem;
     font-family: var(--font-geist-sans);
 }
 
@@ -30,6 +30,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    grid-row-start: 3;
     max-width: 75rem;
     padding: 1rem 2rem 0 2rem;
 }
