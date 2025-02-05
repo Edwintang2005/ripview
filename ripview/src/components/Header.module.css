@@ -1,3 +1,9 @@
+@media (display-mode: standalone) {
+    .navBar {
+        padding: 4rem !important; /* Increase padding for a taller navbar */
+    }
+}
+
 .navBar {
     position: fixed;
     top: 0;

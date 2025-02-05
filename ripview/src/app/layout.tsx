@@ -3,6 +3,15 @@ import { Geist } from 'next/font/google';
 import './globals.css';
 import { ReactNode } from 'react';
 
+import type { Viewport } from 'next';
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    userScalable: false,
+    initialScale: 1,
+    viewportFit: "cover"
+};
+
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -32,10 +41,6 @@ export default function RootLayout({
                 <meta
                     name = 'apple-mobile-web-app-status-bar-style'
                     content = 'black-translucent'
-                />
-                <meta
-                    name='viewport'
-                    content='initial-scale=1, viewport-fit=cover'
                 />
                 <link
                     rel='apple-touch-icon'
