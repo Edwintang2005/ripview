@@ -29,6 +29,18 @@ export default function RootLayout({
                     referrerPolicy="no-referrer"
                 />
                 <link rel='manifest' href='/site.webmanifest'/>
+                <meta
+                    name = 'apple-mobile-web-app-status-bar-style'
+                    content = 'black-translucent'
+                />
+                <meta
+                    name='viewport'
+                    content='initial-scale=1, viewport-fit=cover'
+                />
+                <link
+                    rel='apple-touch-icon'
+                    href='/favicon/apple-touch-icon.png'
+                />
             </head>
             <body>
                 {children}

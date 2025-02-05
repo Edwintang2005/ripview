@@ -10,7 +10,7 @@ export default function Header() {
                 className={styles.lightLogo}
                 src='/favicon/favicon.svg'
                 alt='RipView logo'
-                width={180}
+                width={38}
                 height={38}
                 priority
             />
