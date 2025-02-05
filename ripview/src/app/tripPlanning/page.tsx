@@ -181,7 +181,18 @@ export default function Home() {
             }
         }
         if (info.startsWith('Duration:')) {
-            return <div>{info}</div>;
+            return (
+                <>
+                    <div>{info}</div>
+                </>
+            );
+        }
+        if (info.startsWith('On:')) {
+            return (
+                <div className={styles.trainLine}>
+                    {info.replace('On: Sydney Trains Network', '').trim()}
+                </div>
+            );
         }
         return null;
     };
@@ -322,25 +333,61 @@ export default function Home() {
                                         </div>
                                     </div>
                                     <ul className={styles.tripList}>
-                                        {trip.map((info, infoIndex) => {
-                                            const isNewLeg = info.startsWith('From:') && infoIndex !== 0;
-                                            const isTransportation = info.startsWith('On:');
-                                            const isDuration = info.startsWith('Duration:');
+                                        {(() => {
+                                            // Group the trip items into legs
+                                            const legs: string[][] = [];
+                                            let currentLeg: string[] = [];
+                                            
+                                            trip.forEach((info) => {
+                                                if (info.startsWith('From:') && currentLeg.length > 0) {
+                                                    legs.push([...currentLeg]);
+                                                    currentLeg = [];
+                                                }
+                                                currentLeg.push(info);
+                                            });
+                                            if (currentLeg.length > 0) {
+                                                legs.push(currentLeg);
+                                            }
 
-                                            if (isTransportation) return null;
+                                            return legs.map((leg, legIndex) => {
+                                                const trainLineInfo = leg.find(info => info.startsWith('On:'));
+                                                const trainLine = trainLineInfo ? extractTrainLine(trainLineInfo.replace('On: ', '')) : '';
+                                                const lineColor = getTrainLineColor(trainLine);
 
-                                            return (
-                                                <li key={infoIndex}>
-                                                    {isNewLeg && <hr className={styles.legDivider} />}
-                                                    <div className={`
-                                                        ${isTransportation ? styles.transportInfo : ''}
-                                                        ${isDuration ? styles.durationInfo : ''}
-                                                    `}>
-                                                        {formatTripInfo(info)}
-                                                    </div>
-                                                </li>
-                                            );
-                                        })}
+                                                return (
+                                                    <li key={legIndex} className={styles.legGroup}>
+                                                        {legIndex > 0 && <hr className={styles.legDivider} />}
+                                                        <div className={styles.legContent} style={{ '--line-color': lineColor } as React.CSSProperties}>
+                                                            {leg.map((info, infoIndex) => {
+                                                                if (info.startsWith('On:')) return null;
+                                                                
+                                                                const formattedInfo = formatTripInfo(info);
+                                                                if (!formattedInfo) return null;
+
+                                                                if (info.startsWith('From:')) {
+                                                                    return (
+                                                                        <div key={infoIndex} className={styles.tripItem}>
+                                                                            {formattedInfo}
+                                                                        </div>
+                                                                    );
+                                                                }
+
+                                                                return (
+                                                                    <div key={infoIndex} className={styles.tripItem}>
+                                                                        {formattedInfo}
+                                                                        {info.startsWith('Duration:') && (
+                                                                            <div className={styles.trainLine}>
+                                                                                {trainLine}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </li>
+                                                );
+                                            });
+                                        })()}
                                     </ul>
                                 </div>
                             </div>

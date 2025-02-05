@@ -100,26 +100,56 @@
     margin: 0;
 }
 
-.tripList li {
-    margin: 0.625rem 0;
+.legGroup {
+    position: relative;
+    margin-bottom: 16px;
 }
 
-.tripList li div {
-    margin: 0.3125rem 0;
-    line-height: 1.5;
+.legGroup:last-child {
+    margin-bottom: 0;
+}
+
+.legContent {
+    position: relative;
+    padding-left: 20px;
+}
+
+.legContent::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 1.5px;
+    background-color: var(--line-color, #6f818d);
+}
+
+.tripItem {
+    margin-bottom: 8px;
+}
+
+.tripItem:last-child {
+    margin-bottom: 0;
+}
+
+.trainLine {
+    margin-top: 4px;
+    color: #b3b3b3;
+    font-size: 0.9em;
+}
+
+.legDivider {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid #e0e0e0;
 }
 
 .timeInfo {
     color: var(--foreground);
     opacity: 0.8;
     font-size: 0.95rem;
-    margin-left: 1.25rem;
-}
-
-.legDivider {
-    margin: 1rem 0;
-    border: none;
-    border-top: 1px solid var(--gray-alpha-200);
+    padding-top: 0.5rem;
 }
 
 .transportInfo {
@@ -350,6 +380,12 @@
     height: 1rem;
     border-radius: 50%;
     flex-shrink: 0;
+}
+
+.trainLine {
+    margin-top: 4px;
+    color: #b3b3b3;
+    font-size: 0.9em;
 }
 
 .totalTripDuration {
