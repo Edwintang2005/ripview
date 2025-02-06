@@ -12,6 +12,7 @@
     --gray-rgb: 0, 0, 0;
     --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
     --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+    --header-offset: 170px;
 
     --button-primary-hover: #383838;
     --button-secondary-hover: #f2f2f2;
@@ -199,43 +200,30 @@
     content: "⚠️";
 }
 
-.tripSummary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 2rem;
-    height: 10rem;
-    box-sizing: border-box;
-}
-
-.tripMainInfo {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.rightSection {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-left: auto;
-}
-
 .stationContainer {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     gap: 0.25rem;
     width: 200px;
     height: 64px;
     padding: 0.5rem;
+    box-sizing: border-box;
+    position: relative;
+    justify-content: center;
 }
 
 .stationContainer.right {
     text-align: right;
-    width: 200px;
     padding-right: 1rem;
+}
+
+.stationContainer .legsInfo {
+    position: absolute;
+    top: 100%;
+    left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    z-index: 1;
 }
 
 .stationName {
@@ -262,7 +250,6 @@
     border: 1px solid var(--gray-alpha-200);
     border-radius: 0.5rem;
     width: 200px;
-    height: 5rem;
     box-sizing: border-box;
     position: relative;
 }
@@ -272,7 +259,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
     height: 100%;
     font-size: 0.9rem;
     width: 100%;
@@ -302,20 +288,24 @@
     transform: translateY(-50%);
     width: 1.5rem;
     height: 1.5rem;
+    transform-origin: center center;
+}
+
+.tripOption.expanded .expandIcon {
+    transform: translateY(-50%) rotate(180deg);
 }
 
 .tripDetails {
     overflow: hidden;
     opacity: 0;
     max-height: 0;
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s ease-in-out,
-                padding 0.3s ease-in-out,
-                margin 0.3s ease-in-out;
+    visibility: visible;
+    transition: all 0.3s ease-in-out;
     padding: 0 1.25rem;
     margin-top: 0;
     border-top: 1px solid var(--gray-alpha-200);
     background-color: var(--gray-alpha-100);
+    transform: translateY(-10px);
 }
 
 .tripDetails.visible {
@@ -323,43 +313,7 @@
     max-height: 2000px;
     padding: 1.25rem;
     margin-top: 1rem;
-}
-
-.tripOption.expanded .tripDetails {
-    max-height: 1000px;
-    opacity: 1;
-    margin-top: 1rem;
-}
-
-.tripOption.expanded .expandIcon {
-    transform: rotate(180deg);
-}
-
-/* Animation for the content */
-.tripDetails.visible {
-    animation: slideDown 0.3s ease-out forwards;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Hover state */
-.tripOption:hover {
-    background-color: var(--gray-alpha-100);
-}
-
-/* Focus state for accessibility */
-.tripOption:focus {
-    outline: 2px solid var(--foreground);
-    outline-offset: 2px;
+    transform: translateY(0);
 }
 
 .tripExtendedInfo {
@@ -417,6 +371,30 @@
     box-sizing: border-box;
 }
 
+.tripSummary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 2rem 3rem 2rem 2rem;
+    height: 10rem;
+    box-sizing: border-box;
+}
+
+.tripMainInfo {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    scroll-margin-top: var(--header-offset);
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+}
+
 @media (prefers-color-scheme: dark) {
     .page {
         --gray-rgb: 255, 255, 255;
@@ -430,6 +408,7 @@
 
 @media (max-width: 37.5rem) {
     .page {
+        --header-offset: 120px;
         padding: 0 0 1rem 0;
     }
 
@@ -459,4 +438,15 @@
         flex-direction: column;
         gap: 1rem;
     }
+}
+
+/* Hover state */
+.tripOption:hover {
+    background-color: var(--gray-alpha-100);
+}
+
+/* Focus state for accessibility */
+.tripOption:focus {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
 }

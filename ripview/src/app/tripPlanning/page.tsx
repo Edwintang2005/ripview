@@ -276,7 +276,35 @@ export default function Home() {
     };
 
     const handleTripClick = (tripIndex: number) => {
-        setExpandedTrip(expandedTrip === tripIndex ? null : tripIndex);
+        // If clicking the same trip, just close it
+        if (expandedTrip === tripIndex) {
+            setExpandedTrip(null);
+            return;
+        }
+
+        // First close the current tab
+        setExpandedTrip(null);
+
+        // Wait for close animation
+        setTimeout(() => {
+            const tripElement = document.getElementById(`trip-main-${tripIndex}`);
+            if (tripElement) {
+                // Get the computed header offset from CSS
+                const computedStyle = getComputedStyle(document.documentElement);
+                const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 170;
+                const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
+                
+                window.scrollTo({
+                    top: elementPosition - headerOffset,
+                    behavior: 'smooth'
+                });
+
+                // Wait for scroll to complete before opening new tab
+                setTimeout(() => {
+                    setExpandedTrip(tripIndex);
+                });
+            }
+        }, 300);
     };
 
     return (
@@ -306,6 +334,7 @@ export default function Home() {
                         return (
                             <div
                                 key={tripIndex}
+                                id={`trip-${tripIndex}`}
                                 className={`${styles.tripOption} ${expandedTrip === tripIndex ? styles.expanded : ''}`}
                                 onClick={() => handleTripClick(tripIndex)}
                                 role="button"
@@ -317,7 +346,10 @@ export default function Home() {
                                 }}
                             >
                                 <div className={styles.tripSummary}>
-                                    <div className={styles.tripMainInfo}>
+                                    <div 
+                                        id={`trip-main-${tripIndex}`}
+                                        className={styles.tripMainInfo}
+                                    >
                                         <div className={styles.stationContainer}>
                                             <div className={styles.stationName}>
                                                 {formatStationName(firstDepartureInfo?.[0])}
@@ -325,6 +357,11 @@ export default function Home() {
                                             <div className={styles.stationTime}>
                                                 {formatTimeWithoutSeconds(firstDepartureInfo?.[1].trim().split(', ')[1] || 'N/A')}
                                             </div>
+                                            {hasMultipleLegs(trip) && (
+                                                <div className={styles.legsInfo}>
+                                                    {getNumberOfLegs(trip) - 1} train line change{getNumberOfLegs(trip) - 1 > 1 ? 's' : ''}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className={styles.rightSection}>
@@ -345,11 +382,6 @@ export default function Home() {
                                                             {timeUntil && (
                                                                 <div className={styles.timeUntilDeparture}>
                                                                     Departs in: {timeUntil}
-                                                                </div>
-                                                            )}
-                                                            {hasMultipleLegs(trip) && (
-                                                                <div className={styles.legsInfo}>
-                                                                    {getNumberOfLegs(trip) - 1} train line change{getNumberOfLegs(trip) - 1 > 1 ? 's' : ''}
                                                                 </div>
                                                             )}
                                                         </>
