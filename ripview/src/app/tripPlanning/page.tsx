@@ -13,6 +13,7 @@ import BackButton from '@/components/BackButton';
 
 export default function Home() {
     const [jsonData, setjsonData] = useState([['Loading...']]);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const searchParams = useSearchParams();
     const fromStation = searchParams.get('fromStations');
     const toStation = searchParams.get('toStations');
@@ -39,23 +40,17 @@ export default function Home() {
         return () => window.removeEventListener('pageshow', handlePageShow);
     }, []);
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 60000); // Update every minute
+
+        return () => clearInterval(timer);
+    }, []);
+
     // Format the datetime for display
     const formatDateTime = (dateTimeStr: string) => {
         const dt = new Date(dateTimeStr);
-        console.log('Formatting datetime:', {
-            input: dateTimeStr,
-            parsed: dt,
-            formatted: dt.toLocaleString('en-AU', {
-                day: 'numeric',
-                month: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-                timeZone: 'Australia/Sydney'
-            })
-        });
-
         return dt.toLocaleString('en-AU', {
             day: 'numeric',
             month: 'numeric',
@@ -69,9 +64,13 @@ export default function Home() {
 
     // Get time preference text
     const getTimePreferenceText = () => {
-        if (!time) return 'Current time';
-        const searchTime = new Date(time);
-        return `${timePreference === 'current' ? 'Current time' : 'Specific time'} (${searchTime.getHours().toString().padStart(2, '0')}:${searchTime.getMinutes().toString().padStart(2, '0')})`;
+        if (!time) return '';
+        if (timePreference === 'current') {
+            return `Showing trips from current time (${formatDateTime(currentTime.toISOString())})`;
+        } else {
+            const formattedTime = formatDateTime(time);
+            return `Showing trips ${isArr ? 'arriving by' : 'departing at'} ${formattedTime}`;
+        }
     };
 
     const getCurrentDateTime = () => {
@@ -83,52 +82,94 @@ export default function Home() {
     const date = dtime.split('T')[0].replaceAll('-', '');
     const timeValue = dtime.split('T')[1].replace(':', '');
 
-    useEffect(() => {
-        async function fetchPosts() {
-            const tripData = {
-                fromStation: fromStation as string,
-                toStation: toStation as string,
-                isArr: isArr as boolean,
-                date: date,
-                time: timeValue
-            };
-            let data = await FetchtripData(tripData);
+    // Filter trips based on time preference
+    const filterTrips = (trips: string[][]) => {
+        if (!time || !isArr) return trips;
 
-            // Add filtering for "Arrive by" trips
-            if (isArr && data && data.length > 0) {
-                const requestedDateTime = new Date(time!);
+        // For "arrive by" searches, filter out trips that arrive after the specified time
+        if (isArr) {
+            try {
+                let targetDateTime: Date;
 
-                data = data.filter(trip => {
-                    const arrivalInfo = trip.find(info => info.includes('Arriving at'));
-                    if (arrivalInfo) {
-                        const timeStr = arrivalInfo.split('Arriving at')[1].trim();
-                        const [datePart, timePart] = timeStr.split(', ');
-                        const [day, month, year] = datePart.split('/');
-                        const [hours, minutes] = timePart.split(':');
+                if (time.includes('T')) {
+                    targetDateTime = new Date(time);
+                } else {
+                    const [datePart, timePart] = time.split(', ');
+                    if (!datePart || !timePart) return trips;
 
-                        // Create Date object for arrival time
-                        const arrivalDateTime = new Date(
-                            parseInt(year),
-                            parseInt(month) - 1, // Months are 0-based
-                            parseInt(day),
-                            parseInt(hours),
-                            parseInt(minutes)
-                        );
+                    const [day, month, year] = datePart.split('/').map(Number);
+                    const [hour, minute] = timePart.split(':').map(Number);
+                    targetDateTime = new Date(year, month - 1, day, hour, minute);
+                }
 
-                        return arrivalDateTime <= requestedDateTime;
-                    }
-                    return false;
+                if (isNaN(targetDateTime.getTime())) return trips;
+
+                const now = new Date();
+                const filteredTrips = trips.filter(trip => {
+                    const departureInfo = trip.find(info => info.startsWith('From:'));
+                    if (!departureInfo) return false;
+
+                    const depTimeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                    if (!depTimeMatch) return false;
+
+                    const depTimeStr = depTimeMatch[1];
+                    const [depDatePart, depTimePart] = depTimeStr.split(', ');
+                    if (!depDatePart || !depTimePart) return false;
+
+                    const [depDay, depMonth, depYear] = depDatePart.split('/').map(Number);
+                    const [depHour, depMinute] = depTimePart.split(':').map(Number);
+                    const departureTime = new Date(depYear, depMonth - 1, depDay, depHour, depMinute);
+
+                    if (departureTime <= now) return false;
+
+                    const arrivalInfo = trip.find(info => info.startsWith('To:'));
+                    if (!arrivalInfo) return false;
+
+                    const timeMatch = arrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                    if (!timeMatch) return false;
+
+                    const timeStr = timeMatch[1];
+                    const [arrDatePart, arrTimePart] = timeStr.split(', ');
+                    if (!arrDatePart || !arrTimePart) return false;
+
+                    const [arrDay, arrMonth, arrYear] = arrDatePart.split('/').map(Number);
+                    const [arrHour, arrMinute] = arrTimePart.split(':').map(Number);
+                    const arrivalDateTime = new Date(arrYear, arrMonth - 1, arrDay, arrHour, arrMinute);
+                    
+                    return !isNaN(arrivalDateTime.getTime()) && arrivalDateTime <= targetDateTime;
                 });
 
-                if (data.length === 0) {
-                    data = [['No trips found that arrive before or at your requested time.']];
+                if (filteredTrips.length === 0) {
+                    return [['No trips found that arrive before or at your requested time.']];
+                }
+                return filteredTrips;
+            } catch {
+                return trips;
+            }
+        }
+        return trips;
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (fromStation && toStation && time) {
+                try {
+                    setjsonData([['Loading...']]);
+                    const data = await FetchtripData({
+                        fromStation,
+                        toStation,
+                        isArr: isArr || false,
+                        date,
+                        time: timeValue
+                    });
+                    setjsonData(filterTrips(data));
+                } catch (error) {
+                    setjsonData([['Error fetching trip data']]);
                 }
             }
-
-            setjsonData(data);
-        }
-        fetchPosts();
-    }, [fromStation, toStation, isArr, date, time, timeValue]);
+        };
+        fetchData();
+    }, [fromStation, toStation, time, isArr, date, timeValue]);
 
     // Function to check if the trip has multiple legs
     const hasMultipleLegs = (trip: string[]) => {
@@ -146,58 +187,58 @@ export default function Home() {
         const match = fullName.match(/(?:From: |To: )?([^,]+?)(?:\s+Station)?(?:,\s*Platform\s*(\d+))/i);
         if (match) {
             const [_, station, platform] = match;
-            return `${station}, Platform ${platform}`;
+            return `${station}${platform ? `, Platform ${platform}` : ''}`;
         }
         return fullName.replace(/^(?:From:|To:)\s*/, '').trim();
-    };
-
-    // Function to format the trip information
-    const formatTripInfo = (info: string) => {
-        if (info.startsWith('From:')) {
-            const [location, time] = info.split('Departing at:');
-            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
-            return (
-                <>
-                    <div>{formatStationName(location)}</div>
-                    <div className={styles.timeInfo}>
-                        {formattedTime}
-                    </div>
-                </>
-            );
-        }
-        if (info.startsWith('To:')) {
-            const [location, time] = info.split('Arriving at');
-            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
-            return (
-                <>
-                    <div>{formatStationName(location)}</div>
-                    <div className={styles.timeInfo}>
-                        {formattedTime}
-                    </div>
-                </>
-            );
-        }
-        if (info.startsWith('Duration:')) {
-            return (
-                <>
-                    <div>{info}</div>
-                </>
-            );
-        }
-        if (info.startsWith('On:')) {
-            return (
-                <div className={styles.trainLine}>
-                    {info.replace('On: Sydney Trains Network', '').trim()}
-                </div>
-            );
-        }
-        return null;
     };
 
     // Function to extract train line info
     const extractTrainLine = (info: string) => {
         const match = info.match(/Sydney Trains Network\s+(.+)/);
         return match ? match[1] : info;
+    };
+
+    // Function to get train line color
+    const getTrainLineColor = (trainLine: string) => {
+        const color = Object.entries(trainLineColours).find(([key]) =>
+            trainLine.includes(key)
+        );
+        return color ? color[1] : '#6f818d';
+    };
+
+    const handleTripClick = (tripIndex: number) => {
+        // If clicking the same trip, just close it
+        if (expandedTrip === tripIndex) {
+            setExpandedTrip(null);
+            return;
+        }
+
+        // First close the current tab and immediately open the new one
+        setExpandedTrip(null);
+        setTimeout(() => {
+            setExpandedTrip(tripIndex);
+            
+            // After opening, scroll to the new position
+            setTimeout(() => {
+                const tripElement = document.getElementById(`trip-main-${tripIndex}`);
+                if (tripElement) {
+                    const computedStyle = getComputedStyle(document.documentElement);
+                    const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 200;
+                    const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({
+                        top: elementPosition - headerOffset,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }, 300);
+    };
+
+    // Function to format time without seconds
+    const formatTimeWithoutSeconds = (timeStr: string) => {
+        if (!timeStr) return 'N/A';
+        const [hours, minutes] = timeStr.split(':');
+        return `${hours}:${minutes}`;
     };
 
     // Function to calculate total duration from multiple legs
@@ -225,19 +266,47 @@ export default function Home() {
         return `${hours}h ${remainingMinutes}m`;
     };
 
-    // Function to format time without seconds
-    const formatTimeWithoutSeconds = (timeStr: string) => {
-        if (!timeStr) return 'N/A';
-        const [hours, minutes] = timeStr.split(':');
-        return `${hours}:${minutes}`;
-    };
-
-    // Function to get train line color
-    const getTrainLineColor = (trainLine: string) => {
-        const color = Object.entries(trainLineColours).find(([key]) =>
-            trainLine.includes(key)
-        );
-        return color ? color[1] : '#6f818d';
+    // Function to format trip information
+    const formatTripInfo = (info: string) => {
+        if (info.startsWith('From:')) {
+            const [location, time] = info.split('Departing at:');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
+        }
+        if (info.startsWith('To:')) {
+            const [location, time] = info.split('Arriving at');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
+        }
+        if (info.startsWith('Duration:')) {
+            return (
+                <>
+                    <div>{info}</div>
+                </>
+            );
+        }
+        if (info.startsWith('On:')) {
+            return (
+                <div className={styles.trainLine}>
+                    {info.replace('On: Sydney Trains Network', '').trim()}
+                </div>
+            );
+        }
+        return null;
     };
 
     const calculateTimeUntilDeparture = (departureTimeStr: string) => {
@@ -246,26 +315,36 @@ export default function Home() {
         const [datePart, timePart] = departureTimeStr.trim().split(', ');
         if (!datePart || !timePart) return null;
 
-        // Extract just the time parts
-        const departureTimeParts = timePart.split(':');
-        const searchTime = new Date(time);
-        
-        // Create new dates with today's date but with the respective times
-        const today = new Date();
-        const departureTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
-            parseInt(departureTimeParts[0]), 
-            parseInt(departureTimeParts[1])
+        // Parse the full departure date and time
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        const departureTime = new Date(
+            year,
+            month - 1,
+            day,
+            hours,
+            minutes
         );
-        const searchTimeToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(),
-            searchTime.getHours(),
-            searchTime.getMinutes()
-        );
+
+        // Get current time
+        const now = new Date();
         
         // Calculate difference in minutes
-        const diffMs = departureTime.getTime() - searchTimeToday.getTime();
-        if (diffMs < 0) return null;
+        const diffMs = departureTime.getTime() - now.getTime();
+        const diffMins = Math.ceil(diffMs / (1000 * 60));
+
+        // If departure time is in the past
+        if (diffMins < 0) {
+            const minsAgo = Math.abs(diffMins);
+            if (minsAgo < 60) {
+                return `Departed ${minsAgo}m ago`;
+            } else {
+                const hours = Math.floor(minsAgo / 60);
+                const mins = minsAgo % 60;
+                return `Departed ${hours}h ${mins}m ago`;
+            }
+        }
         
-        const diffMins = Math.floor(diffMs / (1000 * 60));
         if (diffMins < 60) {
             return `${diffMins}m`;
         } else {
@@ -275,35 +354,45 @@ export default function Home() {
         }
     };
 
-    const handleTripClick = (tripIndex: number) => {
-        // If clicking the same trip, just close it
-        if (expandedTrip === tripIndex) {
-            setExpandedTrip(null);
-            return;
-        }
+    const calculateArrivalDifference = (actualArrivalStr: string, targetArrivalStr: string) => {
+        if (!actualArrivalStr || !targetArrivalStr) return null;
 
-        // First close the current tab and immediately open the new one
-        setExpandedTrip(null);
-        
-        setTimeout(() => {
-            setExpandedTrip(tripIndex);
-            
-            // After opening, scroll to the new position
-            setTimeout(() => {
-                const tripElement = document.getElementById(`trip-main-${tripIndex}`);
-                if (tripElement) {
-                    // Get the computed header offset from CSS
-                    const computedStyle = getComputedStyle(document.documentElement);
-                    const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 170;
-                    const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
-                    
-                    window.scrollTo({
-                        top: elementPosition - headerOffset,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 150); // Small delay to let the new tab start opening
-        }, 500);
+        try {
+            let targetDate: Date;
+            if (targetArrivalStr.includes('T')) {
+                targetDate = new Date(targetArrivalStr);
+            } else {
+                const [datePart, timePart] = targetArrivalStr.trim().split(', ');
+                if (!datePart || !timePart) return null;
+                const [day, month, year] = datePart.split('/').map(Number);
+                const [hours, minutes] = timePart.split(':').map(Number);
+                targetDate = new Date(year, month - 1, day, hours, minutes);
+            }
+
+            const [actualDatePart, actualTimePart] = actualArrivalStr.trim().split(', ');
+            if (!actualDatePart || !actualTimePart) return null;
+            const [actualDay, actualMonth, actualYear] = actualDatePart.split('/').map(Number);
+            const [actualHours, actualMinutes] = actualTimePart.split(':').map(Number);
+            const actualDate = new Date(actualYear, actualMonth - 1, actualDay, actualHours, actualMinutes);
+
+            const diffMs = targetDate.getTime() - actualDate.getTime();
+            const diffMins = Math.round(diffMs / (1000 * 60));
+
+            return diffMins;
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const formatTimeDifference = (diffMins: number) => {
+        const absDiff = Math.abs(diffMins);
+        if (absDiff < 60) {
+            return `${absDiff}m`;
+        } else {
+            const hours = Math.floor(absDiff / 60);
+            const mins = absDiff % 60;
+            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
     };
 
     return (
@@ -312,9 +401,12 @@ export default function Home() {
             <main className={styles.main}>
                 <BackButton />
                 <div className={styles.tripContent}>
-                    <h1 className={styles.pageTitle}>
-                        Trip From {fromName} to {toName}!
-                    </h1>
+                    <div className={styles.tripHeading}>
+                        <h1 className={styles.pageTitle}>
+                            Trip From {fromName} to {toName}!
+                        </h1>
+                        <p className={styles.timePreferenceText}>{getTimePreferenceText()}</p>
+                    </div>
                     <div className={styles.tripDetails}>
                         <p>Showing trips for: {getTimePreferenceText()}</p>
                     </div>
@@ -354,7 +446,7 @@ export default function Home() {
                                                 {formatStationName(firstDepartureInfo?.[0])}
                                             </div>
                                             <div className={styles.stationTime}>
-                                                {formatTimeWithoutSeconds(firstDepartureInfo?.[1].trim().split(', ')[1] || 'N/A')}
+                                                Departs at {formatTimeWithoutSeconds(firstDepartureInfo?.[1].trim().split(', ')[1] || 'N/A')}
                                             </div>
                                             {hasMultipleLegs(trip) && (
                                                 <div className={styles.legsInfo}>
@@ -369,10 +461,33 @@ export default function Home() {
                                                 {formatStationName(lastArrivalInfo?.[0])}
                                             </div>
                                             <div className={styles.stationTime}>
-                                                {formatTimeWithoutSeconds(lastArrivalInfo?.[1].trim().split(', ')[1] || 'N/A')}
+                                                Arrives at {formatTimeWithoutSeconds(lastArrivalInfo?.[1]?.trim().split(', ')[1] || 'N/A')}
+                                                {isArr && lastArrivalInfo?.[1] && time && (() => {
+                                                    const arrivalTime = lastArrivalInfo[1];
+                                                    if (!arrivalTime) return null;
+                                                    
+                                                    const diffMins = calculateArrivalDifference(arrivalTime, time);
+                                                    if (diffMins !== null) {
+                                                        return (
+                                                            <div className={styles.arrivalDifference}>
+                                                                ({diffMins > 0 ? `${formatTimeDifference(diffMins)} before` : `${formatTimeDifference(Math.abs(diffMins))} after`} requested time)
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
                                             </div>
                                         </div>
-                                        <div className={styles.tripStatusSection}>
+                                        <div className={`${styles.tripStatusSection} ${
+                                            firstDepartureInfo?.[1] ? (() => {
+                                                const [datePart, timePart] = firstDepartureInfo[1].trim().split(', ');
+                                                if (!datePart || !timePart) return styles.tripStatusUpcoming;
+                                                const [day, month, year] = datePart.split('/').map(Number);
+                                                const [hours, minutes] = timePart.split(':').map(Number);
+                                                const departureTime = new Date(year, month - 1, day, hours, minutes);
+                                                return departureTime < new Date() ? styles.tripStatusDeparted : styles.tripStatusUpcoming;
+                                            })() : styles.tripStatusUpcoming
+                                        }`}>
                                             <div className={styles.tripInfoBox}>
                                                 {(() => {
                                                     const timeUntil = firstDepartureInfo?.[1] ? calculateTimeUntilDeparture(firstDepartureInfo[1]) : null;
@@ -380,7 +495,7 @@ export default function Home() {
                                                         <>
                                                             {timeUntil && (
                                                                 <div className={styles.timeUntilDeparture}>
-                                                                    Departs in: {timeUntil}
+                                                                    {timeUntil}
                                                                 </div>
                                                             )}
                                                         </>
