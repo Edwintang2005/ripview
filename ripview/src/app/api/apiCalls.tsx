@@ -106,11 +106,22 @@ function tripResponseToJson(res: TripRequestResponse): string[][] {
                 const arrivalTimeUTC = dest?.arrivalTimePlanned;
                 const arrivalTimeAET = arrivalTimeUTC ? convertToEasternTime(arrivalTimeUTC) : 'Unknown time';
 
-                // Convert duration from seconds to hours and minutes
-                const durationSeconds = leg.duration || 0;
-                const hours = Math.floor(durationSeconds / 3600);
-                const minutes = Math.floor((durationSeconds % 3600) / 60);
-                const formattedDuration = `${hours > 0 ? `${hours} hours ` : ''}${minutes} minutes`;
+                // Calculate duration from departure and arrival times
+                let formattedDuration = 'Unknown duration';
+                if (departureTimeUTC && arrivalTimeUTC) {
+                    const departureTime = new Date(departureTimeUTC);
+                    const arrivalTime = new Date(arrivalTimeUTC);
+                    
+                    // Truncate seconds for both times so that there are no issues with calculating the duration such as rounding issues
+                    departureTime.setSeconds(0);
+                    arrivalTime.setSeconds(0);
+                    
+                    // Calculate the duration in minutes and hours and using Math.floor to ensure that there are no issues with rounding
+                    const durationMinutes = Math.floor((arrivalTime.getTime() - departureTime.getTime()) / (1000 * 60));
+                    const hours = Math.floor(durationMinutes / 60);
+                    const minutes = durationMinutes % 60;
+                    formattedDuration = `${hours > 0 ? `${hours} hours ` : ''}${minutes} minutes`;
+                }
 
                 // Convert the object to an array of strings so that it can be displayed with <li> tags
                 journeyDetails.push(
