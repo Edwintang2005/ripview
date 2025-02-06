@@ -69,13 +69,9 @@ export default function Home() {
 
     // Get time preference text
     const getTimePreferenceText = () => {
-        if (timePreference === 'current') {
-            return 'Current time';
-        } else {
-            return isArr
-                ? `Arrive by ${formatDateTime(time!)}`
-                : `Depart at ${formatDateTime(time!)}`;
-        }
+        if (!time) return 'Current time';
+        const searchTime = new Date(time);
+        return `${timePreference === 'current' ? 'Current time' : 'Specific time'} (${searchTime.getHours().toString().padStart(2, '0')}:${searchTime.getMinutes().toString().padStart(2, '0')})`;
     };
 
     const getCurrentDateTime = () => {
@@ -144,41 +140,42 @@ export default function Home() {
         return trip.filter((info) => info.startsWith('From:')).length;
     };
 
+    // Function to format station name consistently
+    const formatStationName = (fullName: string | undefined) => {
+        if (!fullName) return '';
+        const match = fullName.match(/(?:From: |To: )?([^,]+?)(?:\s+Station)?(?:,\s*Platform\s*(\d+))/i);
+        if (match) {
+            const [_, station, platform] = match;
+            return `${station}, Platform ${platform}`;
+        }
+        return fullName.replace(/^(?:From:|To:)\s*/, '').trim();
+    };
+
     // Function to format the trip information
     const formatTripInfo = (info: string) => {
         if (info.startsWith('From:')) {
             const [location, time] = info.split('Departing at:');
             const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
-            // Extract just the station name and platform
-            const match = location.match(/From: (.*?), Platform (\d+)/);
-            if (match) {
-                const [_, station, platform] = match;
-                return (
-                    <>
-                        <div>{`${station}, Platform ${platform}`}</div>
-                        <div className={styles.timeInfo}>
-                            {formattedTime}
-                        </div>
-                    </>
-                );
-            }
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
         }
         if (info.startsWith('To:')) {
             const [location, time] = info.split('Arriving at');
             const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, ''); // Removes seconds
-            // Extract just the station name and platform
-            const match = location.match(/To: (.*?), Platform (\d+)/);
-            if (match) {
-                const [_, station, platform] = match;
-                return (
-                    <>
-                        <div>{`${station}, Platform ${platform}`}</div>
-                        <div className={styles.timeInfo}>
-                            {formattedTime}
-                        </div>
-                    </>
-                );
-            }
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
         }
         if (info.startsWith('Duration:')) {
             return (
@@ -243,6 +240,41 @@ export default function Home() {
         return color ? color[1] : '#6f818d';
     };
 
+    const calculateTimeUntilDeparture = (departureTimeStr: string) => {
+        if (!departureTimeStr || !time) return null;
+        
+        const [datePart, timePart] = departureTimeStr.trim().split(', ');
+        if (!datePart || !timePart) return null;
+
+        // Extract just the time parts
+        const departureTimeParts = timePart.split(':');
+        const searchTime = new Date(time);
+        
+        // Create new dates with today's date but with the respective times
+        const today = new Date();
+        const departureTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
+            parseInt(departureTimeParts[0]), 
+            parseInt(departureTimeParts[1])
+        );
+        const searchTimeToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(),
+            searchTime.getHours(),
+            searchTime.getMinutes()
+        );
+        
+        // Calculate difference in minutes
+        const diffMs = departureTime.getTime() - searchTimeToday.getTime();
+        if (diffMs < 0) return null;
+        
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        if (diffMins < 60) {
+            return `${diffMins}m`;
+        } else {
+            const hours = Math.floor(diffMins / 60);
+            const mins = diffMins % 60;
+            return `${hours}h ${mins}m`;
+        }
+    };
+
     const handleTripClick = (tripIndex: number) => {
         setExpandedTrip(expandedTrip === tripIndex ? null : tripIndex);
     };
@@ -261,8 +293,13 @@ export default function Home() {
                     </div>
                     {jsonData.map((trip, tripIndex) => {
                         // Extract departure and arrival info
-                        const departureInfo = trip.find(info => info.startsWith('From:'))?.split('Departing at:');
-                        const arrivalInfo = trip.find(info => info.startsWith('To:'))?.split('Arriving at');
+                        const departureInfos = trip.filter(info => info.startsWith('From:'));
+                        const arrivalInfos = trip.filter(info => info.startsWith('To:'));
+                        
+                        // Get the first departure and last arrival for multi-leg journeys
+                        const firstDepartureInfo = departureInfos[0]?.split('Departing at:');
+                        const lastArrivalInfo = arrivalInfos[arrivalInfos.length - 1]?.split('Arriving at');
+                        
                         const transportInfo = trip.find(info => info.startsWith('On:'))?.replace('On: ', '');
                         const durationInfo = trip.find(info => info.startsWith('Duration:'))?.replace('Duration: ', '');
 
@@ -283,28 +320,46 @@ export default function Home() {
                                     <div className={styles.tripMainInfo}>
                                         <div className={styles.stationContainer}>
                                             <div className={styles.stationName}>
-                                                {departureInfo?.[0].replace('From:', '').trim()}
+                                                {formatStationName(firstDepartureInfo?.[0])}
                                             </div>
                                             <div className={styles.stationTime}>
-                                                {formatTimeWithoutSeconds(departureInfo?.[1].trim().split(', ')[1] || 'N/A')}
-                                            </div>
-                                        </div>
-                                        <div className={`${styles.stationContainer} ${styles.right}`}>
-                                            <div className={styles.stationName}>
-                                                {arrivalInfo?.[0].replace('To:', '').trim()}
-                                            </div>
-                                            <div className={styles.stationTime}>
-                                                {formatTimeWithoutSeconds(arrivalInfo?.[1].trim().split(', ')[1] || 'N/A')}
+                                                {formatTimeWithoutSeconds(firstDepartureInfo?.[1].trim().split(', ')[1] || 'N/A')}
                                             </div>
                                         </div>
                                     </div>
-                                    {hasMultipleLegs(trip) && (
-                                        <div className={styles.legsInfo}>
-                                            {getNumberOfLegs(trip) - 1} change{getNumberOfLegs(trip) - 1 > 1 ? 's' : ''}
+                                    <div className={styles.rightSection}>
+                                        <div className={`${styles.stationContainer} ${styles.right}`}>
+                                            <div className={styles.stationName}>
+                                                {formatStationName(lastArrivalInfo?.[0])}
+                                            </div>
+                                            <div className={styles.stationTime}>
+                                                {formatTimeWithoutSeconds(lastArrivalInfo?.[1].trim().split(', ')[1] || 'N/A')}
+                                            </div>
                                         </div>
-                                    )}
-                                    <div className={styles.expandIcon}>
-                                        {expandedTrip === tripIndex ? '▼' : '▶'}
+                                        <div className={styles.tripStatusSection}>
+                                            <div className={styles.tripInfoBox}>
+                                                {(() => {
+                                                    const timeUntil = firstDepartureInfo?.[1] ? calculateTimeUntilDeparture(firstDepartureInfo[1]) : null;
+                                                    return (
+                                                        <>
+                                                            {timeUntil && (
+                                                                <div className={styles.timeUntilDeparture}>
+                                                                    Departs in: {timeUntil}
+                                                                </div>
+                                                            )}
+                                                            {hasMultipleLegs(trip) && (
+                                                                <div className={styles.legsInfo}>
+                                                                    {getNumberOfLegs(trip) - 1} train line change{getNumberOfLegs(trip) - 1 > 1 ? 's' : ''}
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <div className={styles.expandIcon}>
+                                                ▼
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={`${styles.tripDetails} ${expandedTrip === tripIndex ? styles.visible : ''}`}>
