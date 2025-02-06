@@ -282,29 +282,28 @@ export default function Home() {
             return;
         }
 
-        // First close the current tab
+        // First close the current tab and immediately open the new one
         setExpandedTrip(null);
-
-        // Wait for close animation
+        
         setTimeout(() => {
-            const tripElement = document.getElementById(`trip-main-${tripIndex}`);
-            if (tripElement) {
-                // Get the computed header offset from CSS
-                const computedStyle = getComputedStyle(document.documentElement);
-                const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 170;
-                const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
-                
-                window.scrollTo({
-                    top: elementPosition - headerOffset,
-                    behavior: 'smooth'
-                });
-
-                // Wait for scroll to complete before opening new tab
-                setTimeout(() => {
-                    setExpandedTrip(tripIndex);
-                });
-            }
-        }, 300);
+            setExpandedTrip(tripIndex);
+            
+            // After opening, scroll to the new position
+            setTimeout(() => {
+                const tripElement = document.getElementById(`trip-main-${tripIndex}`);
+                if (tripElement) {
+                    // Get the computed header offset from CSS
+                    const computedStyle = getComputedStyle(document.documentElement);
+                    const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 170;
+                    const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
+                    
+                    window.scrollTo({
+                        top: elementPosition - headerOffset,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 150); // Small delay to let the new tab start opening
+        }, 500);
     };
 
     return (
