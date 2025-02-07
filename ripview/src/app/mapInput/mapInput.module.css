@@ -5,21 +5,29 @@
 
     --button-primary-hover: #383838;
     --button-secondary-hover: #f2f2f2;
-
+    top: 0;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    align-items: center;
+    align-items: start;
     justify-items: center;
     min-height: 100svh;
+    padding: 0 0 2rem 0;
     gap: 4rem;
     font-family: var(--font-geist-sans);
 }
 
-.mapDiv {
-    grid-row-start: 2;
-    background-color: black;
+.main {
+    display: flex;
+    flex-direction: column;
+    /* gap: 2rem; */
+    width: 100%;
+    max-width: 75rem;
+    padding: 1rem 2rem 0 2rem;
     pointer-events: all;
-    margin: auto;
+}
+
+.map {
+    /* margin: auto; */
     width: 100%;
     font-family: var(--font-geist-sans);
 }

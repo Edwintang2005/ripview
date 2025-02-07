@@ -3,9 +3,10 @@ import { ReactNode } from 'react';
 import type { Viewport } from 'next';
 
 export const viewport: Viewport = {
+    width: 'device-width',
     userScalable: true,
     initialScale: 1,
-    viewportFit: "contain"
+    viewportFit: "cover"
 };
 
 export default function TripPlanningLayout({

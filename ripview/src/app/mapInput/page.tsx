@@ -53,11 +53,11 @@ export default function MapInput() {
     return (
         <div className={styles.page}>
             <Header text='Home' link='/'/>
-            <div className={styles.mapDiv}>
-                <MySVG
+            <main className={styles.main}>
+                <MySVG className={styles.map}
                     onClick={handleSVGClick}
                 />
-            </div>
+            </main>
         </div>
     );
 }
