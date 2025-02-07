@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
 import { getStationNameFromId } from '@/utils/getData';
@@ -14,6 +14,8 @@ import BackButton from '@/components/BackButton';
 export default function Home() {
     const [jsonData, setjsonData] = useState([['Loading...']]);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [recentDepartedTrip, setRecentDepartedTrip] = useState<string[] | null>(null);
+    const [nextTripIndex, setNextTripIndex] = useState<number | null>(null);
     const searchParams = useSearchParams();
     const fromStation = searchParams.get('fromStations');
     const toStation = searchParams.get('toStations');
@@ -24,6 +26,9 @@ export default function Home() {
     const fromName = getStationNameFromId(fromStation as string);
     const toName = getStationNameFromId(toStation as string);
     const [expandedTrip, setExpandedTrip] = useState<number | null>(null);
+
+    const nextTripRef = useRef<HTMLDivElement>(null);
+    const initialScrollDone = useRef(false);
 
     useEffect(() => {
         // Set current page
@@ -42,11 +47,34 @@ export default function Home() {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCurrentTime(new Date());
+            const now = new Date();
+            setCurrentTime(now);
+            
+            // Find the next upcoming trip based on current time
+            if (jsonData.length > 0 && jsonData[0]?.[0] !== 'Loading...') {
+                const nextIndex = jsonData.findIndex(trip => {
+                    const departureInfo = trip.find(info => info.startsWith('From:'));
+                    if (!departureInfo) return false;
+                    const timeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                    if (!timeMatch) return false;
+                    
+                    // Parse date components
+                    const [datePart, timePart] = timeMatch[1].split(', ');
+                    const [day, month, year] = datePart.split('/').map(Number);
+                    const [hours, minutes] = timePart.split(':').map(Number);
+                    
+                    // Create date with correct components
+                    const departureTime = new Date(year, month - 1, day, hours, minutes);
+                    
+                    return departureTime.getTime() > now.getTime();
+                });
+
+                setNextTripIndex(nextIndex >= 0 ? nextIndex : null);
+            }
         }, 60000); // Update every minute
 
         return () => clearInterval(timer);
-    }, []);
+    }, [jsonData]);
 
     // Format the datetime for display
     const formatDateTime = (dateTimeStr: string) => {
@@ -109,10 +137,9 @@ export default function Home() {
                     const departureInfo = trip.find(info => info.startsWith('From:'));
                     if (!departureInfo) return false;
 
-                    const depTimeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-                    if (!depTimeMatch) return false;
-
-                    const depTimeStr = depTimeMatch[1];
+                    const timeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                    if (!timeMatch) return false;
+                    const depTimeStr = timeMatch[1];
                     const [depDatePart, depTimePart] = depTimeStr.split(', ');
                     if (!depDatePart || !depTimePart) return false;
 
@@ -125,11 +152,11 @@ export default function Home() {
                     const arrivalInfo = trip.find(info => info.startsWith('To:'));
                     if (!arrivalInfo) return false;
 
-                    const timeMatch = arrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-                    if (!timeMatch) return false;
+                    const timeMatchArr = arrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                    if (!timeMatchArr) return false;
 
-                    const timeStr = timeMatch[1];
-                    const [arrDatePart, arrTimePart] = timeStr.split(', ');
+                    const timeStrArr = timeMatchArr[1];
+                    const [arrDatePart, arrTimePart] = timeStrArr.split(', ');
                     if (!arrDatePart || !arrTimePart) return false;
 
                     const [arrDay, arrMonth, arrYear] = arrDatePart.split('/').map(Number);
@@ -162,14 +189,124 @@ export default function Home() {
                         date,
                         time: timeValue
                     });
-                    setjsonData(filterTrips(data));
+
+                    // Separate future and past trips
+                    const now = new Date();
+                    const futureTrips = [];
+                    let mostRecentDepartedTrip = null;
+                    let mostRecentDepartureTime = null;
+
+                    // Create a Set to track unique trip times
+                    const seenTripTimes = new Set();
+
+                    // Create a function to parse departure time
+                    const parseDepartureTime = (trip: string[]) => {
+                        const departureInfo = trip.find((i: string) => i.startsWith('From:'));
+                        if (!departureInfo) return null;
+                        const timeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                        if (!timeMatch) return null;
+                        const [datePart, timePart] = timeMatch[1].split(', ');
+                        const [day, month, year] = datePart.split('/').map(Number);
+                        const [hours, minutes] = timePart.split(':').map(Number);
+                        return new Date(year, month - 1, day, hours, minutes);
+                    };
+
+                    for (const trip of data) {
+                        const departureInfo = trip.find(info => info.startsWith('From:'));
+                        if (!departureInfo) continue;
+
+                        const timeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                        if (!timeMatch) continue;
+
+                        const departureTimeStr = timeMatch[1];
+                        // Skip if we've already seen this departure time
+                        if (seenTripTimes.has(departureTimeStr)) continue;
+                        seenTripTimes.add(departureTimeStr);
+
+                        const departureTime = new Date(departureTimeStr.replace(/, /, ' '));
+
+                        if (departureTime > now) {
+                            futureTrips.push(trip);
+                        } else if (!mostRecentDepartureTime || departureTime > mostRecentDepartureTime) {
+                            mostRecentDepartedTrip = trip;
+                            mostRecentDepartureTime = departureTime;
+                        }
+                    }
+
+                    // Sort future trips by departure time
+                    futureTrips.sort((a: string[], b: string[]) => {
+                        const timeA = parseDepartureTime(a);
+                        const timeB = parseDepartureTime(b);
+                        if (!timeA || !timeB) return 0;
+                        return timeA.getTime() - timeB.getTime();
+                    });
+
+                    // Find index of first upcoming trip
+                    const currentNow = new Date();
+                    // Log all trips and their departure times
+                    futureTrips.forEach((trip, index) => {
+                        const departureTime = parseDepartureTime(trip);
+                        if (departureTime) {
+                            const timeDiff = departureTime.getTime() - currentNow.getTime();
+                            const minutesDiff = Math.floor(timeDiff / (1000 * 60));
+                        }
+                    });
+
+                    const nextUpcomingIndex = futureTrips.findIndex(trip => {
+                        const departureTime = parseDepartureTime(trip);
+                        if (!departureTime) return false;
+                        
+                        const timeDiff = departureTime.getTime() - currentNow.getTime();
+                        const minutesDiff = Math.floor(timeDiff / (1000 * 60));
+                        
+                        // Trip is upcoming if it departs in the future (positive minutes difference)
+                        const isUpcoming = minutesDiff > 0;
+                        return isUpcoming;
+                    });
+
+                    if (nextUpcomingIndex >= 0) {
+                        const nextTrip = futureTrips[nextUpcomingIndex];
+                        const departureTime = parseDepartureTime(nextTrip);
+                    }
+
+                    setNextTripIndex(nextUpcomingIndex >= 0 ? nextUpcomingIndex : null);
+                    setjsonData(filterTrips(futureTrips));
+                    setRecentDepartedTrip(mostRecentDepartedTrip);
                 } catch (error) {
                     setjsonData([['Error fetching trip data']]);
+                    setRecentDepartedTrip(null);
                 }
             }
         };
         fetchData();
     }, [fromStation, toStation, time, isArr, date, timeValue]);
+
+    // Effect to scroll to next trip when data loads
+    useEffect(() => {
+        const scrollToNextTrip = () => {
+            if (nextTripRef.current && nextTripIndex !== null && !initialScrollDone.current) {
+                const element = nextTripRef.current;
+                const headerOffset = 100;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+                
+                initialScrollDone.current = true;
+            }
+        };
+
+        // Initial scroll attempt
+        scrollToNextTrip();
+        
+        // Backup scroll attempt after a delay
+        const timeoutId = setTimeout(scrollToNextTrip, 500);
+        
+        return () => clearTimeout(timeoutId);
+    }, [nextTripIndex, jsonData]);
 
     // Function to check if the trip has multiple legs
     const hasMultipleLegs = (trip: string[]) => {
@@ -386,6 +523,7 @@ export default function Home() {
 
         try {
             let targetDate: Date;
+
             if (targetArrivalStr.includes('T')) {
                 targetDate = new Date(targetArrivalStr);
             } else {
@@ -455,6 +593,7 @@ export default function Home() {
                     <div className={styles.tripDetails}>
                         <p>Showing trips for: {getTimePreferenceText()}</p>
                     </div>
+                    {/* Display future trips */}
                     {jsonData.map((trip, tripIndex) => {
                         // Extract departure and arrival info
                         const departureInfos = trip.filter(info => info.startsWith('From:'));
@@ -471,7 +610,8 @@ export default function Home() {
                             <div
                                 key={tripIndex}
                                 id={`trip-${tripIndex}`}
-                                className={`${styles.tripOption} ${expandedTrip === tripIndex ? styles.expanded : ''}`}
+                                className={`${styles.tripOption} ${expandedTrip === tripIndex ? styles.expanded : ''} ${tripIndex === nextTripIndex ? styles.nextTrip : ''}`}
+                                ref={tripIndex === nextTripIndex ? nextTripRef : null}
                                 onClick={() => handleTripClick(tripIndex)}
                                 role="button"
                                 tabIndex={0}
@@ -642,6 +782,77 @@ export default function Home() {
                             </div>
                         );
                     })}
+                    {/* Display most recent departed trip */}
+                    {recentDepartedTrip && (
+                        <>
+                            <h2 className={styles.sectionTitle}>Most Recent Departed Trip</h2>
+                            <div className={`${styles.tripOption} ${styles.pastJourney}`}>
+                                <div className={styles.tripSummary}>
+                                    <div className={styles.tripMainInfo}>
+                                        {(() => {
+                                            const departureInfo = recentDepartedTrip.find(info => info.startsWith('From:'));
+                                            const arrivalInfo = recentDepartedTrip.find(info => info.startsWith('To:'));
+                                            const transportInfo = recentDepartedTrip.find(info => info.startsWith('On:'))?.replace('On: ', '');
+
+                                            return (
+                                                <>
+                                                    <div className={styles.stationContainer}>
+                                                        <div className={styles.stationName}>
+                                                            {formatStationName(departureInfo)}
+                                                        </div>
+                                                        <div className={styles.stationTime}>
+                                                            {departureInfo && `Departed at ${formatTimeWithoutSeconds(departureInfo.split('Departing at: ')[1].split(', ')[1] || '')}`}
+                                                        </div>
+                                                    </div>
+                                                    <div className={`${styles.stationContainer} ${styles.right}`}>
+                                                        <div className={styles.stationName}>
+                                                            {formatStationName(arrivalInfo)}
+                                                        </div>
+                                                        <div className={styles.stationTime}>
+                                                            {arrivalInfo && `Arrived at ${formatTimeWithoutSeconds(arrivalInfo.split('Arriving at ')[1].split(', ')[1] || '')}`}
+                                                        </div>
+                                                    </div>
+                                                    <div className={styles.tripStatusSection + ' ' + styles.tripStatusDeparted}>
+                                                        <div className={styles.tripInfoBox}>
+                                                            {departureInfo && (
+                                                                <div className={styles.timeUntilDeparture}>
+                                                                    {calculateTimeUntilDeparture(departureInfo.split('Departing at: ')[1])}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            );
+                                        })()}
+                                    </div>
+                                </div>
+                                <div className={styles.tripExtendedInfo}>
+                                    <div className={styles.transportLines}>
+                                        {recentDepartedTrip
+                                            .filter(info => info.startsWith('On:'))
+                                            .map((transportInfo, index) => {
+                                                const trainLine = extractTrainLine(transportInfo.replace('On: ', ''));
+                                                const color = getTrainLineColor(trainLine);
+
+                                                return (
+                                                    <div key={index} className={styles.transportLine}>
+                                                        <div
+                                                            className={styles.trainLineIndicator}
+                                                            style={{ backgroundColor: color }}
+                                                        />
+                                                        <span>{trainLine}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
+                                    <div className={styles.totalTripDuration}>
+                                        <i className="fas fa-clock"></i>
+                                        <span>Total Duration: {calculateTotalDuration(recentDepartedTrip)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
             <Footer />

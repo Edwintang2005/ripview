@@ -38,12 +38,29 @@ async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, 
 
 /**
  * Fetches trip data for a given journey and converts it to a processable format for the frontend.
+ * Can fetch both past and future trips based on the date provided.
  *
  * @param props - The TripData object containing the station IDs for the trip.
  * @returns A promise that resolves to the trip data in a processable format.
  */
 export async function FetchtripData(props: TripData): Promise<string[][]> {
+    // Get current date for future trips
     const jsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, props.date, props.time);
+    
+    // Calculate date for past trips (1 hour ago)
+    const pastDate = new Date();
+    pastDate.setHours(pastDate.getHours() - 1);
+    const pastDateStr = pastDate.toISOString().slice(0,10).replace(/-/g, '');
+    const pastTimeStr = pastDate.toTimeString().slice(0,5).replace(':', '');
+    
+    // Fetch past trips
+    const pastJsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, pastDateStr, pastTimeStr);
+    
+    // Combine past and future trips
+    if (pastJsonObj.journeys && jsonObj.journeys) {
+        jsonObj.journeys = [...pastJsonObj.journeys, ...jsonObj.journeys];
+    }
+    
     return tripResponseToJson(jsonObj);
 }
 
