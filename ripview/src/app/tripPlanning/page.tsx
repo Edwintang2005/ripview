@@ -1,8 +1,8 @@
 'use client';
 
+import { useState, useEffect, Fragment } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FetchtripData } from '../api/apiCalls';
-import { useState, useEffect } from 'react';
 import { getStationNameFromId } from '@/utils/getData';
 import trainLineColours from '@/config/trainLineColours';
 import styles from './tripPlanning.module.css';
@@ -262,8 +262,8 @@ export default function Home() {
             const arrivalInfo = leg.find(info => info.startsWith('To:'));
 
             if (departureInfo && arrivalInfo) {
-                const depMatch = departureInfo.match(/Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-                const arrMatch = arrivalInfo.match(/Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                const depMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                const arrMatch = arrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
 
                 if (depMatch && arrMatch) {
                     const depTime = new Date(depMatch[1].replace(/, /, ' '));
@@ -422,6 +422,24 @@ export default function Home() {
         }
     };
 
+    const calculateWaitingTime = (currentLeg: string[], nextLeg: string[]) => {
+        const currentArrivalInfo = currentLeg.find(info => info.startsWith('To:'));
+        const nextDepartureInfo = nextLeg.find(info => info.startsWith('From:'));
+
+        if (!currentArrivalInfo || !nextDepartureInfo) return null;
+
+        const arrMatch = currentArrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+        const depMatch = nextDepartureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+
+        if (!arrMatch || !depMatch) return null;
+
+        const arrivalTime = new Date(arrMatch[1].replace(/, /, ' '));
+        const departureTime = new Date(depMatch[1].replace(/, /, ' '));
+        const waitingTime = Math.round((departureTime.getTime() - arrivalTime.getTime()) / (1000 * 60));
+
+        return waitingTime > 0 ? waitingTime : null;
+    };
+
     return (
         <div className={styles.page}>
             <Header />
@@ -560,7 +578,7 @@ export default function Home() {
                                             <span>Total Duration: {calculateTotalDuration(trip)}</span>
                                         </div>
                                     </div>
-                                    <ul className={styles.tripList}>
+                                    <div className={styles.tripLegs}>
                                         {(() => {
                                             // Group the trip items into legs
                                             const legs: string[][] = [];
@@ -577,46 +595,49 @@ export default function Home() {
                                                 legs.push(currentLeg);
                                             }
 
-                                            return legs.map((leg, legIndex) => {
-                                                const trainLineInfo = leg.find(info => info.startsWith('On:'));
-                                                const trainLine = trainLineInfo ? extractTrainLine(trainLineInfo.replace('On: ', '')) : '';
-                                                const lineColor = getTrainLineColor(trainLine);
+                                            return legs.map((leg, legIndex) => (
+                                                <Fragment key={legIndex}>
+                                                    <div 
+                                                        className={styles.tripLeg}
+                                                        style={{ '--line-color': getTrainLineColor(extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')) } as React.CSSProperties}
+                                                    >
+                                                        {leg.map((info, infoIndex) => {
+                                                            if (info.startsWith('On:')) return null;
+                                                            
+                                                            const formattedInfo = formatTripInfo(info);
+                                                            if (!formattedInfo) return null;
 
-                                                return (
-                                                    <li key={legIndex} className={styles.legGroup}>
-                                                        {legIndex > 0 && <hr className={styles.legDivider} />}
-                                                        <div className={styles.legContent} style={{ '--line-color': lineColor } as React.CSSProperties}>
-                                                            {leg.map((info, infoIndex) => {
-                                                                if (info.startsWith('On:')) return null;
-                                                                
-                                                                const formattedInfo = formatTripInfo(info);
-                                                                if (!formattedInfo) return null;
-
-                                                                if (info.startsWith('From:')) {
-                                                                    return (
-                                                                        <div key={infoIndex} className={styles.tripItem}>
-                                                                            {formattedInfo}
+                                                            const isLastItem = infoIndex === leg.length - 1;
+                                                            return (
+                                                                <div key={infoIndex} className={styles.tripItem}>
+                                                                    {formattedInfo}
+                                                                    {isLastItem && (
+                                                                        <div className={styles.trainLine}>
+                                                                            {extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')}
                                                                         </div>
-                                                                    );
-                                                                }
-
-                                                                return (
-                                                                    <div key={infoIndex} className={styles.tripItem}>
-                                                                        {formattedInfo}
-                                                                        {info.startsWith('Duration:') && (
-                                                                            <div className={styles.trainLine}>
-                                                                                {trainLine}
-                                                                            </div>
-                                                                        )}
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    {legIndex < legs.length - 1 && (
+                                                        <div className={styles.tripLegSeparator}>
+                                                            <div className={styles.tripLegDivider} />
+                                                            {(() => {
+                                                                const waitTime = calculateWaitingTime(leg, legs[legIndex + 1]);
+                                                                return waitTime && (
+                                                                    <div className={styles.waitTimeIndicator}>
+                                                                        {waitTime} minute wait
                                                                     </div>
                                                                 );
-                                                            })}
+                                                            })()}
+                                                            <div className={styles.tripLegDivider} />
                                                         </div>
-                                                    </li>
-                                                );
-                                            });
+                                                    )}
+                                                </Fragment>
+                                            ));
                                         })()}
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         );

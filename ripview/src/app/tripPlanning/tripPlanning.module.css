@@ -110,6 +110,7 @@
 
 .tripItem {
     margin-bottom: 8px;
+    padding: 4px 0;
 }
 
 .tripItem:last-child {
@@ -118,14 +119,15 @@
 
 .trainLine {
     margin-top: 4px;
-    color: #b3b3b3;
+    color: #666;
     font-size: 0.9em;
 }
 
 .legDivider {
+    height: 1px;
+    background-color: #e0e0e0;
     margin: 16px 0;
-    border: none;
-    border-top: 1px solid #e0e0e0;
+    width: 100%;
 }
 
 .timeInfo {
@@ -320,7 +322,7 @@
 
 .trainLine {
     margin-top: 4px;
-    color: #b3b3b3;
+    color: #666;
     font-size: 0.9em;
 }
 
@@ -371,6 +373,39 @@
     padding-bottom: 0.5rem;
 }
 
+/*  */
+.tripLegs {
+    padding: 1rem 0rem;
+
+}
+
+/* The space between the top leg and the wait time indicator */
+.tripLegSeparator {
+    margin: 1rem 0;
+    text-align: left;
+    padding-left: 1rem;
+}
+
+.tripLegDivider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 0.5rem 0;
+    width: calc(100% - 20px);
+    border: none;
+}
+
+.waitTimeIndicator {
+    color: #666;
+    font-size: 0.95em;
+    padding-left: 0.25rem;
+}
+
+.tripLeg {
+    position: relative;
+    padding-left: 1rem;
+    border-left: 0.2rem solid var(--line-color, #e0e0e0);
+}
+
 @media (prefers-color-scheme: dark) {
     .page {
         --gray-rgb: 255, 255, 255;
@@ -379,6 +414,16 @@
 
         --button-primary-hover: #ccc;
         --button-secondary-hover: #1a1a1a;
+    }
+
+    .waitTimeIndicator,
+    .trainLine {
+        color: #ccc;
+    }
+    
+    .tripLegDivider {
+        background-color: #404040;
+        border-top-color: #404040;
     }
 }
 
