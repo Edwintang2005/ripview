@@ -26,11 +26,16 @@
     font-family: var(--font-geist-sans);
 }
 
+.horizontalDiv {
+    display: flex;
+    flex-direction: row;
+}
+
 .main {
     display: flex;
     flex-direction: column;
     width: 100%;
-    grid-row-start: 3;
+    /* grid-row-start: 3; */
     max-width: 75rem;
     padding: 1rem 2rem 0 2rem;
 }

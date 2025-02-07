@@ -3,7 +3,7 @@ import styles from './mapInput.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
 import { useCallback, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import BackButton from '@/components/BackButton';
+import Header from '@/components/Header';
 
 export default function MapInput() {
     const router = useRouter();
@@ -51,8 +51,8 @@ export default function MapInput() {
     }, []);
 
     return (
-        <div className={styles.mapInputContainer}>
-            <BackButton />
+        <div className={styles.page}>
+            <Header text='Home' link='/'/>
             <div className={styles.mapDiv}>
                 <MySVG
                     onClick={handleSVGClick}

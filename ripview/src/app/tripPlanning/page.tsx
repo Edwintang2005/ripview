@@ -172,14 +172,15 @@ export default function Home() {
     };
     return (
         <div className={styles.page}>
-            
+            <Header text='Map' link='/mapInput'/>
             <main className={styles.main}>
-                <Header />
-                <BackButton />
                 <div className={styles.tripContent}>
-                    <h1 className={styles.pageTitle}>
-                        Trip From {fromName} to {toName}!
-                    </h1>
+                    <div>
+                        <BackButton />
+                        <h1 className={styles.pageTitle}>
+                            Trip From {fromName} to {toName}!
+                        </h1>
+                    </div>
                     <div className={styles.tripDetails}>
                         <p>Showing trips for: {getTimePreferenceText()}</p>
                     </div>

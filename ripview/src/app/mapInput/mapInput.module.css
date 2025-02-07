@@ -1,7 +1,25 @@
+.page {
+    --gray-rgb: 0, 0, 0;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+
+    --button-primary-hover: #383838;
+    --button-secondary-hover: #f2f2f2;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    align-items: center;
+    justify-items: center;
+    min-height: 100svh;
+    gap: 4rem;
+    font-family: var(--font-geist-sans);
+}
+
 .mapDiv {
+    grid-row-start: 2;
     background-color: black;
     pointer-events: all;
     margin: auto;
-    width: 70%;
-    font-family: inherit;
+    width: 100%;
+    font-family: var(--font-geist-sans);
 }

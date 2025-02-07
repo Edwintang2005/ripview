@@ -7,11 +7,11 @@
     --button-secondary-hover: #f2f2f2;
 
     display: grid;
-    grid-template-rows: 1.25rem 1fr 1.25rem;
-    align-items: center;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
     justify-items: center;
     min-height: 100svh;
-    padding: 5rem;
+    padding: 0 0 2rem 0;
     gap: 4rem;
     font-family: var(--font-geist-sans);
 }
@@ -317,13 +317,11 @@ a.secondary {
 }
 
 @media (max-width: 37.5rem) { /* 600px */
-    .page {
-        padding: 2rem;
-        padding-bottom: 5rem;
-    }
 
     .main {
         align-items: center;
+        padding: 2rem;
+        padding-bottom: 5rem;
     }
 
     .main ol {

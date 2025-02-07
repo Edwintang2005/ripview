@@ -1,17 +1,23 @@
 @media (display-mode: standalone) {
     .navBar {
-        padding: 4rem !important; /* Increase padding for a taller navbar */
+        padding-top: 4rem !important;
+        height: 7rem !important;
+    }
+}
+
+@media (display-mode: browser) {
+    .navBar {
+        height: 5rem !important;
     }
 }
 
 .navBar {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
     display: flex;
     align-items: center;
-    padding: 1.5rem;
     background-color: var(--background);
     border-bottom: 0.0625rem solid var(--gray-alpha-200);
     z-index: 10;
@@ -31,8 +37,9 @@
 
 .lightLogo {
     margin-right: auto;
+    margin-left: 2rem;
     border: none;
-    justify-content: flex-start;
+    /* justify-content: flex-start; */
 }
 
 .mapButton {
@@ -45,7 +52,8 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-left: auto;
-    justify-content: flex-end;
+    margin-right: 2rem;
+    /* justify-content: flex-end; */
 }
 
 .mapButton:hover {
