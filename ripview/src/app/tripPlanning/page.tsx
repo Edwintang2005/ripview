@@ -244,26 +244,53 @@ export default function Home() {
     // Function to calculate total duration from multiple legs
     const calculateTotalDuration = (trip: string[]) => {
         let totalMinutes = 0;
+        let lastArrivalTime: Date | null = null;
 
-        // Find all duration strings in the trip
-        trip.forEach(info => {
-            if (info.startsWith('Duration:')) {
-                const minutes = parseInt(info.replace('Duration:', ''));
-                if (!isNaN(minutes)) {
-                    totalMinutes += minutes;
+        // Group the trip information into legs
+        const legs = trip.reduce((acc: string[][], info: string) => {
+            if (info.startsWith('From:')) {
+                acc.push([info]);
+            } else if (acc.length > 0) {
+                acc[acc.length - 1].push(info);
+            }
+            return acc;
+        }, []);
+
+        for (const leg of legs) {
+            // Extract departure and arrival times for this leg
+            const departureInfo = leg.find(info => info.startsWith('From:'));
+            const arrivalInfo = leg.find(info => info.startsWith('To:'));
+
+            if (departureInfo && arrivalInfo) {
+                const depMatch = departureInfo.match(/Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                const arrMatch = arrivalInfo.match(/Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+
+                if (depMatch && arrMatch) {
+                    const depTime = new Date(depMatch[1].replace(/, /, ' '));
+                    const arrTime = new Date(arrMatch[1].replace(/, /, ' '));
+
+                    // Add waiting time from previous leg if exists
+                    if (lastArrivalTime) {
+                        const waitingTime = Math.round((depTime.getTime() - lastArrivalTime.getTime()) / (1000 * 60));
+                        totalMinutes += waitingTime;
+                    }
+
+                    // Add travel time for current leg
+                    const travelTime = Math.round((arrTime.getTime() - depTime.getTime()) / (1000 * 60));
+                    totalMinutes += travelTime;
+
+                    lastArrivalTime = arrTime;
                 }
             }
-        });
-
-        if (totalMinutes === 0) return '0m';
-
-        const hours = Math.floor(totalMinutes / 60);
-        const remainingMinutes = totalMinutes % 60;
-
-        if (hours === 0) {
-            return `${remainingMinutes}m`;
         }
-        return `${hours}h ${remainingMinutes}m`;
+
+        if (totalMinutes < 60) {
+            return `${totalMinutes}m`;
+        } else {
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            return `${hours}h ${mins}m`;
+        }
     };
 
     // Function to format trip information
@@ -337,11 +364,11 @@ export default function Home() {
         if (diffMins < 0) {
             const minsAgo = Math.abs(diffMins);
             if (minsAgo < 60) {
-                return `Departed ${minsAgo}m ago`;
+                return `${minsAgo}m ago`;
             } else {
                 const hours = Math.floor(minsAgo / 60);
                 const mins = minsAgo % 60;
-                return `Departed ${hours}h ${mins}m ago`;
+                return `${hours}h ${mins}m ago`;
             }
         }
         
