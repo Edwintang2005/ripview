@@ -94,12 +94,16 @@ export default function MapInput() {
         <div className={styles.page}>
             <Header text='Home' link='/'/>
             <main className={styles.main}>
-                <button onClick={() => zoom(-0.1)}>Zoom In</button>
-                <button onClick={() => zoom(0.1)}>Zoom Out</button>
-                <button onClick={() => left(15)}>Left</button>
-                <button onClick={() => right(15)}>Right</button>
-                <button onClick={() => up(15)}>Up</button>
-                <button onClick={() => down(15)}>Down</button>
+                <div className={styles.zoomButtons}>
+                    <button onClick={() => zoom(-0.1)}>Zoom In</button>
+                    <button onClick={() => zoom(0.1)}>Zoom Out</button>
+                </div>
+                <div className={styles.panButtons}>
+                    <button onClick={() => left(15)}>Left</button>
+                    <button onClick={() => right(15)}>Right</button>
+                    <button onClick={() => up(15)}>Up</button>
+                    <button onClick={() => down(15)}>Down</button>
+                </div>
                 <MySVG className={styles.map}
                     viewBox={viewBox}
                     onClick={handleSVGClick}
