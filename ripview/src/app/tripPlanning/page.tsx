@@ -76,7 +76,6 @@ export default function Home() {
         return () => clearInterval(timer);
     }, [jsonData]);
 
-    // Helper function to check if a date is today
     const isToday = (date: Date) => {
         const today = new Date();
         return date.getDate() === today.getDate() &&
@@ -96,12 +95,6 @@ export default function Home() {
         return isToday(date) ? timeWithoutSeconds : `${datePart}, ${timeWithoutSeconds}`;
     };
 
-    // Helper function to format time without seconds
-    const formatTimeWithoutSeconds = (time: string) => {
-        if (!time) return '';
-        return time.replace(/:\d{2}$/, '');
-    };
-
     // Format the datetime for display
     const formatDateTime = (dateTimeStr: string) => {
         const dt = new Date(dateTimeStr);
@@ -117,9 +110,21 @@ export default function Home() {
     };
 
     // Function to format station name consistently
-    const formatStationName = (info: string | undefined) => {
-        if (!info) return '';
-        return info.split('. ')[0].replace('From: ', '').replace('To: ', '');
+    const formatStationName = (stationInfo: string | undefined) => {
+        if (!stationInfo) return '';
+        const parts = stationInfo.split(', ');
+        if (parts.length < 2) return stationInfo;
+
+        // Get main station name without "Station" and suburb, and remove From/To prefix
+        const mainName = parts[0]
+            .replace(' Station', '')
+            .replace('From: ', '')
+            .replace('To: ', '');
+        
+        // Get platform if it exists
+        const platform = parts.find(part => part.startsWith('Platform'));
+
+        return platform ? `${mainName}, ${platform}` : mainName;
     };
 
     // Get time preference text
@@ -541,38 +546,6 @@ export default function Home() {
         return null;
     };
 
-    // Function to calculate arrival difference
-    const calculateArrivalDifference = (actualArrivalStr: string, targetArrivalStr: string) => {
-        if (!actualArrivalStr || !targetArrivalStr) return null;
-
-        try {
-            let targetDate: Date;
-
-            if (targetArrivalStr.includes('T')) {
-                targetDate = new Date(targetArrivalStr);
-            } else {
-                const [datePart, timePart] = targetArrivalStr.trim().split(', ');
-                if (!datePart || !timePart) return null;
-                const [day, month, year] = datePart.split('/').map(Number);
-                const [hour, minute] = timePart.split(':').map(Number);
-                targetDate = new Date(year, month - 1, day, hour, minute);
-            }
-
-            const [actualDatePart, actualTimePart] = actualArrivalStr.trim().split(', ');
-            if (!actualDatePart || !actualTimePart) return null;
-            const [actualDay, actualMonth, actualYear] = actualDatePart.split('/').map(Number);
-            const [actualHours, actualMinutes] = actualTimePart.split(':').map(Number);
-            const actualDate = new Date(actualYear, actualMonth - 1, actualDay, actualHours, actualMinutes);
-
-            const diffMs = targetDate.getTime() - actualDate.getTime();
-            const diffMins = Math.round(diffMs / (1000 * 60));
-
-            return diffMins;
-        } catch (error) {
-            return null;
-        }
-    };
-
     // Function to format time difference
     const formatTimeDifference = (diffMins: number) => {
         const absDiff = Math.abs(diffMins);
@@ -626,7 +599,7 @@ export default function Home() {
 
     return (
         <div className={styles.page}>
-            <Header title={`Trip From ${fromName} Station to ${toName} Station!`} />
+            <Header title={`Trip From ${fromName} to ${toName}!`} />
             <SubHeader timeInfo={getTimePreferenceText()} />
             <main className={styles.main}>
                 <div className={styles.tripContent}>
@@ -642,9 +615,6 @@ export default function Home() {
                         // Get the first departure and last arrival for multi-leg journeys
                         const firstDepartureInfo = departureInfos[0]?.split('Departing at:');
                         const lastArrivalInfo = arrivalInfos[arrivalInfos.length - 1]?.split('Arriving at');
-                        
-                        const transportInfo = trip.find(info => info.startsWith('On:'))?.replace('On: ', '');
-                        const durationInfo = trip.find(info => info.startsWith('Duration:'))?.replace('Duration: ', '');
 
                         return (
                             <div
@@ -708,7 +678,7 @@ export default function Home() {
                                     <div className={styles.rightSection}>
                                         {hasMultipleLegs(trip) && (
                                             <div className={styles.legsInfo}>
-                                                {`${getNumberOfLegs(trip)} changes`}
+                                                {`${getNumberOfLegs(trip)} train line change(s)`}
                                             </div>
                                         )}
                                         <div className={`${styles.tripStatusSection} ${

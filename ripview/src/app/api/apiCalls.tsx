@@ -72,18 +72,14 @@ export async function FetchtripData(props: TripData): Promise<string[][]> {
         intervals.push(i);
     }
 
-    // For arrive by: focus on times before the requested time
-    // For depart at: focus on times after the current time
     const baseTime = props.isArr ? requestedDate : sydneyNow;
 
-    // Add strategic time points
     intervals.forEach(hours => {
         const time = new Date(baseTime.getTime() + hours * 3600000);
         const { date, time: timeStr } = formatForAPI(time);
         timePoints.add(date + timeStr);
     });
 
-    // Convert to fetch ranges and sort
     const fetchRanges = Array.from(timePoints)
         .map(timeKey => ({
             date: timeKey.slice(0, 8),
