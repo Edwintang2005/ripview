@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import styles from './StationSelect.module.css';
 
 interface StationSelectProps {
@@ -37,13 +37,13 @@ export default function StationSelect({ label, name, onChange, records }: Statio
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
         setIsOpen(true);
     };
 
     // Handle key down event to select the first match when tab is pressed
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Tab' && filteredStations.length > 0) {
             const firstMatch = filteredStations[0];
             setInputValue(String(firstMatch[1]));

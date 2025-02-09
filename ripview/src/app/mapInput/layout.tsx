@@ -6,7 +6,7 @@ export const viewport: Viewport = {
     width: 'device-width',
     userScalable: true,
     initialScale: 1,
-    viewportFit: "cover"
+    viewportFit: 'cover'
 };
 
 export default function TripPlanningLayout({
