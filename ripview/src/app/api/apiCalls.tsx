@@ -9,11 +9,6 @@ interface TripData{
     date:string;
     time:string;
 }
-// Function that could be used to find a stop, this just gets the url params we would need to get stop info
-// async function searchStop(searchString:string) {
-//     const tfStopRequester = DefaultApiFetchParamCreator().tfnswStopfinderRequest;
-//     return tfStopRequester('rapidJSON', `&#x60;${searchString}&#x60;`, 'EPSG:4326', 'stop', 'true');
-// }
 
 /**
  * Function to plan a trip from one station to another using the Transport for NSW API.
@@ -44,31 +39,107 @@ async function planTrip(fromId:string, toId:string, isArr:boolean, date:string, 
  * @returns A promise that resolves to the trip data in a processable format.
  */
 export async function FetchtripData(props: TripData): Promise<string[][]> {
-    // Get current date for future trips
-    const jsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, props.date, props.time);
+    // Get current time in Sydney and format helpers
+    const sydneyNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Australia/Sydney' }));
     
-    // Calculate date for past trips (1 hour ago)
-    const pastDate = new Date();
-    pastDate.setHours(pastDate.getHours() - 1);
-    const pastDateStr = pastDate.toISOString().slice(0,10).replace(/-/g, '');
-    const pastTimeStr = pastDate.toTimeString().slice(0,5).replace(':', '');
-    
-    // Fetch past trips
-    const pastJsonObj = await planTrip(props.fromStation, props.toStation, props.isArr, pastDateStr, pastTimeStr);
-    
-    // Combine past and future trips
-    if (pastJsonObj.journeys && jsonObj.journeys) {
-        jsonObj.journeys = [...pastJsonObj.journeys, ...jsonObj.journeys];
-    }
-    
-    return tripResponseToJson(jsonObj);
-}
+    const formatForAPI = (date: Date) => {
+        const d = new Date(date.toLocaleString('en-US', { timeZone: 'Australia/Sydney' }));
+        return {
+            date: `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`,
+            time: `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`
+        };
+    };
 
-// Function working on to convert TripRequestResponse to a processable format.
-// TripRequestResponse is like this -> .journeys = [TripRequestResponseJourney], this holds all possible trips
-// TripRequestResponseJourney is like this -> .legs = [TripRequestResponseJourneyLeg], this holds all the legs for each trip
-// TripRequestResponseJourneyLeg is like this -> .coords, .destination, .distance, .duration, .hints, .infos, .interchange, .origin, .stopSequence, .transportation
-// Both .destination and .origin are TripRequestResponseJourneyLegStop, which holds information about name, platform etc.
+    // Create minimal set of time points
+    const timePoints = new Set<string>();
+
+    // Parse the requested time
+    const requestedDate = props.time.includes('T') 
+        ? new Date(props.time)
+        : new Date(props.time.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+
+    // Add current time and requested time
+    timePoints.add(props.date + props.time);
+
+    // Calculate time intervals for both past and future trips
+    const intervals = [];
+    // Add intervals for past 24 hours in 3-hour steps
+    for (let i = -24; i <= 0; i += 3) {
+        intervals.push(i);
+    }
+    // Add intervals for future 24 hours in 3-hour steps
+    for (let i = 3; i <= 24; i += 3) {
+        intervals.push(i);
+    }
+
+    // For arrive by: focus on times before the requested time
+    // For depart at: focus on times after the current time
+    const baseTime = props.isArr ? requestedDate : sydneyNow;
+
+    // Add strategic time points
+    intervals.forEach(hours => {
+        const time = new Date(baseTime.getTime() + hours * 3600000);
+        const { date, time: timeStr } = formatForAPI(time);
+        timePoints.add(date + timeStr);
+    });
+
+    // Convert to fetch ranges and sort
+    const fetchRanges = Array.from(timePoints)
+        .map(timeKey => ({
+            date: timeKey.slice(0, 8),
+            time: timeKey.slice(8)
+        }))
+        .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+    // Fetch all trips in parallel
+    const results = await Promise.all(
+        fetchRanges.map(range => 
+            planTrip(props.fromStation, props.toStation, props.isArr, range.date, range.time)
+        )
+    );
+
+    // Collect and deduplicate journeys
+    const seen = new Set<string>();
+    const allJourneys: any[] = [];
+    
+    results.forEach(result => {
+        if (result.journeys?.length) {
+            result.journeys.forEach((journey: any) => {
+                if (!journey.legs?.[0]?.origin) return;
+                
+                const key = `${journey.legs[0].origin.departureTimeEstimated || journey.legs[0].origin.departureTimePlanned}_${journey.legs[0].origin.platform}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    allJourneys.push(journey);
+                }
+            });
+        }
+    });
+
+    // Sort journeys
+    allJourneys.sort((a, b) => {
+        if (props.isArr) {
+            // For "arrive by", sort by arrival time in reverse order
+            const aTime = new Date(a.legs[a.legs.length - 1].destination.arrivalTimeEstimated || 
+                                 a.legs[a.legs.length - 1].destination.arrivalTimePlanned).getTime();
+            const bTime = new Date(b.legs[b.legs.length - 1].destination.arrivalTimeEstimated || 
+                                 b.legs[b.legs.length - 1].destination.arrivalTimePlanned).getTime();
+            return aTime - bTime; // Later arrivals first
+        } else {
+            // For "depart at", sort by departure time
+            const aTime = new Date(a.legs[0].origin.departureTimeEstimated || 
+                                 a.legs[0].origin.departureTimePlanned).getTime();
+            const bTime = new Date(b.legs[0].origin.departureTimeEstimated || 
+                                 b.legs[0].origin.departureTimePlanned).getTime();
+            return aTime - bTime;
+        }
+    });
+
+    return tripResponseToJson({
+        ...results[0],
+        journeys: allJourneys
+    });
+}
 
 /**
  * Converts a TripRequestResponse object to processable format for the frontend

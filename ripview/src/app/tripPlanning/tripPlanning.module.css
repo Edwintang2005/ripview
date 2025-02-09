@@ -2,28 +2,30 @@
     --gray-rgb: 0, 0, 0;
     --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
     --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    align-items: start;
-    justify-items: center;
-    min-height: 100svh;
-    padding: 0 0 2rem 0;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
     font-family: var(--font-geist-sans);
+    padding-top: calc(4rem + 3rem); /* Header + SubHeader height */
 }
 
 .main {
+    flex: 1;
     display: flex;
     flex-direction: column;
     width: 100%;
     max-width: 75rem;
     padding: 1rem 2rem 0 2rem;
+    margin: 0 auto;
+    font-family: var(--font-geist-sans);
 }
 
 .tripContent {
     width: 100%;
     padding: 0 1.25rem;
     margin-bottom: 2rem;
+    flex: 1;
 }
 
 .container {
@@ -161,6 +163,8 @@
 .stationContainer.right {
     align-items: flex-end;
     text-align: right;
+    margin-left: auto;
+    margin-right: 1rem;
 }
 
 .stationName {
@@ -173,11 +177,15 @@
     opacity: 0.8;
 }
 
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+    position: relative;
+}
+
 .legsInfo {
-    position: absolute;
-    bottom: -30px;
-    left: 0;
-    margin-top: 3rem;
     padding: 0.375rem 0.75rem;
     background-color: rgba(255, 152, 0, 0.1);
     border: 1px solid rgba(255, 152, 0, 0.2);
@@ -187,11 +195,24 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
     white-space: nowrap;
 }
 
 .legsInfo::before {
     content: "⚠️";
+}
+
+.tripStatusSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .arrivalDifference {
@@ -208,6 +229,9 @@
 }
 
 .tripStatusSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     padding: 0.75rem;
     border-radius: 0.5rem;
     margin-top: 0.5rem;
@@ -340,8 +364,8 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 2rem 3rem 2rem 2rem;
-    height: 10rem;
+    padding: 1rem 3rem 1rem 2rem;
+    height: 9rem;
 }
 
 .tripMainInfo {
@@ -349,12 +373,15 @@
     align-items: center;
     gap: 2rem;
     scroll-margin-top: var(--header-offset);
+    flex: 1;
+    margin-right: 1rem;
 }
 
 .rightSection {
     display: flex;
-    align-items: center;
-    gap: 2rem;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
     margin-left: auto;
 }
 
@@ -429,7 +456,7 @@
 }
 
 .nextTrip::before {
-    content: 'Next Trip';
+    content: 'Closest Trip';
     position: absolute;
     top: -10px;
     left: 16px;
@@ -504,5 +531,4 @@
 /* Focus state for accessibility */
 .tripOption:focus {
     outline: 2px solid var(--foreground);
-    outline-offset: 2px;
 }

@@ -2,7 +2,11 @@ import Image from 'next/image';
 import styles from './Header.module.css';
 import { useRouter } from 'next/navigation';
 
-export default function Header() {
+interface HeaderProps {
+    title?: string;
+}
+
+export default function Header({ title = 'RipView' }: HeaderProps) {
     const router = useRouter();
     return (
         <div className={styles.navBar}>
@@ -14,7 +18,7 @@ export default function Header() {
                 height={38}
                 priority
             />
-            <h1>RipView</h1>
+            <h1>{title}</h1>
             <button className={styles.mapButton} onClick={() => router.push('/mapInput')}>
                 Map
             </button>
