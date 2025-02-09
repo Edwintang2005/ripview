@@ -5,7 +5,6 @@
 
     --button-primary-hover: #383838;
     --button-secondary-hover: #f2f2f2;
-    top: 0;
     display: grid;
     grid-template-rows: auto 1fr auto;
     align-items: start;
@@ -46,9 +45,32 @@
 
 .map {
     /* margin: auto; */
-    position: absolute;
+    position: relative;
     width: 100%;
     height: auto;
     pointer-events: all;
     z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .page {
+        --gray-rgb: 255, 255, 255;
+        --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+        --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+        --button-primary-hover: #ccc;
+        --button-secondary-hover: #1a1a1a;
+    }
+}
+
+@media (max-width: 37.5rem) {
+    .page {
+        padding: 0 0 1rem 0;
+    }
+
+    .main {
+        align-items: center;
+        padding: 0 1rem;
+        margin-bottom: 1rem;
+    }
 }

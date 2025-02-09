@@ -4,6 +4,7 @@ import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
 import { useCallback, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { useState } from 'react';
 
 export default function MapInput() {
@@ -112,7 +113,9 @@ export default function MapInput() {
                     viewBox={viewBox}
                     onClick={handleSVGClick}
                 />
+                
             </main>
+            <Footer/>
         </div>
     );
 }

@@ -214,8 +214,9 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                <Footer />
+                
             </main>
+            <Footer />
             <ScrollToTop />
         </div>
     );

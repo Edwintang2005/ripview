@@ -4,7 +4,7 @@ import type { Viewport } from 'next';
 
 export const viewport: Viewport = {
     width: 'device-width',
-    userScalable: true,
+    userScalable: false,
     initialScale: 1,
     viewportFit: 'cover'
 };
