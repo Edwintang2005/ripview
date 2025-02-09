@@ -672,6 +672,17 @@ export default function Home() {
                                             </div>
                                             <div className={styles.stationTime}>
                                                 {firstDepartureInfo && `${formatTimeWithDate(firstDepartureInfo[1])}`}
+                                                {!isArr && firstDepartureInfo?.[1] && time && timePreference !== 'current' && (() => {
+                                                    const departureTime = firstDepartureInfo[1];
+                                                    if (!departureTime) return null;
+                                                    const diff = calculateTimeDifference(departureTime, time);
+                                                    if (diff === null) return null;
+                                                    return (
+                                                        <div className={styles.timeDifference}>
+                                                            ({formatTimeDifference(Math.abs(diff))} after requested time)
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                         <div className={`${styles.stationContainer} ${styles.right}`}>
@@ -680,7 +691,7 @@ export default function Home() {
                                             </div>
                                             <div className={styles.stationTime}>
                                                 {lastArrivalInfo && `${formatTimeWithDate(lastArrivalInfo[1])}`}
-                                                {isArr && lastArrivalInfo?.[1] && time && (() => {
+                                                {isArr && lastArrivalInfo?.[1] && time && timePreference !== 'current' && (() => {
                                                     const arrivalTime = lastArrivalInfo[1];
                                                     if (!arrivalTime) return null;
                                                     const diff = calculateTimeDifference(arrivalTime, time);
