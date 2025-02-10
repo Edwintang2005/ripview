@@ -397,25 +397,27 @@ export default function Home() {
             return;
         }
 
-        // First close the current tab and immediately open the new one
+        // Step 1: Close any open trip
         setExpandedTrip(null);
+
+        // Step 2: Wait for the closing animation
         setTimeout(() => {
+            // Step 3: Open the new trip
             setExpandedTrip(tripIndex);
-            
-            // After opening, scroll to the new position
+
+            // Step 4: Wait for the opening animation and DOM update
             setTimeout(() => {
                 const tripElement = document.getElementById(`trip-main-${tripIndex}`);
                 if (tripElement) {
-                    const computedStyle = getComputedStyle(document.documentElement);
-                    const headerOffset = parseInt(computedStyle.getPropertyValue('--header-offset')) || 200;
-                    const elementPosition = tripElement.getBoundingClientRect().top + window.pageYOffset;
+                    const offset = 170;
+                    const elementTop = tripElement.getBoundingClientRect().top + window.scrollY;
                     window.scrollTo({
-                        top: elementPosition - headerOffset,
+                        top: elementTop - offset,
                         behavior: 'smooth'
                     });
                 }
-            }, 100);
-        }, 300);
+            }, 200); // Longer wait to ensure the animation is complete
+        }, 300); // Longer wait to ensure the closing is complete
     };
 
     // Calculate time until departure
