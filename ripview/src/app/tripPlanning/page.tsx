@@ -96,65 +96,117 @@ export default function Home() {
         return () => clearTimeout(initialTimeout);
     }, [jsonData]);
 
-    const isToday = (date: Date) => {
-        const today = new Date();
-        return date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear();
+    // Unified time formatting function that handles all cases
+    const formatTime = (minutes: number, includeWait: boolean = false) => {
+        const absMins = Math.abs(minutes);
+        
+        if (absMins < 60) {
+            return `${absMins}m${includeWait ? ' wait' : ''}`;
+        } else if (absMins < 24 * 60) {
+            const hours = Math.floor(absMins / 60);
+            const mins = absMins % 60;
+            return hours > 0 
+                ? `${hours}h${mins > 0 ? ` ${mins}m` : ''}${includeWait ? ' wait' : ''}`
+                : `${mins}m${includeWait ? ' wait' : ''}`;
+        } else {
+            const days = Math.floor(absMins / (24 * 60));
+            const remainingMins = absMins % (24 * 60);
+            const hours = Math.floor(remainingMins / 60);
+            const mins = remainingMins % 60;
+            return `${days}d ${hours}h${mins > 0 ? ` ${mins}m` : ''}${includeWait ? ' wait' : ''}`;
+        }
+    };
+
+    // Unified date parsing function
+    const parseDateTime = (dateTimeStr: string) => {
+        // Handle ISO format
+        if (dateTimeStr.includes('T')) {
+            return new Date(dateTimeStr);
+        }
+        
+        // Handle "DD/MM/YYYY, HH:mm" format
+        const [datePart, timePart] = dateTimeStr.split(', ');
+        if (!datePart || !timePart) return null;
+        
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        
+        return new Date(year, month - 1, day, hours, minutes);
     };
 
     // Helper function to format time with optional date
     const formatTimeWithDate = (timeStr: string) => {
-        const [datePart, timePart] = timeStr.split(', ');
-        const [day, month, year] = datePart.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        
-        // Remove seconds from time if present
-        const timeWithoutSeconds = timePart.replace(/:\d{2}(?=\s|$)/, '');
-        
-        return isToday(date) ? timeWithoutSeconds : `${datePart}, ${timeWithoutSeconds}`;
+        const date = parseDateTime(timeStr);
+        return date ? formatDateTime(date) : '';
     };
 
-    // Format the datetime for display
-    const formatDateTime = (dateTimeStr: string) => {
-        const dt = new Date(dateTimeStr);
-        return dt.toLocaleString('en-AU', {
+    // Function to calculate time difference between actual and target times
+    const calculateTimeDifference = (actualTimeStr: string, targetTimeStr: string) => {
+        const actualTime = parseDateTime(actualTimeStr);
+        const targetTime = parseDateTime(targetTimeStr);
+
+        if (!actualTime || !targetTime) return null;
+
+        // Calculate difference in minutes
+        const diffMs = targetTime.getTime() - actualTime.getTime();
+        return Math.round(diffMs / (1000 * 60));
+    };
+
+    // Calculate time until departure
+    const calculateTimeUntilDeparture = (dateTimeStr: string) => {
+        const now = new Date();
+        const departureTime = parseDateTime(dateTimeStr);
+        
+        if (!departureTime) return '';
+        
+        // Calculate difference in minutes
+        const diffMs = departureTime.getTime() - now.getTime();
+        const diffMins = Math.ceil(diffMs / (1000 * 60));
+        
+        return formatTime(diffMins);
+    };
+
+    // Function to format datetime for display
+    const formatDateTime = (date: Date) => {
+        if (!date || isNaN(date.getTime())) return '';
+        
+        const isToday = (date: Date) => {
+            const today = new Date();
+            return date.getDate() === today.getDate() &&
+                date.getMonth() === today.getMonth() &&
+                date.getFullYear() === today.getFullYear();
+        };
+
+        const timeStr = date.toLocaleTimeString('en-AU', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        if (isToday(date)) {
+            return timeStr;
+        }
+
+        return date.toLocaleString('en-AU', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false,
-            timeZone: 'Australia/Sydney'
+            hour12: false
         });
     };
 
-    // Function to format station name consistently
-    const formatStationName = (stationInfo: string | undefined) => {
-        if (!stationInfo) return '';
-        const parts = stationInfo.split(', ');
-        if (parts.length < 2) return stationInfo;
-
-        // Get main station name without "Station" and suburb, and remove From/To prefix
-        const mainName = parts[0]
-            .replace(' Station', '')
-            .replace('From: ', '')
-            .replace('To: ', '');
-        
-        // Get platform if it exists
-        const platform = parts.find(part => part.startsWith('Platform'));
-
-        return platform ? `${mainName}, ${platform}` : mainName;
-    };
-
-    // Get time preference text
+    // Function to get time preference text
     const getTimePreferenceText = () => {
         if (!time) return '';
         if (timePreference === 'current') {
-            return `Showing trips from current time (${formatDateTime(currentTime.toISOString())})`;
+            return `Showing trips from current time (${formatDateTime(currentTime)})`;
         } else {
-            const formattedTime = formatDateTime(time);
-            return `Showing trips ${isArr ? 'arriving by' : 'departing at'} ${formattedTime}`;
+            const targetTime = parseDateTime(time);
+            return targetTime 
+                ? `Showing trips ${isArr ? 'arriving by' : 'departing at'} ${formatDateTime(targetTime)}`
+                : '';
         }
     };
 
@@ -347,9 +399,9 @@ export default function Home() {
                             const nextLeg = legs[i + 1];
 
                             // Get arrival time of current leg
-                            const currentArrival = currentLeg.find(info => info.startsWith('To:'))?.match(/Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                            const currentArrival = currentLeg.find(info => info.startsWith('To:'))?.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
                             // Get departure time of next leg
-                            const nextDeparture = nextLeg.find(info => info.startsWith('From:'))?.match(/Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                            const nextDeparture = nextLeg.find(info => info.startsWith('From:'))?.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
 
                             if (currentArrival && nextDeparture) {
                                 const arrivalTime = new Date(currentArrival[1].replace(/, /, ' '));
@@ -489,6 +541,99 @@ export default function Home() {
         }, 300); // Longer wait to ensure the closing is complete
     };
 
+    // Function to format trip information
+    const formatTripInfo = (info: string) => {
+        if (info.startsWith('From:')) {
+            const [location, time] = info.split('Departing at:');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
+        }
+        if (info.startsWith('To:')) {
+            const [location, time] = info.split('Arriving at');
+            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
+            return (
+                <>
+                    <div>{formatStationName(location)}</div>
+                    <div className={styles.timeInfo}>
+                        {formattedTime}
+                    </div>
+                </>
+            );
+        }
+        if (info.startsWith('Duration:')) {
+            return (
+                <>
+                    <div>{info}</div>
+                </>
+            );
+        }
+        if (info.includes('minute wait')) {
+            const match = info.match(/(\d+) minute wait/);
+            if (match) {
+                const minutes = parseInt(match[1]);
+                return (
+                    <>
+                        <div>{formatTime(minutes, true)}</div>
+                    </>
+                );
+            }
+        }
+        if (info.startsWith('On:')) {
+            return (
+                <div className={styles.trainLine}>
+                    {info.replace('On: Sydney Trains Network', '').trim()}
+                </div>
+            );
+        }
+        return null;
+    };
+
+    // Function to format station name consistently
+    const formatStationName = (stationInfo: string | undefined) => {
+        if (!stationInfo) return '';
+        const parts = stationInfo.split(', ');
+        if (parts.length < 2) return stationInfo;
+
+        // Get main station name without "Station" and suburb, and remove From/To prefix
+        const mainName = parts[0]
+            .replace(' Station', '')
+            .replace('From: ', '')
+            .replace('To: ', '');
+        
+        // Get platform if it exists
+        const platform = parts.find(part => part.startsWith('Platform'));
+
+        return platform ? `${mainName}, ${platform}` : mainName;
+    };
+
+    // Function to calculate waiting time between legs
+    const calculateWaitingTime = (currentLeg: string[], nextLeg: string[]) => {
+        const currentArrivalInfo = currentLeg.find(info => info.startsWith('To:'));
+        const nextDepartureInfo = nextLeg.find(info => info.startsWith('From:'));
+
+        if (!currentArrivalInfo || !nextDepartureInfo) return null;
+
+        const arrMatch = currentArrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+        const depMatch = nextDepartureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+
+        if (!arrMatch || !depMatch) return null;
+
+        const arrivalTime = parseDateTime(arrMatch[1]);
+        const departureTime = parseDateTime(depMatch[1]);
+
+        if (!arrivalTime || !departureTime) return null;
+
+        const waitingTime = Math.round((departureTime.getTime() - arrivalTime.getTime()) / (1000 * 60));
+        return waitingTime > 0 ? waitingTime : null;
+    };
+
     // Function to calculate total duration from multiple legs
     const calculateTotalDuration = (trip: string[]) => {
         // Group the trip into legs
@@ -535,154 +680,7 @@ export default function Home() {
             }
         });
 
-        // Format the duration
-        if (totalDuration < 60) {
-            return `${totalDuration}m`;
-        } else {
-            const hours = Math.floor(totalDuration / 60);
-            const mins = totalDuration % 60;
-            return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-        }
-    };
-
-    // Function to format trip information
-    const formatTripInfo = (info: string) => {
-        if (info.startsWith('From:')) {
-            const [location, time] = info.split('Departing at:');
-            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
-            return (
-                <>
-                    <div>{formatStationName(location)}</div>
-                    <div className={styles.timeInfo}>
-                        {formattedTime}
-                    </div>
-                </>
-            );
-        }
-        if (info.startsWith('To:')) {
-            const [location, time] = info.split('Arriving at');
-            const formattedTime = time.trim().replace(/:\d{2}(?=\s|$)/, '');
-            return (
-                <>
-                    <div>{formatStationName(location)}</div>
-                    <div className={styles.timeInfo}>
-                        {formattedTime}
-                    </div>
-                </>
-            );
-        }
-        if (info.startsWith('Duration:')) {
-            return (
-                <>
-                    <div>{info}</div>
-                </>
-            );
-        }
-        if (info.includes('minute wait')) {
-            const match = info.match(/(\d+) minute wait/);
-            if (match) {
-                const minutes = parseInt(match[1]);
-                return (
-                    <>
-                        <div>{formatMinutesToTime(minutes)}</div>
-                    </>
-                );
-            }
-        }
-        if (info.startsWith('On:')) {
-            return (
-                <div className={styles.trainLine}>
-                    {info.replace('On: Sydney Trains Network', '').trim()}
-                </div>
-            );
-        }
-        return null;
-    };
-
-    // Function to format minutes into hours and minutes
-    const formatMinutesToTime = (minutes: number) => {
-        if (minutes < 60) {
-            return `${minutes} minute wait`;
-        } else {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            return `${hours}h ${mins}m wait`;
-        }
-    };
-
-    // Function to format time difference
-    const formatTimeDifference = (diffMins: number) => {
-        const absDiff = Math.abs(diffMins);
-        
-        if (absDiff < 60) {
-            return `${absDiff}m`;
-        } else if (absDiff < 24 * 60) {
-            const hours = Math.floor(absDiff / 60);
-            const mins = absDiff % 60;
-            return `${hours}h ${mins}m`;
-        } else {
-            const days = Math.floor(absDiff / (24 * 60));
-            const remainingMins = absDiff % (24 * 60);
-            const hours = Math.floor(remainingMins / 60);
-            const mins = remainingMins % 60;
-            
-            // Always show at least days and hours for consistency
-            return `${days}d ${hours}h${mins > 0 ? ` ${mins}m` : ''}`;
-        }
-    };
-
-    // Function to calculate waiting time
-    const calculateWaitingTime = (currentLeg: string[], nextLeg: string[]) => {
-        const currentArrivalInfo = currentLeg.find(info => info.startsWith('To:'));
-        const nextDepartureInfo = nextLeg.find(info => info.startsWith('From:'));
-
-        if (!currentArrivalInfo || !nextDepartureInfo) return null;
-
-        const arrMatch = currentArrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-        const depMatch = nextDepartureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-
-        if (!arrMatch || !depMatch) return null;
-
-        const arrivalTime = new Date(arrMatch[1].replace(/, /, ' '));
-        const departureTime = new Date(depMatch[1].replace(/, /, ' '));
-        const waitingTime = Math.round((departureTime.getTime() - arrivalTime.getTime()) / (1000 * 60));
-
-        return waitingTime > 0 ? waitingTime : null;
-    };
-
-    // Function to calculate time difference between actual and target times
-    const calculateTimeDifference = (actualTimeStr: string, targetTimeStr: string) => {
-        if (!actualTimeStr || !targetTimeStr) return null;
-
-        // Parse the actual time
-        const [actualDatePart, actualTimePart] = actualTimeStr.split(', ');
-        const [actualDay, actualMonth, actualYear] = actualDatePart.split('/').map(Number);
-        const [actualHours, actualMinutes] = actualTimePart.split(':').map(Number);
-        const actualTime = new Date(actualYear, actualMonth - 1, actualDay, actualHours, actualMinutes);
-
-        // Parse the target time
-        const targetTime = new Date(targetTimeStr.includes('T') 
-            ? targetTimeStr 
-            : targetTimeStr.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
-
-        // Calculate difference in minutes
-        const diffMs = targetTime.getTime() - actualTime.getTime();
-        return Math.round(diffMs / (1000 * 60));
-    };
-
-    // Calculate time until departure
-    const calculateTimeUntilDeparture = (dateTimeStr: string) => {
-        const now = new Date();
-        const [datePart, timePart] = dateTimeStr.split(', ');
-        const [day, month, year] = datePart.split('/').map(Number);
-        const [hours, minutes] = timePart.split(':').map(Number);
-        const departureTime = new Date(year, month - 1, day, hours, minutes);
-        
-        // Calculate difference in minutes
-        const diffMs = departureTime.getTime() - now.getTime();
-        const diffMins = Math.ceil(diffMs / (1000 * 60));
-        
-        return formatTimeDifference(diffMins);
+        return formatTime(totalDuration);
     };
 
     return (
@@ -737,7 +735,7 @@ export default function Home() {
                                                     if (diff === null) return null;
                                                     return (
                                                         <div className={styles.timeDifference}>
-                                                            ({formatTimeDifference(Math.abs(diff))} after requested time)
+                                                            ({formatTime(Math.abs(diff))} after requested time)
                                                         </div>
                                                     );
                                                 })()}
@@ -756,7 +754,7 @@ export default function Home() {
                                                     if (diff === null) return null;
                                                     return (
                                                         <div className={styles.timeDifference}>
-                                                            ({formatTimeDifference(Math.abs(diff))} before requested time)
+                                                            ({formatTime(Math.abs(diff))} before requested time)
                                                         </div>
                                                     );
                                                 })()}
@@ -873,7 +871,7 @@ export default function Home() {
                                                                 const waitTime = calculateWaitingTime(leg, legs[legIndex + 1]);
                                                                 return waitTime && (
                                                                     <div className={styles.waitTimeIndicator}>
-                                                                        {formatMinutesToTime(waitTime)}
+                                                                        {formatTime(waitTime, true)}
                                                                     </div>
                                                                 );
                                                             })()}
