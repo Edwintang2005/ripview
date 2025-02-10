@@ -46,7 +46,8 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        const timer = setInterval(() => {
+        // Function to update time and find next trip
+        const updateTimeAndTrips = () => {
             const now = new Date();
             setCurrentTime(now);
             
@@ -71,9 +72,28 @@ export default function Home() {
 
                 setNextTripIndex(nextIndex >= 0 ? nextIndex : null);
             }
-        }, 60000); // Update every minute
+        };
 
-        return () => clearInterval(timer);
+        // Calculate delay until the start of the next minute
+        const now = new Date();
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+
+        // Initial update
+        updateTimeAndTrips();
+
+        // Set timeout to sync with the start of the next minute
+        const initialTimeout = setTimeout(() => {
+            updateTimeAndTrips();
+            
+            // Then set interval to run every minute, exactly on the minute
+            const interval = setInterval(updateTimeAndTrips, 60000);
+            
+            // Cleanup interval on component unmount
+            return () => clearInterval(interval);
+        }, msUntilNextMinute);
+
+        // Cleanup timeout on component unmount
+        return () => clearTimeout(initialTimeout);
     }, [jsonData]);
 
     const isToday = (date: Date) => {
