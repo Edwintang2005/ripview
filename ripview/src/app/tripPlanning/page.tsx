@@ -110,7 +110,7 @@ export default function Home() {
         const date = new Date(year, month - 1, day);
         
         // Remove seconds from time if present
-        const timeWithoutSeconds = timePart.replace(/:\d{2}$/, '');
+        const timeWithoutSeconds = timePart.replace(/:\d{2}(?=\s|$)/, '');
         
         return isToday(date) ? timeWithoutSeconds : `${datePart}, ${timeWithoutSeconds}`;
     };
@@ -340,15 +340,62 @@ export default function Home() {
                     // Combine past and future trips
                     const allTrips = [...pastTrips, ...futureTrips];
 
+                    // Function to validate trip legs
+                    const isValidTripSequence = (legs: string[][]) => {
+                        for (let i = 0; i < legs.length - 1; i++) {
+                            const currentLeg = legs[i];
+                            const nextLeg = legs[i + 1];
+
+                            // Get arrival time of current leg
+                            const currentArrival = currentLeg.find(info => info.startsWith('To:'))?.match(/Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+                            // Get departure time of next leg
+                            const nextDeparture = nextLeg.find(info => info.startsWith('From:'))?.match(/Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
+
+                            if (currentArrival && nextDeparture) {
+                                const arrivalTime = new Date(currentArrival[1].replace(/, /, ' '));
+                                const departureTime = new Date(nextDeparture[1].replace(/, /, ' '));
+                                
+                                // If next leg departs before current leg arrives, the sequence is invalid
+                                if (departureTime.getTime() <= arrivalTime.getTime()) {
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
+                    };
+
+                    // Group the trip items into legs and filter invalid trips
+                    const groupAndValidateTrips = (trips: string[][]) => {
+                        return trips.filter(trip => {
+                            // Group the trip items into legs
+                            const legs: string[][] = [];
+                            let currentLeg: string[] = [];
+                            
+                            trip.forEach((info) => {
+                                if (info.startsWith('From:') && currentLeg.length > 0) {
+                                    legs.push([...currentLeg]);
+                                    currentLeg = [];
+                                }
+                                currentLeg.push(info);
+                            });
+                            if (currentLeg.length > 0) {
+                                legs.push(currentLeg);
+                            }
+
+                            // Check if the trip sequence is valid
+                            return isValidTripSequence(legs);
+                        });
+                    };
+
                     // Find index of next upcoming trip
-                    const nextUpcomingIndex = allTrips.findIndex(trip => {
+                    const nextUpcomingIndex = groupAndValidateTrips(allTrips).findIndex(trip => {
                         const departureTime = parseDepartureTime(trip);
                         if (!departureTime) return false;
                         return departureTime > now;
                     });
 
                     setNextTripIndex(nextUpcomingIndex >= 0 ? nextUpcomingIndex : null);
-                    setjsonData(filterTrips(allTrips));
+                    setjsonData(filterTrips(groupAndValidateTrips(allTrips)));
                     setRecentDepartedTrip(mostRecentDepartedTrip);
                 } catch (error) {
                     setjsonData([['Error fetching trip data']]);
@@ -386,14 +433,16 @@ export default function Home() {
         return () => clearTimeout(timeoutId);
     }, [nextTripIndex, jsonData]);
 
-    // Function to check if the trip has multiple legs
-    const hasMultipleLegs = (trip: string[]) => {
-        return trip.filter((info) => info.startsWith('From:')).length > 1;
+    // Function to get the number of train line changes
+    const getNumberOfTrainLineChanges = (trip: string[]) => {
+        // Number of train line changes is one less than the number of legs
+        const numberOfLegs = trip.filter((info) => info.startsWith('From:')).length;
+        return numberOfLegs > 1 ? numberOfLegs - 1 : 0;
     };
 
-    // Function to get the number of legs in the trip
-    const getNumberOfLegs = (trip: string[]) => {
-        return trip.filter((info) => info.startsWith('From:')).length;
+    // Function to check if the trip has train line changes
+    const hasTrainLineChanges = (trip: string[]) => {
+        return getNumberOfTrainLineChanges(trip) > 0;
     };
 
     // Function to extract train line info
@@ -440,88 +489,59 @@ export default function Home() {
         }, 300); // Longer wait to ensure the closing is complete
     };
 
-    // Calculate time until departure
-    const calculateTimeUntilDeparture = (dateTimeStr: string) => {
-        const now = new Date();
-        const [datePart, timePart] = dateTimeStr.split(', ');
-        const [day, month, year] = datePart.split('/').map(Number);
-        const [hours, minutes] = timePart.split(':').map(Number);
-        const departureTime = new Date(year, month - 1, day, hours, minutes);
-        
-        // Calculate difference in minutes
-        const diffMs = departureTime.getTime() - now.getTime();
-        const diffMins = Math.ceil(diffMs / (1000 * 60));
-
-        // If departure time is in the past
-        if (diffMins < 0) {
-            const minsAgo = Math.abs(diffMins);
-            if (minsAgo < 60) {
-                return `${minsAgo}m ago`;
-            } else {
-                const hours = Math.floor(minsAgo / 60);
-                const mins = minsAgo % 60;
-                return `${hours}h ${mins}m ago`;
-            }
-        }
-        
-        if (diffMins < 60) {
-            return `${diffMins}m`;
-        } else {
-            const hours = Math.floor(diffMins / 60);
-            const mins = diffMins % 60;
-            return `${hours}h ${mins}m`;
-        }
-    };
-
     // Function to calculate total duration from multiple legs
     const calculateTotalDuration = (trip: string[]) => {
-        let totalMinutes = 0;
-        let lastArrivalTime: Date | null = null;
-
-        // Group the trip information into legs
-        const legs = trip.reduce((acc: string[][], info: string) => {
-            if (info.startsWith('From:')) {
-                acc.push([info]);
-            } else if (acc.length > 0) {
-                acc[acc.length - 1].push(info);
+        // Group the trip into legs
+        const legs: string[][] = [];
+        let currentLeg: string[] = [];
+        
+        trip.forEach((info) => {
+            if (info.startsWith('From:') && currentLeg.length > 0) {
+                legs.push([...currentLeg]);
+                currentLeg = [];
             }
-            return acc;
-        }, []);
-
-        for (const leg of legs) {
-            // Extract departure and arrival times for this leg
-            const departureInfo = leg.find(info => info.startsWith('From:'));
-            const arrivalInfo = leg.find(info => info.startsWith('To:'));
-
-            if (departureInfo && arrivalInfo) {
-                const depMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-                const arrMatch = arrivalInfo.match(/To: .+\. Arriving at (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
-
-                if (depMatch && arrMatch) {
-                    const depTime = new Date(depMatch[1].replace(/, /, ' '));
-                    const arrTime = new Date(arrMatch[1].replace(/, /, ' '));
-
-                    // Add waiting time from previous leg if exists
-                    if (lastArrivalTime) {
-                        const waitingTime = Math.round((depTime.getTime() - lastArrivalTime.getTime()) / (1000 * 60));
-                        totalMinutes += waitingTime;
-                    }
-
-                    // Add travel time for current leg
-                    const travelTime = Math.round((arrTime.getTime() - depTime.getTime()) / (1000 * 60));
-                    totalMinutes += travelTime;
-
-                    lastArrivalTime = arrTime;
-                }
-            }
+            currentLeg.push(info);
+        });
+        if (currentLeg.length > 0) {
+            legs.push(currentLeg);
         }
 
-        if (totalMinutes < 60) {
-            return `${totalMinutes}m`;
+        // Calculate leg durations and wait times
+        let totalDuration = 0;
+
+        legs.forEach((leg, index) => {
+            // Add leg duration
+            const durationInfo = leg.find(info => info.startsWith('Duration:'));
+            if (durationInfo) {
+                const hoursMatch = durationInfo.match(/Duration: (\d+) hours? (\d+) minutes?/);
+                if (hoursMatch) {
+                    const hours = parseInt(hoursMatch[1]);
+                    const minutes = parseInt(hoursMatch[2]);
+                    totalDuration += hours * 60 + minutes;
+                } else {
+                    const minutesMatch = durationInfo.match(/Duration: (\d+) minutes?/);
+                    if (minutesMatch) {
+                        totalDuration += parseInt(minutesMatch[1]);
+                    }
+                }
+            }
+
+            // Add wait time to next leg if it exists
+            if (index < legs.length - 1) {
+                const waitTime = calculateWaitingTime(leg, legs[index + 1]);
+                if (waitTime) {
+                    totalDuration += waitTime;
+                }
+            }
+        });
+
+        // Format the duration
+        if (totalDuration < 60) {
+            return `${totalDuration}m`;
         } else {
-            const hours = Math.floor(totalMinutes / 60);
-            const mins = totalMinutes % 60;
-            return `${hours}h ${mins}m`;
+            const hours = Math.floor(totalDuration / 60);
+            const mins = totalDuration % 60;
+            return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
         }
     };
 
@@ -558,6 +578,17 @@ export default function Home() {
                 </>
             );
         }
+        if (info.includes('minute wait')) {
+            const match = info.match(/(\d+) minute wait/);
+            if (match) {
+                const minutes = parseInt(match[1]);
+                return (
+                    <>
+                        <div>{formatMinutesToTime(minutes)}</div>
+                    </>
+                );
+            }
+        }
         if (info.startsWith('On:')) {
             return (
                 <div className={styles.trainLine}>
@@ -568,15 +599,35 @@ export default function Home() {
         return null;
     };
 
+    // Function to format minutes into hours and minutes
+    const formatMinutesToTime = (minutes: number) => {
+        if (minutes < 60) {
+            return `${minutes} minute wait`;
+        } else {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m wait`;
+        }
+    };
+
     // Function to format time difference
     const formatTimeDifference = (diffMins: number) => {
         const absDiff = Math.abs(diffMins);
+        
         if (absDiff < 60) {
             return `${absDiff}m`;
-        } else {
+        } else if (absDiff < 24 * 60) {
             const hours = Math.floor(absDiff / 60);
             const mins = absDiff % 60;
             return `${hours}h ${mins}m`;
+        } else {
+            const days = Math.floor(absDiff / (24 * 60));
+            const remainingMins = absDiff % (24 * 60);
+            const hours = Math.floor(remainingMins / 60);
+            const mins = remainingMins % 60;
+            
+            // Always show at least days and hours for consistency
+            return `${days}d ${hours}h${mins > 0 ? ` ${mins}m` : ''}`;
         }
     };
 
@@ -617,6 +668,21 @@ export default function Home() {
         // Calculate difference in minutes
         const diffMs = targetTime.getTime() - actualTime.getTime();
         return Math.round(diffMs / (1000 * 60));
+    };
+
+    // Calculate time until departure
+    const calculateTimeUntilDeparture = (dateTimeStr: string) => {
+        const now = new Date();
+        const [datePart, timePart] = dateTimeStr.split(', ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        const departureTime = new Date(year, month - 1, day, hours, minutes);
+        
+        // Calculate difference in minutes
+        const diffMs = departureTime.getTime() - now.getTime();
+        const diffMins = Math.ceil(diffMs / (1000 * 60));
+        
+        return formatTimeDifference(diffMins);
     };
 
     return (
@@ -698,9 +764,9 @@ export default function Home() {
                                         </div>
                                     </div>
                                     <div className={styles.rightSection}>
-                                        {hasMultipleLegs(trip) && (
+                                        {hasTrainLineChanges(trip) && (
                                             <div className={styles.legsInfo}>
-                                                {`${getNumberOfLegs(trip)} train line change(s)`}
+                                                {`${getNumberOfTrainLineChanges(trip)} train line change(s)`}
                                             </div>
                                         )}
                                         <div className={`${styles.tripStatusSection} ${
@@ -807,7 +873,7 @@ export default function Home() {
                                                                 const waitTime = calculateWaitingTime(leg, legs[legIndex + 1]);
                                                                 return waitTime && (
                                                                     <div className={styles.waitTimeIndicator}>
-                                                                        {waitTime} minute wait
+                                                                        {formatMinutesToTime(waitTime)}
                                                                     </div>
                                                                 );
                                                             })()}
