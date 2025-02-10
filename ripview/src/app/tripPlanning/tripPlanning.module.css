@@ -1,43 +1,31 @@
-.pageTitle,
-.tripOption h2,
-.tripList li,
-.timeInfo,
-.transportInfo,
-.durationInfo,
-.legsInfo {
-    font-family: inherit;
-}
-
 .page {
     --gray-rgb: 0, 0, 0;
     --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
     --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
-
-    --button-primary-hover: #383838;
-    --button-secondary-hover: #f2f2f2;
-
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    align-items: start;
-    justify-items: center;
-    min-height: 100svh;
-    padding: 0 0 2rem 0;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
     font-family: var(--font-geist-sans);
+    padding-top: calc(4rem + 3rem); /* Header + SubHeader height */
 }
 
 .main {
+    flex: 1;
     display: flex;
     flex-direction: column;
     width: 100%;
     max-width: 75rem;
     padding: 1rem 2rem 0 2rem;
+    margin: 0 auto;
+    font-family: var(--font-geist-sans);
 }
 
 .tripContent {
     width: 100%;
     padding: 0 1.25rem;
     margin-bottom: 2rem;
+    flex: 1;
 }
 
 .container {
@@ -45,7 +33,6 @@
     padding: 1.25rem;
     max-width: 75rem;
     margin: 0 auto;
-    font-family: inherit;
     padding-top: 2rem;
 }
 
@@ -64,7 +51,6 @@
 }
 
 .pageTitle {
-    margin: 0rem 0 1.25rem 0;
     font-size: 1.5rem;
     font-weight: 500;
     text-align: center;
@@ -73,7 +59,6 @@
 
 .tripOption {
     margin-bottom: 1.25rem;
-    padding: 1.25rem;
     border: 1px solid var(--gray-alpha-200);
     border-radius: 0.3125rem;
     background-color: rgba(31, 31, 31, 0.1);
@@ -95,31 +80,63 @@
 }
 
 .tripList {
-    list-style-type: none;
-    padding: 0;
+    list-style: none;
+    padding: 1rem;
+    margin: 0;
 }
 
-.tripList li {
-    margin: 0.625rem 0;
+.legGroup {
+    position: relative;
+    margin-bottom: 16px;
 }
 
-.tripList li div {
-    margin: 0.3125rem 0;
-    line-height: 1.5;
+.legGroup:last-child {
+    margin-bottom: 0;
+}
+
+.legContent {
+    position: relative;
+    padding-left: 20px;
+}
+
+.legContent::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 1.5px;
+    background-color: var(--line-color, #6f818d);
+}
+
+.tripItem {
+    margin-bottom: 8px;
+    padding: 4px 0;
+}
+
+.tripItem:last-child {
+    margin-bottom: 0;
+}
+
+.trainLine {
+    margin-top: 4px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.legDivider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 16px 0;
+    width: 100%;
 }
 
 .timeInfo {
     color: var(--foreground);
     opacity: 0.8;
     font-size: 0.95rem;
-    margin-left: 1.25rem;
-}
-
-.legDivider {
-    margin: 1.25rem 0;
-    border: none;
-    border-top: 1px solid var(--border-color, #333);
-    opacity: 0.5;
+    padding-top: 0.5rem;
 }
 
 .transportInfo {
@@ -133,36 +150,327 @@
     font-size: 0.9rem;
 }
 
+.stationContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 64px;
+    padding: 0.5rem;
+    justify-content: center;
+}
+
+.stationContainer.right {
+    align-items: flex-end;
+    text-align: right;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.stationName {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.stationTime {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+    position: relative;
+}
+
 .legsInfo {
-    margin: -0.625rem 0 0.9375rem 0;
-    padding: 0.375rem 0.75rem 0.375rem 0.5rem;
+    padding: 0.375rem 0.75rem;
     background-color: rgba(255, 152, 0, 0.1);
     border: 1px solid rgba(255, 152, 0, 0.2);
     border-radius: 0.25rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--foreground);
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
 }
 
 .legsInfo::before {
     content: "⚠️";
 }
 
-.tripDetails {
-    margin: -0.5rem 0 1.5rem 0;
-    padding: 0.75rem 1rem;
-    background-color: var(--gray-alpha-100);
-    border: 1px solid var(--gray-alpha-200);
+.tripStatusSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
     border-radius: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--foreground);
+    margin-top: 0.5rem;
 }
 
-.tripDetails p::before {
-    content: "🕒";
-    margin-right: 0.5rem;
+.arrivalDifference {
+    position: absolute;
+    bottom: -30px;
+    right: 0;
+    margin-top: 3rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--foreground);
+    opacity: 0.8;
+    font-style: italic;
+    white-space: nowrap;
+}
+
+.tripStatusSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    background-color: var(--gray-alpha-100);
+    border: 1px solid var(--gray-alpha-200);
+    width: 6.875rem;
+    position: relative;
+}
+
+.tripStatusDeparted {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.tripStatusUpcoming {
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.tripInfoBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.timeUntilDeparture {
+    color: var(--foreground);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.expandIcon {
+    color: var(--foreground);
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out;
+    position: absolute;
+    right: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    transform-origin: center center;
+}
+
+.tripOption.expanded .expandIcon {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.tripDetails {
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+    visibility: visible;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 1.25rem;
+    margin-top: 0;
+    border-top: 1px solid var(--gray-alpha-200);
+    background-color: var(--gray-alpha-100);
+    transform: translateY(-10px);
+}
+
+.tripDetails.visible {
+    opacity: 1;
+    max-height: 2000px;
+    padding: 1.25rem;
+    margin-top: 1rem;
+    transform: translateY(0);
+}
+
+.tripExtendedInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--gray-alpha-100);
+    border-radius: 0.5rem;
+}
+
+.transportLines {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.transportLine {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.95rem;
+    background-color: var(--gray-alpha-200);
+    white-space: nowrap;
+}
+
+.trainLineIndicator {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.trainLine {
+    margin-top: 4px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.totalTripDuration {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--gray-alpha-200);
+}
+
+.tripSummary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 3rem 1rem 2rem;
+    height: 9rem;
+}
+
+.tripMainInfo {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    scroll-margin-top: var(--header-offset);
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.rightSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.tripHeading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.timePreferenceText {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding-bottom: 0.5rem;
+}
+
+/*  */
+.tripLegs {
+    padding: 1rem 0rem;
+
+}
+
+/* The space between the top leg and the wait time indicator */
+.tripLegSeparator {
+    margin: 1rem 0;
+    text-align: left;
+    padding-left: 1rem;
+}
+
+.tripLegDivider {
+    height: 0;  
+    margin: 0.5rem 0;
+    width: calc(100% - 20px);
+    border-top: 1px solid #e0e0e0;  
+}
+
+.waitTimeIndicator {
+    color: #666;
+    font-size: 0.95em;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    background-color: var(--gray-alpha-100);
+    border-radius: 0.25rem;
+    display: inline-block;
+}
+
+.tripLeg {
+    position: relative;
+    padding-left: 1rem;
+    border-left: 0.2rem solid var(--line-color, #e0e0e0);
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem;
+    color: #333;
+}
+
+.pastJourney {
+    border-left: 4px solid #666;
+    opacity: 0.85;
+}
+
+.tripStatusDeparted {
+    background-color: #666;
+    color: #fff;
+}
+
+.nextTrip {
+    border-left: 4px solid #2196f3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+    position: relative;
+}
+
+.nextTrip::before {
+    content: 'Closest Trip';
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: #2196f3;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -174,10 +482,20 @@
         --button-primary-hover: #ccc;
         --button-secondary-hover: #1a1a1a;
     }
+
+    .waitTimeIndicator,
+    .trainLine {
+        color: #ccc;
+    }
+    
+    .tripLegDivider {
+        border-top-color: #404040;
+    }
 }
 
 @media (max-width: 37.5rem) {
     .page {
+        --header-offset: 120px;
         padding: 0 0 1rem 0;
     }
 
@@ -194,4 +512,27 @@
     .backButton {
         margin: 0.75rem 0 0 1rem;
     }
+
+    .tripTimes {
+        font-size: 1rem;
+    }
+
+    .stationNames {
+        font-size: 0.8rem;
+    }
+
+    .tripExtendedInfo {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* Hover state */
+.tripOption:hover {
+    background-color: var(--gray-alpha-100);
+}
+
+/* Focus state for accessibility */
+.tripOption:focus {
+    outline: 2px solid var(--foreground);
 }
