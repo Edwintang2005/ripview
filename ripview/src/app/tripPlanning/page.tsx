@@ -458,9 +458,8 @@ export default function Home() {
         fetchData();
     }, [fromStation, toStation, time, isArr, date, timeValue]);
 
-    // Effect to scroll to next trip when data loads
     useEffect(() => {
-        const scrollToNextTrip = () => {
+        const scrollToNextTripInitial = () => {
             if (nextTripRef.current && nextTripIndex !== null && !initialScrollDone.current) {
                 const element = nextTripRef.current;
                 const headerOffset = 140;
@@ -477,68 +476,30 @@ export default function Home() {
         };
 
         // Initial scroll attempt
-        scrollToNextTrip();
+        scrollToNextTripInitial();
         
-        // Backup scroll attempt after a delay
-        const timeoutId = setTimeout(scrollToNextTrip, 500);
+        // Backup scroll attempt after a delay in case the first attempt fails
+        const timeoutId = setTimeout(scrollToNextTripInitial, 500);
         
         return () => clearTimeout(timeoutId);
     }, [nextTripIndex, jsonData]);
 
-    // Function to get the number of train line changes
-    const getNumberOfTrainLineChanges = (trip: string[]) => {
-        // Number of train line changes is one less than the number of legs
-        const numberOfLegs = trip.filter((info) => info.startsWith('From:')).length;
-        return numberOfLegs > 1 ? numberOfLegs - 1 : 0;
-    };
+    // Function to format station name consistently
+    const formatStationName = (stationInfo: string | undefined) => {
+        if (!stationInfo) return '';
+        const parts = stationInfo.split(', ');
+        if (parts.length < 2) return stationInfo;
 
-    // Function to check if the trip has train line changes
-    const hasTrainLineChanges = (trip: string[]) => {
-        return getNumberOfTrainLineChanges(trip) > 0;
-    };
+        // Get main station name without "Station" and suburb, and remove From/To prefix
+        const mainName = parts[0]
+            .replace(' Station', '')
+            .replace('From: ', '')
+            .replace('To: ', '');
+        
+        // Get platform if it exists
+        const platform = parts.find(part => part.startsWith('Platform'));
 
-    // Function to extract train line info
-    const extractTrainLine = (info: string) => {
-        const match = info.match(/Sydney Trains Network\s+(.+)/);
-        return match ? match[1] : info;
-    };
-
-    // Function to get train line color
-    const getTrainLineColor = (trainLine: string) => {
-        const color = Object.entries(trainLineColours).find(([key]) =>
-            trainLine.includes(key)
-        );
-        return color ? color[1] : '#6f818d';
-    };
-
-    const handleTripClick = (tripIndex: number) => {
-        // If clicking the same trip, just close it
-        if (expandedTrip === tripIndex) {
-            setExpandedTrip(null);
-            return;
-        }
-
-        // Step 1: Close any open trip
-        setExpandedTrip(null);
-
-        // Step 2: Wait for the closing animation
-        setTimeout(() => {
-            // Step 3: Open the new trip
-            setExpandedTrip(tripIndex);
-
-            // Step 4: Wait for the opening animation and DOM update
-            setTimeout(() => {
-                const tripElement = document.getElementById(`trip-main-${tripIndex}`);
-                if (tripElement) {
-                    const offset = 170;
-                    const elementTop = tripElement.getBoundingClientRect().top + window.scrollY;
-                    window.scrollTo({
-                        top: elementTop - offset,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 200); // Longer wait to ensure the animation is complete
-        }, 300); // Longer wait to ensure the closing is complete
+        return platform ? `${mainName}, ${platform}` : mainName;
     };
 
     // Function to format trip information
@@ -595,22 +556,30 @@ export default function Home() {
         return null;
     };
 
-    // Function to format station name consistently
-    const formatStationName = (stationInfo: string | undefined) => {
-        if (!stationInfo) return '';
-        const parts = stationInfo.split(', ');
-        if (parts.length < 2) return stationInfo;
+    // Function to get the number of train line changes
+    const getNumberOfTrainLineChanges = (trip: string[]) => {
+        // Number of train line changes is one less than the number of legs
+        const numberOfLegs = trip.filter((info) => info.startsWith('From:')).length;
+        return numberOfLegs > 1 ? numberOfLegs - 1 : 0;
+    };
 
-        // Get main station name without "Station" and suburb, and remove From/To prefix
-        const mainName = parts[0]
-            .replace(' Station', '')
-            .replace('From: ', '')
-            .replace('To: ', '');
-        
-        // Get platform if it exists
-        const platform = parts.find(part => part.startsWith('Platform'));
+    // Function to check if the trip has train line changes
+    const hasTrainLineChanges = (trip: string[]) => {
+        return getNumberOfTrainLineChanges(trip) > 0;
+    };
 
-        return platform ? `${mainName}, ${platform}` : mainName;
+    // Function to extract train line info
+    const extractTrainLine = (info: string) => {
+        const match = info.match(/Sydney Trains Network\s+(.+)/);
+        return match ? match[1] : info;
+    };
+
+    // Function to get train line color
+    const getTrainLineColor = (trainLine: string) => {
+        const color = Object.entries(trainLineColours).find(([key]) =>
+            trainLine.includes(key)
+        );
+        return color ? color[1] : '#6f818d';
     };
 
     // Function to calculate waiting time between legs
@@ -683,10 +652,59 @@ export default function Home() {
         return formatTime(totalDuration);
     };
 
+    const handleTripClick = (tripIndex: number) => {
+        // If clicking the same trip, just close it
+        if (expandedTrip === tripIndex) {
+            setExpandedTrip(null);
+            return;
+        }
+
+        // Step 1: Close any open trip
+        setExpandedTrip(null);
+
+        // Step 2: Wait for the closing animation
+        setTimeout(() => {
+            // Step 3: Open the new trip
+            setExpandedTrip(tripIndex);
+
+            // Step 4: Wait for the opening animation and DOM update
+            setTimeout(() => {
+                const tripElement = document.getElementById(`trip-main-${tripIndex}`);
+                if (tripElement) {
+                    const offset = 170;
+                    const elementTop = tripElement.getBoundingClientRect().top + window.scrollY;
+                    window.scrollTo({
+                        top: elementTop - offset,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 300);
+        }, 300);
+    };
+
+    // Function to scroll to closest trip
+    const scrollToClosestTrip = () => {
+        if (nextTripRef.current && nextTripIndex !== null) {
+            const element = nextTripRef.current;
+            const headerOffset = 140;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
         <div className={styles.page}>
             <Header title={`Trip From ${fromName} to ${toName}!`} />
-            <SubHeader timeInfo={getTimePreferenceText()} />
+            <SubHeader 
+                timeInfo={getTimePreferenceText()} 
+                onClosestTrip={scrollToClosestTrip}
+                hasClosestTrip={nextTripIndex !== null}
+            />
             <main className={styles.main}>
                 <div className={styles.tripContent}>
                     <div className={styles.tripDetails}>
