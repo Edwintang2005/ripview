@@ -1,14 +1,24 @@
 'use client';
 import styles from './mapInput.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
-import { useCallback, MouseEvent } from 'react';
+import { useCallback, MouseEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BackButton from '@/components/BackButton';
+import Loading from '@/components/Loading';
 
 export default function MapInput() {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
     let fromId = '';
     let toId = '';
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
         const targetStore = event.target as SVGElement;
@@ -51,13 +61,17 @@ export default function MapInput() {
     }, []);
 
     return (
-        <div className={styles.mapInputContainer}>
-            <BackButton />
-            <div className={styles.mapDiv}>
-                <MySVG
-                    onClick={handleSVGClick}
-                />
-            </div>
+        <div className={styles.page}>
+            {isLoading ? (
+                <Loading message="Loading map..." />
+            ) : (
+                <>
+                    <BackButton />
+                    <div className={styles.mapContainer}>
+                        <MySVG onClick={handleSVGClick} />
+                    </div>
+                </>
+            )}
         </div>
     );
 }

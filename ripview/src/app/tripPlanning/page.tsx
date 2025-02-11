@@ -10,6 +10,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SubHeader from '@/components/SubHeader';
+import Loading from '@/components/Loading';
 
 export default function Home() {
     const [jsonData, setjsonData] = useState([['Loading...']]);
@@ -697,217 +698,225 @@ export default function Home() {
         }
     };
 
+    const isLoading = jsonData[0][0] === 'Loading...';
+
     return (
         <div className={styles.page}>
-            <Header title={`Trip From ${fromName} to ${toName}!`} />
-            <SubHeader 
-                timeInfo={getTimePreferenceText()} 
-                onClosestTrip={scrollToClosestTrip}
-                hasClosestTrip={nextTripIndex !== null}
-            />
-            <main className={styles.main}>
-                <div className={styles.tripContent}>
-                    <div className={styles.tripDetails}>
-                        <p>Showing trips for: {getTimePreferenceText()}</p>
-                    </div>
-                    {/* Display future trips */}
-                    {jsonData.map((trip, tripIndex) => {
-                        // Extract departure and arrival info
-                        const departureInfos = trip.filter(info => info.startsWith('From:'));
-                        const arrivalInfos = trip.filter(info => info.startsWith('To:'));
-                        
-                        // Get the first departure and last arrival for multi-leg journeys
-                        const firstDepartureInfo = departureInfos[0]?.split('Departing at:');
-                        const lastArrivalInfo = arrivalInfos[arrivalInfos.length - 1]?.split('Arriving at');
+            {isLoading ? (
+                <Loading message="Finding your trips..." />
+            ) : (
+                <>
+                    <Header title={`Trip From ${fromName} to ${toName}!`} />
+                    <SubHeader 
+                        timeInfo={getTimePreferenceText()} 
+                        onClosestTrip={scrollToClosestTrip}
+                        hasClosestTrip={nextTripIndex !== null}
+                    />
+                    <main className={styles.main}>
+                        <div className={styles.tripContent}>
+                            <div className={styles.tripDetails}>
+                                <p>Showing trips for: {getTimePreferenceText()}</p>
+                            </div>
+                            {/* Display future trips */}
+                            {jsonData.map((trip, tripIndex) => {
+                                // Extract departure and arrival info
+                                const departureInfos = trip.filter(info => info.startsWith('From:'));
+                                const arrivalInfos = trip.filter(info => info.startsWith('To:'));
+                                
+                                // Get the first departure and last arrival for multi-leg journeys
+                                const firstDepartureInfo = departureInfos[0]?.split('Departing at:');
+                                const lastArrivalInfo = arrivalInfos[arrivalInfos.length - 1]?.split('Arriving at');
 
-                        return (
-                            <div
-                                key={tripIndex}
-                                id={`trip-${tripIndex}`}
-                                className={`${styles.tripOption} ${expandedTrip === tripIndex ? styles.expanded : ''} ${tripIndex === nextTripIndex ? styles.nextTrip : ''}`}
-                                ref={tripIndex === nextTripIndex ? nextTripRef : null}
-                                onClick={() => handleTripClick(tripIndex)}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        handleTripClick(tripIndex);
-                                    }
-                                }}
-                            >
-                                <div className={styles.tripSummary}>
-                                    <div 
-                                        id={`trip-main-${tripIndex}`}
-                                        className={styles.tripMainInfo}
-                                    >
-                                        <div className={styles.stationContainer}>
-                                            <div className={styles.stationName}>
-                                                {formatStationName(firstDepartureInfo?.[0])}
-                                            </div>
-                                            <div className={styles.stationTime}>
-                                                {firstDepartureInfo && `${formatTimeWithDate(firstDepartureInfo[1])}`}
-                                                {!isArr && firstDepartureInfo?.[1] && time && timePreference !== 'current' && (() => {
-                                                    const departureTime = firstDepartureInfo[1];
-                                                    if (!departureTime) return null;
-                                                    const diff = calculateTimeDifference(departureTime, time);
-                                                    if (diff === null) return null;
-                                                    return (
-                                                        <div className={styles.timeDifference}>
-                                                            ({formatTime(Math.abs(diff))} after requested time)
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </div>
-                                        </div>
-                                        <div className={`${styles.stationContainer} ${styles.right}`}>
-                                            <div className={styles.stationName}>
-                                                {formatStationName(lastArrivalInfo?.[0])}
-                                            </div>
-                                            <div className={styles.stationTime}>
-                                                {lastArrivalInfo && `${formatTimeWithDate(lastArrivalInfo[1])}`}
-                                                {isArr && lastArrivalInfo?.[1] && time && timePreference !== 'current' && (() => {
-                                                    const arrivalTime = lastArrivalInfo[1];
-                                                    if (!arrivalTime) return null;
-                                                    const diff = calculateTimeDifference(arrivalTime, time);
-                                                    if (diff === null) return null;
-                                                    return (
-                                                        <div className={styles.timeDifference}>
-                                                            ({formatTime(Math.abs(diff))} before requested time)
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={styles.rightSection}>
-                                        {hasTrainLineChanges(trip) && (
-                                            <div className={styles.legsInfo}>
-                                                {`${getNumberOfTrainLineChanges(trip)} train line change(s)`}
-                                            </div>
-                                        )}
-                                        <div className={`${styles.tripStatusSection} ${
-                                            firstDepartureInfo?.[1] ? (() => {
-                                                const [datePart, timePart] = firstDepartureInfo[1].trim().split(', ');
-                                                if (!datePart || !timePart) return styles.tripStatusUpcoming;
-                                                const [day, month, year] = datePart.split('/').map(Number);
-                                                const [hours, minutes] = timePart.split(':').map(Number);
-                                                const departureTime = new Date(year, month - 1, day, hours, minutes);
-                                                return departureTime < new Date() ? styles.tripStatusDeparted : styles.tripStatusUpcoming;
-                                            })() : styles.tripStatusUpcoming
-                                        }`}>
-                                            <div className={styles.tripInfoBox}>
-                                                {(() => {
-                                                    const timeUntil = firstDepartureInfo?.[1] ? calculateTimeUntilDeparture(firstDepartureInfo[1]) : null;
-                                                    return (
-                                                        <>
-                                                            {timeUntil && (
-                                                                <div className={styles.timeUntilDeparture}>
-                                                                    {timeUntil}
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    );
-                                                })()}
-                                            </div>
-                                            <div className={styles.expandIcon}>
-                                                ▼
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className={`${styles.tripDetails} ${expandedTrip === tripIndex ? styles.visible : ''}`}>
-                                    <div className={styles.tripExtendedInfo}>
-                                        <div className={styles.transportLines}>
-                                            {trip
-                                                .filter(info => info.startsWith('On:'))
-                                                .map((transportInfo, index) => {
-                                                    const trainLine = extractTrainLine(transportInfo.replace('On: ', ''));
-                                                    const color = getTrainLineColor(trainLine);
-
-                                                    return (
-                                                        <div key={index} className={styles.transportLine}>
-                                                            <div
-                                                                className={styles.trainLineIndicator}
-                                                                style={{ backgroundColor: color }}
-                                                            />
-                                                            <span>{trainLine}</span>
-                                                        </div>
-                                                    );
-                                                })}
-                                        </div>
-                                        <div className={styles.totalTripDuration}>
-                                            <i className="fas fa-clock"></i>
-                                            <span>Total Duration: {calculateTotalDuration(trip)}</span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.tripLegs}>
-                                        {(() => {
-                                            // Group the trip items into legs
-                                            const legs: string[][] = [];
-                                            let currentLeg: string[] = [];
-                                            
-                                            trip.forEach((info) => {
-                                                if (info.startsWith('From:') && currentLeg.length > 0) {
-                                                    legs.push([...currentLeg]);
-                                                    currentLeg = [];
-                                                }
-                                                currentLeg.push(info);
-                                            });
-                                            if (currentLeg.length > 0) {
-                                                legs.push(currentLeg);
+                                return (
+                                    <div
+                                        key={tripIndex}
+                                        id={`trip-${tripIndex}`}
+                                        className={`${styles.tripOption} ${expandedTrip === tripIndex ? styles.expanded : ''} ${tripIndex === nextTripIndex ? styles.nextTrip : ''}`}
+                                        ref={tripIndex === nextTripIndex ? nextTripRef : null}
+                                        onClick={() => handleTripClick(tripIndex)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                handleTripClick(tripIndex);
                                             }
-
-                                            return legs.map((leg, legIndex) => (
-                                                <Fragment key={legIndex}>
-                                                    <div 
-                                                        className={styles.tripLeg}
-                                                        style={{ '--line-color': getTrainLineColor(extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')) } as React.CSSProperties}
-                                                    >
-                                                        {leg.map((info, infoIndex) => {
-                                                            if (info.startsWith('On:')) return null;
-                                                            
-                                                            const formattedInfo = formatTripInfo(info);
-                                                            if (!formattedInfo) return null;
-
-                                                            const isLastItem = infoIndex === leg.length - 1;
+                                        }}
+                                    >
+                                        <div className={styles.tripSummary}>
+                                            <div 
+                                                id={`trip-main-${tripIndex}`}
+                                                className={styles.tripMainInfo}
+                                            >
+                                                <div className={styles.stationContainer}>
+                                                    <div className={styles.stationName}>
+                                                        {formatStationName(firstDepartureInfo?.[0])}
+                                                    </div>
+                                                    <div className={styles.stationTime}>
+                                                        {firstDepartureInfo && `${formatTimeWithDate(firstDepartureInfo[1])}`}
+                                                        {!isArr && firstDepartureInfo?.[1] && time && timePreference !== 'current' && (() => {
+                                                            const departureTime = firstDepartureInfo[1];
+                                                            if (!departureTime) return null;
+                                                            const diff = calculateTimeDifference(departureTime, time);
+                                                            if (diff === null) return null;
                                                             return (
-                                                                <div key={infoIndex} className={styles.tripItem}>
-                                                                    {formattedInfo}
-                                                                    {isLastItem && (
-                                                                        <div className={styles.trainLine}>
-                                                                            {extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')}
+                                                                <div className={styles.timeDifference}>
+                                                                    ({formatTime(Math.abs(diff))} after requested time)
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                                <div className={`${styles.stationContainer} ${styles.right}`}>
+                                                    <div className={styles.stationName}>
+                                                        {formatStationName(lastArrivalInfo?.[0])}
+                                                    </div>
+                                                    <div className={styles.stationTime}>
+                                                        {lastArrivalInfo && `${formatTimeWithDate(lastArrivalInfo[1])}`}
+                                                        {isArr && lastArrivalInfo?.[1] && time && timePreference !== 'current' && (() => {
+                                                            const arrivalTime = lastArrivalInfo[1];
+                                                            if (!arrivalTime) return null;
+                                                            const diff = calculateTimeDifference(arrivalTime, time);
+                                                            if (diff === null) return null;
+                                                            return (
+                                                                <div className={styles.timeDifference}>
+                                                                    ({formatTime(Math.abs(diff))} before requested time)
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className={styles.rightSection}>
+                                                {hasTrainLineChanges(trip) && (
+                                                    <div className={styles.legsInfo}>
+                                                        {`${getNumberOfTrainLineChanges(trip)} train line change(s)`}
+                                                    </div>
+                                                )}
+                                                <div className={`${styles.tripStatusSection} ${
+                                                    firstDepartureInfo?.[1] ? (() => {
+                                                        const [datePart, timePart] = firstDepartureInfo[1].trim().split(', ');
+                                                        if (!datePart || !timePart) return styles.tripStatusUpcoming;
+                                                        const [day, month, year] = datePart.split('/').map(Number);
+                                                        const [hours, minutes] = timePart.split(':').map(Number);
+                                                        const departureTime = new Date(year, month - 1, day, hours, minutes);
+                                                        return departureTime < new Date() ? styles.tripStatusDeparted : styles.tripStatusUpcoming;
+                                                    })() : styles.tripStatusUpcoming
+                                                }`}>
+                                                    <div className={styles.tripInfoBox}>
+                                                        {(() => {
+                                                            const timeUntil = firstDepartureInfo?.[1] ? calculateTimeUntilDeparture(firstDepartureInfo[1]) : null;
+                                                            return (
+                                                                <>
+                                                                    {timeUntil && (
+                                                                        <div className={styles.timeUntilDeparture}>
+                                                                            {timeUntil}
                                                                         </div>
                                                                     )}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                    <div className={styles.expandIcon}>
+                                                        ▼
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={`${styles.tripDetails} ${expandedTrip === tripIndex ? styles.visible : ''}`}>
+                                            <div className={styles.tripExtendedInfo}>
+                                                <div className={styles.transportLines}>
+                                                    {trip
+                                                        .filter(info => info.startsWith('On:'))
+                                                        .map((transportInfo, index) => {
+                                                            const trainLine = extractTrainLine(transportInfo.replace('On: ', ''));
+                                                            const color = getTrainLineColor(trainLine);
+
+                                                            return (
+                                                                <div key={index} className={styles.transportLine}>
+                                                                    <div
+                                                                        className={styles.trainLineIndicator}
+                                                                        style={{ backgroundColor: color }}
+                                                                    />
+                                                                    <span>{trainLine}</span>
                                                                 </div>
                                                             );
                                                         })}
-                                                    </div>
-                                                    {legIndex < legs.length - 1 && (
-                                                        <div className={styles.tripLegSeparator}>
-                                                            <div className={styles.tripLegDivider} />
-                                                            {(() => {
-                                                                const waitTime = calculateWaitingTime(leg, legs[legIndex + 1]);
-                                                                return waitTime && (
-                                                                    <div className={styles.waitTimeIndicator}>
-                                                                        {formatTime(waitTime, true)}
-                                                                    </div>
-                                                                );
-                                                            })()}
-                                                            <div className={styles.tripLegDivider} />
-                                                        </div>
-                                                    )}
-                                                </Fragment>
-                                            ));
-                                        })()}
+                                                </div>
+                                                <div className={styles.totalTripDuration}>
+                                                    <i className="fas fa-clock"></i>
+                                                    <span>Total Duration: {calculateTotalDuration(trip)}</span>
+                                                </div>
+                                            </div>
+                                            <div className={styles.tripLegs}>
+                                                {(() => {
+                                                    // Group the trip items into legs
+                                                    const legs: string[][] = [];
+                                                    let currentLeg: string[] = [];
+                                                    
+                                                    trip.forEach((info) => {
+                                                        if (info.startsWith('From:') && currentLeg.length > 0) {
+                                                            legs.push([...currentLeg]);
+                                                            currentLeg = [];
+                                                        }
+                                                        currentLeg.push(info);
+                                                    });
+                                                    if (currentLeg.length > 0) {
+                                                        legs.push(currentLeg);
+                                                    }
+
+                                                    return legs.map((leg, legIndex) => (
+                                                        <Fragment key={legIndex}>
+                                                            <div 
+                                                                className={styles.tripLeg}
+                                                                style={{ '--line-color': getTrainLineColor(extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')) } as React.CSSProperties}
+                                                            >
+                                                                {leg.map((info, infoIndex) => {
+                                                                    if (info.startsWith('On:')) return null;
+                                                                    
+                                                                    const formattedInfo = formatTripInfo(info);
+                                                                    if (!formattedInfo) return null;
+
+                                                                    const isLastItem = infoIndex === leg.length - 1;
+                                                                    return (
+                                                                        <div key={infoIndex} className={styles.tripItem}>
+                                                                            {formattedInfo}
+                                                                            {isLastItem && (
+                                                                                <div className={styles.trainLine}>
+                                                                                    {extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                            {legIndex < legs.length - 1 && (
+                                                                <div className={styles.tripLegSeparator}>
+                                                                    <div className={styles.tripLegDivider} />
+                                                                    {(() => {
+                                                                        const waitTime = calculateWaitingTime(leg, legs[legIndex + 1]);
+                                                                        return waitTime && (
+                                                                            <div className={styles.waitTimeIndicator}>
+                                                                                {formatTime(waitTime, true)}
+                                                                            </div>
+                                                                        );
+                                                                    })()}
+                                                                    <div className={styles.tripLegDivider} />
+                                                                </div>
+                                                            )}
+                                                        </Fragment>
+                                                    ));
+                                                })()}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </main>
-            <Footer />
-            <ScrollToTop />
+                                );
+                            })}
+                        </div>
+                    </main>
+                    <Footer />
+                    <ScrollToTop />
+                </>
+            )}
         </div>
     );
 }
