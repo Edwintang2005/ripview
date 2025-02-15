@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import styles from './page.module.css';
 import Form from 'next/form';
 import { getStationIdEntries } from '@/utils/getData';
@@ -44,7 +44,7 @@ export default function Home() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         if (!fromStationId || !toStationId) {
             e.preventDefault();
             alert('Please select both stations');
@@ -53,8 +53,8 @@ export default function Home() {
 
     return (
         <div className={styles.page}>
+            <Header text='Map' link='/mapInput'/>
             <main className={styles.main}>
-                <Header />
                 <h2>Plan a trip!!</h2>
                 <Form action='/tripPlanning' onSubmit={handleSubmit}>
                     <StationSelect

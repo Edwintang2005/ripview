@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
     title?: string;
+    text: string;
+    link: string;
 }
 
-export default function Header({ title = 'RipView' }: HeaderProps) {
+export default function Header({ title = 'RipView', text, link }: HeaderProps) {
     const router = useRouter();
     return (
         <div className={styles.navBar}>
@@ -14,13 +16,13 @@ export default function Header({ title = 'RipView' }: HeaderProps) {
                 className={styles.lightLogo}
                 src='/favicon/favicon.svg'
                 alt='RipView logo'
-                width={180}
+                width={38}
                 height={38}
                 priority
             />
             <h1>{title}</h1>
-            <button className={styles.mapButton} onClick={() => router.push('/mapInput')}>
-                Map
+            <button className={styles.mapButton} onClick={() => router.push(link)}>
+                {text}
             </button>
         </div>
     );

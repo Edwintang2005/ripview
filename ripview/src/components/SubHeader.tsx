@@ -22,7 +22,8 @@ export default function SubHeader({ timeInfo, onClosestTrip, hasClosestTrip }: S
                             className={styles.closestTripButton}
                             aria-label="Go to closest trip"
                         >
-                            <span>Go to Closest Trip</span>
+                            <span className={styles.desktopText}>Go to Closest Trip</span>
+                            <span className={styles.mobileText}>Closest Trip</span>
                             <i className="fas fa-arrow-right" aria-hidden="true"></i>
                         </button>
                     </div>

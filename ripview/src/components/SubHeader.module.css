@@ -2,7 +2,9 @@
     background-color: var(--background);
     border-bottom: 0.0625rem solid var(--gray-alpha-200);
     position: fixed;
-    top: 4rem;
+    top: 5rem;
+    left: 0;
+    right: 0;
     z-index: 9;
     backdrop-filter: blur(8px);
     width: 100%;
@@ -44,34 +46,88 @@
 }
 
 .closestTripButton {
-    padding: 0.5rem;
-    width: fit-content;
+    padding: 0.5rem 1rem;
     border: 1px solid var(--gray-alpha-200);
-    border-radius: 0.375rem;
-    background-color: transparent;
-    color: var(--foreground);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin: 0;
+    background-color: var(--background);
+    color: inherit;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
-    height: 2rem;
 }
 
 .closestTripButton:hover {
     background-color: var(--gray-alpha-100);
-    transform: translateX(2px);
 }
 
-.closestTripButton i {
-    font-size: 1rem;
+.mobileText {
+    display: none;
 }
 
-@media (max-width: 37.5rem) {
-    .nextTripButton {
-        padding: 0.375rem 0.75rem;
-        min-width: 1.75rem;
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .content {
+        padding: 0 1rem;
+    }
+
+    .timeInfo {
+        font-size: 0.85rem;
+    }
+
+    .closestTripButton {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        padding: 0 0.75rem;
+    }
+
+    .leftSection {
+        gap: 0.5rem;
+    }
+
+    .timeInfo {
+        font-size: 0.8rem;
+        padding-left: 0.25rem;
+    }
+
+    .closestTripButton {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .desktopText {
+        display: none;
+    }
+
+    .mobileText {
+        display: inline;
+    }
+}
+
+@media (max-width: 360px) {
+    .content {
+        padding: 0 0.5rem;
+    }
+
+    .timeInfo {
+        font-size: 0.75rem;
+    }
+
+    .closestTripButton {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (display-mode: standalone) {
+    .subHeader {
+        top: 7rem !important;
     }
 }

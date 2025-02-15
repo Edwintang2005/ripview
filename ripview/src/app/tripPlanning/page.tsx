@@ -51,7 +51,7 @@ export default function Home() {
         const updateTimeAndTrips = () => {
             const now = new Date();
             setCurrentTime(now);
-            
+
             // Find the next upcoming trip based on current time
             if (jsonData.length > 0 && jsonData[0]?.[0] !== 'Loading...') {
                 const nextIndex = jsonData.findIndex(trip => {
@@ -59,15 +59,15 @@ export default function Home() {
                     if (!departureInfo) return false;
                     const timeMatch = departureInfo.match(/From: .+\. Departing at: (\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2})/);
                     if (!timeMatch) return false;
-                    
+
                     // Parse date components
                     const [datePart, timePart] = timeMatch[1].split(', ');
                     const [day, month, year] = datePart.split('/').map(Number);
                     const [hours, minutes] = timePart.split(':').map(Number);
-                    
+
                     // Create date with correct components
                     const departureTime = new Date(year, month - 1, day, hours, minutes);
-                    
+
                     return departureTime.getTime() > now.getTime();
                 });
 
@@ -85,10 +85,10 @@ export default function Home() {
         // Set timeout to sync with the start of the next minute
         const initialTimeout = setTimeout(() => {
             updateTimeAndTrips();
-            
+
             // Then set interval to run every minute, exactly on the minute
             const interval = setInterval(updateTimeAndTrips, 60000);
-            
+
             // Cleanup interval on component unmount
             return () => clearInterval(interval);
         }, msUntilNextMinute);
@@ -100,13 +100,13 @@ export default function Home() {
     // Unified time formatting function that handles all cases
     const formatTime = (minutes: number, includeWait: boolean = false) => {
         const absMins = Math.abs(minutes);
-        
+
         if (absMins < 60) {
             return `${absMins}m${includeWait ? ' wait' : ''}`;
         } else if (absMins < 24 * 60) {
             const hours = Math.floor(absMins / 60);
             const mins = absMins % 60;
-            return hours > 0 
+            return hours > 0
                 ? `${hours}h${mins > 0 ? ` ${mins}m` : ''}${includeWait ? ' wait' : ''}`
                 : `${mins}m${includeWait ? ' wait' : ''}`;
         } else {
@@ -124,14 +124,14 @@ export default function Home() {
         if (dateTimeStr.includes('T')) {
             return new Date(dateTimeStr);
         }
-        
+
         // Handle "DD/MM/YYYY, HH:mm" format
         const [datePart, timePart] = dateTimeStr.split(', ');
         if (!datePart || !timePart) return null;
-        
+
         const [day, month, year] = datePart.split('/').map(Number);
         const [hours, minutes] = timePart.split(':').map(Number);
-        
+
         return new Date(year, month - 1, day, hours, minutes);
     };
 
@@ -157,20 +157,20 @@ export default function Home() {
     const calculateTimeUntilDeparture = (dateTimeStr: string) => {
         const now = new Date();
         const departureTime = parseDateTime(dateTimeStr);
-        
+
         if (!departureTime) return '';
-        
+
         // Calculate difference in minutes
         const diffMs = departureTime.getTime() - now.getTime();
         const diffMins = Math.ceil(diffMs / (1000 * 60));
-        
+
         return formatTime(diffMins);
     };
 
     // Function to format datetime for display
     const formatDateTime = (date: Date) => {
         if (!date || isNaN(date.getTime())) return '';
-        
+
         const isToday = (date: Date) => {
             const today = new Date();
             return date.getDate() === today.getDate() &&
@@ -202,11 +202,11 @@ export default function Home() {
     const getTimePreferenceText = () => {
         if (!time) return '';
         if (timePreference === 'current') {
-            return `Showing trips from current time (${formatDateTime(currentTime)})`;
+            return `Trips from now (${formatDateTime(currentTime)})`;
         } else {
             const targetTime = parseDateTime(time);
-            return targetTime 
-                ? `Showing trips ${isArr ? 'arriving by' : 'departing at'} ${formatDateTime(targetTime)}`
+            return targetTime
+                ? `Trips ${isArr ? 'arriving by' : 'departing at'} ${formatDateTime(targetTime)}`
                 : '';
         }
     };
@@ -271,7 +271,7 @@ export default function Home() {
                     const [arrDay, arrMonth, arrYear] = arrDatePart.split('/').map(Number);
                     const [arrHour, arrMinute] = arrTimePart.split(':').map(Number);
                     const arrivalDateTime = new Date(arrYear, arrMonth - 1, arrDay, arrHour, arrMinute);
-                    
+
                     return !isNaN(arrivalDateTime.getTime()) && arrivalDateTime <= targetDateTime;
                 });
 
@@ -310,7 +310,7 @@ export default function Home() {
                     const seenTripTimes = new Set();
 
                     // Parse the user's selected time
-                    const selectedTime = time && time !== 'current' 
+                    const selectedTime = time && time !== 'current'
                         ? new Date(time.includes('T') ? time : time.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'))
                         : new Date();
 
@@ -341,10 +341,10 @@ export default function Home() {
                         const departureTime = parseDepartureTime(trip);
                         if (!departureTime) continue;
 
-                        const timeKey = isArr 
-                            ? parseArrivalTime(trip)?.toISOString() 
+                        const timeKey = isArr
+                            ? parseArrivalTime(trip)?.toISOString()
                             : departureTime.toISOString();
-                        
+
                         if (!timeKey) continue;
 
                         // Skip if we've already seen this time
@@ -407,7 +407,7 @@ export default function Home() {
                             if (currentArrival && nextDeparture) {
                                 const arrivalTime = new Date(currentArrival[1].replace(/, /, ' '));
                                 const departureTime = new Date(nextDeparture[1].replace(/, /, ' '));
-                                
+
                                 // If next leg departs before current leg arrives, the sequence is invalid
                                 if (departureTime.getTime() <= arrivalTime.getTime()) {
                                     return false;
@@ -423,7 +423,7 @@ export default function Home() {
                             // Group the trip items into legs
                             const legs: string[][] = [];
                             let currentLeg: string[] = [];
-                            
+
                             trip.forEach((info) => {
                                 if (info.startsWith('From:') && currentLeg.length > 0) {
                                     legs.push([...currentLeg]);
@@ -471,17 +471,17 @@ export default function Home() {
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
-                
+
                 initialScrollDone.current = true;
             }
         };
 
         // Initial scroll attempt
         scrollToNextTripInitial();
-        
+
         // Backup scroll attempt after a delay in case the first attempt fails
         const timeoutId = setTimeout(scrollToNextTripInitial, 500);
-        
+
         return () => clearTimeout(timeoutId);
     }, [nextTripIndex, jsonData]);
 
@@ -496,7 +496,7 @@ export default function Home() {
             .replace(' Station', '')
             .replace('From: ', '')
             .replace('To: ', '');
-        
+
         // Get platform if it exists
         const platform = parts.find(part => part.startsWith('Platform'));
 
@@ -609,7 +609,7 @@ export default function Home() {
         // Group the trip into legs
         const legs: string[][] = [];
         let currentLeg: string[] = [];
-        
+
         trip.forEach((info) => {
             if (info.startsWith('From:') && currentLeg.length > 0) {
                 legs.push([...currentLeg]);
@@ -706,23 +706,23 @@ export default function Home() {
                 <Loading message="Finding your trips..." />
             ) : (
                 <>
-                    <Header title={`Trip From ${fromName} to ${toName}!`} />
-                    <SubHeader 
-                        timeInfo={getTimePreferenceText()} 
+                    <Header title={`Trip From ${fromName} to ${toName}!`} text='Map' link='/mapInput' />
+                    <SubHeader
+                        timeInfo={getTimePreferenceText()}
                         onClosestTrip={scrollToClosestTrip}
                         hasClosestTrip={nextTripIndex !== null}
                     />
                     <main className={styles.main}>
                         <div className={styles.tripContent}>
                             <div className={styles.tripDetails}>
-                                <p>Showing trips for: {getTimePreferenceText()}</p>
+                                <p>{getTimePreferenceText()}</p>
                             </div>
                             {/* Display future trips */}
                             {jsonData.map((trip, tripIndex) => {
                                 // Extract departure and arrival info
                                 const departureInfos = trip.filter(info => info.startsWith('From:'));
                                 const arrivalInfos = trip.filter(info => info.startsWith('To:'));
-                                
+
                                 // Get the first departure and last arrival for multi-leg journeys
                                 const firstDepartureInfo = departureInfos[0]?.split('Departing at:');
                                 const lastArrivalInfo = arrivalInfos[arrivalInfos.length - 1]?.split('Arriving at');
@@ -743,7 +743,7 @@ export default function Home() {
                                         }}
                                     >
                                         <div className={styles.tripSummary}>
-                                            <div 
+                                            <div
                                                 id={`trip-main-${tripIndex}`}
                                                 className={styles.tripMainInfo}
                                             >
@@ -792,8 +792,7 @@ export default function Home() {
                                                         {`${getNumberOfTrainLineChanges(trip)} train line change(s)`}
                                                     </div>
                                                 )}
-                                                <div className={`${styles.tripStatusSection} ${
-                                                    firstDepartureInfo?.[1] ? (() => {
+                                                <div className={`${styles.tripStatusSection} ${firstDepartureInfo?.[1] ? (() => {
                                                         const [datePart, timePart] = firstDepartureInfo[1].trim().split(', ');
                                                         if (!datePart || !timePart) return styles.tripStatusUpcoming;
                                                         const [day, month, year] = datePart.split('/').map(Number);
@@ -801,7 +800,7 @@ export default function Home() {
                                                         const departureTime = new Date(year, month - 1, day, hours, minutes);
                                                         return departureTime < new Date() ? styles.tripStatusDeparted : styles.tripStatusUpcoming;
                                                     })() : styles.tripStatusUpcoming
-                                                }`}>
+                                                    }`}>
                                                     <div className={styles.tripInfoBox}>
                                                         {(() => {
                                                             const timeUntil = firstDepartureInfo?.[1] ? calculateTimeUntilDeparture(firstDepartureInfo[1]) : null;
@@ -852,7 +851,7 @@ export default function Home() {
                                                     // Group the trip items into legs
                                                     const legs: string[][] = [];
                                                     let currentLeg: string[] = [];
-                                                    
+
                                                     trip.forEach((info) => {
                                                         if (info.startsWith('From:') && currentLeg.length > 0) {
                                                             legs.push([...currentLeg]);
@@ -866,13 +865,13 @@ export default function Home() {
 
                                                     return legs.map((leg, legIndex) => (
                                                         <Fragment key={legIndex}>
-                                                            <div 
+                                                            <div
                                                                 className={styles.tripLeg}
                                                                 style={{ '--line-color': getTrainLineColor(extractTrainLine(leg.find(info => info.startsWith('On:'))?.replace('On: ', '') || '')) } as React.CSSProperties}
                                                             >
                                                                 {leg.map((info, infoIndex) => {
                                                                     if (info.startsWith('On:')) return null;
-                                                                    
+
                                                                     const formattedInfo = formatTripInfo(info);
                                                                     if (!formattedInfo) return null;
 
