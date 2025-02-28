@@ -6,6 +6,7 @@ import { FetchtripData } from '../api/apiCalls';
 import { getStationNameFromId } from '@/utils/getData';
 import trainLineColours from '@/config/trainLineColours';
 import styles from './tripPlanning.module.css';
+import headerStyles from '@/components/Header.module.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -27,6 +28,13 @@ export default function Home() {
     const fromName = getStationNameFromId(fromStation as string);
     const toName = getStationNameFromId(toStation as string);
     const [expandedTrip, setExpandedTrip] = useState<number | null>(null);
+
+    // Function to simplify station names by removing "Station" suffix
+    const simplifyStationName = (name: any): string => {
+        if (!name) return '';
+        const nameStr = String(name);
+        return nameStr.replace(' Station', '');
+    };
 
     const nextTripRef = useRef<HTMLDivElement>(null);
     const initialScrollDone = useRef(false);
@@ -500,6 +508,7 @@ export default function Home() {
         // Get platform if it exists
         const platform = parts.find(part => part.startsWith('Platform'));
 
+        // For mobile display, we want them on one line
         return platform ? `${mainName}, ${platform}` : mainName;
     };
 
@@ -672,14 +681,14 @@ export default function Home() {
             setTimeout(() => {
                 const tripElement = document.getElementById(`trip-main-${tripIndex}`);
                 if (tripElement) {
-                    const offset = 170;
+                    const offset = 180;
                     const elementTop = tripElement.getBoundingClientRect().top + window.scrollY;
                     window.scrollTo({
                         top: elementTop - offset,
                         behavior: 'smooth'
                     });
                 }
-            }, 300);
+            }, 400);
         }, 300);
     };
 
@@ -706,7 +715,17 @@ export default function Home() {
                 <Loading message="Finding your trips..." />
             ) : (
                 <>
-                    <Header title={`Trip From ${fromName} to ${toName}!`} text='Map' link='/mapInput' />
+                    <Header 
+                        title={
+                            <div className={headerStyles.verticalTitle}>
+                                <span className={headerStyles.stationName}>{simplifyStationName(fromName)}</span>
+                                <span className={headerStyles.arrow}>↓</span>
+                                <span className={headerStyles.stationName}>{simplifyStationName(toName)}</span>
+                            </div>
+                        } 
+                        text='Map' 
+                        link='/mapInput' 
+                    />
                     <SubHeader
                         timeInfo={getTimePreferenceText()}
                         onClosestTrip={scrollToClosestTrip}
@@ -789,7 +808,7 @@ export default function Home() {
                                             <div className={styles.rightSection}>
                                                 {hasTrainLineChanges(trip) && (
                                                     <div className={styles.legsInfo}>
-                                                        {`${getNumberOfTrainLineChanges(trip)} train line change(s)`}
+                                                        {`${getNumberOfTrainLineChanges(trip)} swap(s)`}
                                                     </div>
                                                 )}
                                                 <div className={`${styles.tripStatusSection} ${firstDepartureInfo?.[1] ? (() => {
@@ -815,7 +834,13 @@ export default function Home() {
                                                             );
                                                         })()}
                                                     </div>
-                                                    <div className={styles.expandIcon}>
+                                                    <div
+                                                        onClick={(e: React.MouseEvent) => {
+                                                            e.stopPropagation();
+                                                            handleTripClick(tripIndex);
+                                                        }}
+                                                        className={styles.expandIcon}
+                                                    >
                                                         ▼
                                                     </div>
                                                 </div>

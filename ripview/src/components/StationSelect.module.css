@@ -34,7 +34,7 @@
 .dropdown {
     position: absolute;
     top: 100%;
-    left: 0;
+    left: calc(4.5rem + 1rem); /* Align with input field (label width + gap) */
     right: 0;
     max-height: 15rem;
     overflow-y: auto;
@@ -43,6 +43,7 @@
     border-radius: 0.5rem;
     margin-top: 0.5rem;
     z-index: 10;
+    width: calc(100% - 4.5rem - 1rem); /* Make width match the input field */
 }
 
 .dropdown li {
@@ -70,6 +71,7 @@
         gap: 0.5rem;
     }
     .dropdown {
-        left: 0;
+        left: calc(3.5rem + 0.5rem); /* Align with input field (label width + gap) */
+        width: calc(100% - 3.5rem - 0.5rem); /* Make width match the input field */
     }
 }

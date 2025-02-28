@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import styles from './Header.module.css';
 import { useRouter } from 'next/navigation';
+import { ReactNode } from 'react';
 
 interface HeaderProps {
-    title?: string;
+    title?: ReactNode;
     text: string;
     link: string;
 }
