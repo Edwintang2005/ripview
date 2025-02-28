@@ -2,16 +2,15 @@
     --gray-rgb: 0, 0, 0;
     --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
     --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
-
     --button-primary-hover: #383838;
     --button-secondary-hover: #f2f2f2;
 
     display: grid;
-    grid-template-rows: 1.25rem 1fr 1.25rem;
-    align-items: center;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
     justify-items: center;
     min-height: 100svh;
-    padding: 5rem;
+    padding: 10rem 0 2rem 0;
     gap: 4rem;
     font-family: var(--font-geist-sans);
 }
@@ -19,10 +18,11 @@
 .main {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 2rem;
-    grid-row-start: 2;
     width: 100%;
-    max-width: 37.5rem;
+    max-width: 75rem;
+    padding: 0 2rem;
 }
 
 .main h2 {
@@ -54,7 +54,9 @@
 .main form {
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 100%;
+    gap: 1rem;
 }
 
 .ctas {
@@ -104,7 +106,6 @@ a.secondary {
     z-index: 10;
     width: 100%;
 }
-
 
 .navBar h1 {
     flex: 1;
@@ -298,7 +299,12 @@ a.secondary {
     width: 100%;
 }
 
-/* Enable hover only on non-touch devices */
+@media (display-mode: standalone) {
+    .page {
+        padding-top: 8rem;
+    }
+}
+
 @media (hover: hover) and (pointer: fine) {
     a.primary:hover {
         background: var(--button-primary-hover);
@@ -317,13 +323,11 @@ a.secondary {
 }
 
 @media (max-width: 37.5rem) { /* 600px */
-    .page {
-        padding: 2rem;
-        padding-bottom: 5rem;
-    }
 
     .main {
         align-items: center;
+        padding: 2rem;
+        padding-bottom: 5rem;
     }
 
     .main ol {
@@ -397,7 +401,6 @@ a.secondary {
         border-color: var(--foreground);
     }
 }
-
 
 @media (prefers-color-scheme: light) {
     .lightLogo {

@@ -3,12 +3,53 @@ import styles from './mapInput.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
 import { useCallback, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import BackButton from '@/components/BackButton';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { useState } from 'react';
 
 export default function MapInput() {
     const router = useRouter();
     let fromId = '';
     let toId = '';
+    const [viewBox, setViewBox] = useState('0 0 800 800');
+
+    const zoom = (factor: number) => {
+        setViewBox((prev: string) => {
+            const [x, y, w, h] = prev.split(' ').map(Number);
+            const zoomFactor = w * factor; // Adjust width/height
+            const newW = Math.max(10, w + zoomFactor);
+            const newH = Math.max(10, h + zoomFactor);
+            return `${x} ${y} ${newW} ${newH}`;
+        });
+    };
+    const left = (num: number) => {
+        setViewBox((prev: string) => {
+            const [x, y, w, h] = prev.split(' ').map(Number);
+            const newX = x - num;
+            return `${newX} ${y} ${w} ${h}`;
+        });
+    };
+    const right = (num: number) => {
+        setViewBox((prev: string) => {
+            const [x, y, w, h] = prev.split(' ').map(Number);
+            const newX = x + num;
+            return `${newX} ${y} ${w} ${h}`;
+        });
+    };
+    const up = (num: number) => {
+        setViewBox((prev: string) => {
+            const [x, y, w, h] = prev.split(' ').map(Number);
+            const newY = y - num;
+            return `${x} ${newY} ${w} ${h}`;
+        });
+    };
+    const down = (num: number) => {
+        setViewBox((prev: string) => {
+            const [x, y, w, h] = prev.split(' ').map(Number);
+            const newY = y + num;
+            return `${x} ${newY} ${w} ${h}`;
+        });
+    };
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
         const targetStore = event.target as SVGElement;
@@ -51,13 +92,30 @@ export default function MapInput() {
     }, []);
 
     return (
-        <div className={styles.mapInputContainer}>
-            <BackButton />
-            <div className={styles.mapDiv}>
-                <MySVG
+        <div className={styles.page}>
+            <Header text='Home' link='/'/>
+            <main className={styles.main}>
+                <div className={styles.zoomButtons}>
+                    Zoom:
+                    <button onClick={() => zoom(-0.1)}>+</button>
+                    <button onClick={() => zoom(0.1)}>-</button>
+                </div>
+                <div className={styles.panButtons}>
+                    Pan:
+                    <button onClick={() => up(15)}>↑</button>
+                    <div>
+                        <button onClick={() => left(15)}>←</button>
+                        <button onClick={() => right(15)}>→</button>
+                    </div>
+                    <button onClick={() => down(15)}>↓</button>
+                </div>
+                <MySVG className={styles.map}
+                    viewBox={viewBox}
                     onClick={handleSVGClick}
                 />
-            </div>
+                
+            </main>
+            <Footer/>
         </div>
     );
 }

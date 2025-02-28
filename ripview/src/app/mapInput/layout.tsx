@@ -1,10 +1,12 @@
-import type { Metadata } from 'next';
 import '../globals.css';
 import { ReactNode } from 'react';
+import type { Viewport } from 'next';
 
-export const metadata: Metadata = {
-    title: 'RipView',
-    description: 'Transcend the TripView Experience',
+export const viewport: Viewport = {
+    width: 'device-width',
+    userScalable: false,
+    initialScale: 1,
+    viewportFit: 'cover'
 };
 
 export default function TripPlanningLayout({

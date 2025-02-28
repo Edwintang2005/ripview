@@ -6,10 +6,11 @@ export function getStationIdEntries() {
     return records;
 }
 
-export function getStationNameFromId(id: string) {
+export function getStationNameFromId(id: string): string | null {
     if (id === null) {
         return null;
     }
     const records = getStationIdEntries();
-    return records.filter((a) => (a[2] as string) == id)[0][1];
+    const station = records.filter((a) => (a[2] as string) == id)[0];
+    return station ? station[1] as string : null;
 }

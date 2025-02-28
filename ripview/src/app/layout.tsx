@@ -3,6 +3,16 @@ import { Geist } from 'next/font/google';
 import './globals.css';
 import { ReactNode } from 'react';
 
+import type { Viewport } from 'next';
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    userScalable: false,
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: 'cover'
+};
+
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -29,6 +39,14 @@ export default function RootLayout({
                     referrerPolicy="no-referrer"
                 />
                 <link rel='manifest' href='/site.webmanifest'/>
+                <meta
+                    name = 'apple-mobile-web-app-status-bar-style'
+                    content = 'black-translucent'
+                />
+                <link
+                    rel='apple-touch-icon'
+                    href='/favicon/apple-touch-icon.png'
+                />
             </head>
             <body>
                 {children}

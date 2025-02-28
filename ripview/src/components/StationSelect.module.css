@@ -1,26 +1,29 @@
 .stationSelect {
     position: relative;
     width: 100%;
-    margin-bottom: 1rem;
+    max-width: 30rem;
+    margin: 0 auto 0rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .stationSelect label {
     display: grid;
-    grid-template-columns: 4rem 1fr;
-    align-items: center;
+    grid-template-columns: 4.5rem 1fr;
     gap: 1rem;
+    align-items: center;
     width: 100%;
 }
 
 .stationSelect input[type="text"] {
-    padding: 0.75rem;
-    border: 0.0625rem solid var(--gray-alpha-200);
-    border-radius: 0.5rem;
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-geist-sans);
     width: 100%;
-    transition: border-color 0.2s ease;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-alpha-200);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: var(--background);
+    color: inherit;
 }
 
 .stationSelect input[type="text"]:focus {
@@ -31,16 +34,16 @@
 .dropdown {
     position: absolute;
     top: 100%;
-    left: 5rem;
+    left: calc(4.5rem + 1rem); /* Align with input field (label width + gap) */
     right: 0;
     max-height: 15rem;
     overflow-y: auto;
     background-color: var(--background);
-    border: 0.0625rem solid var(--gray-alpha-200);
+    border: 1px solid var(--gray-alpha-200);
     border-radius: 0.5rem;
-    margin-top: 0.25rem;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    margin-top: 0.5rem;
+    z-index: 10;
+    width: calc(100% - 4.5rem - 1rem); /* Make width match the input field */
 }
 
 .dropdown li {
@@ -60,12 +63,15 @@
 }
 
 @media (max-width: 37.5rem) {
+    .stationSelect {
+        max-width: 20rem;
+    }
     .stationSelect label {
         grid-template-columns: 3.5rem 1fr;
         gap: 0.5rem;
     }
-
     .dropdown {
-        left: 4rem;
+        left: calc(3.5rem + 0.5rem); /* Align with input field (label width + gap) */
+        width: calc(100% - 3.5rem - 0.5rem); /* Make width match the input field */
     }
-} 
+}

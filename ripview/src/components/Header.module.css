@@ -1,14 +1,28 @@
+@media (display-mode: standalone) {
+    .navBar {
+        padding-top: 4rem !important;
+        height: 7rem !important;
+    }
+}
+
+@media (display-mode: browser) {
+    .navBar {
+        height: 5rem !important;
+    }
+}
+
 .navBar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
-    padding: 1.5rem;
     background-color: var(--background);
     border-bottom: 0.0625rem solid var(--gray-alpha-200);
     z-index: 10;
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 .navBar h1 {
@@ -16,13 +30,66 @@
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+    padding: 0 0.5rem;
+}
+
+.verticalTitle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    width: 100%;
+}
+
+.verticalTitle .stationName {
+    font-weight: 500;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.verticalTitle .arrow {
+    font-size: 1em;
+    margin: 0.1em 0;
+    line-height: 0.7;
+}
+
+/* Responsive styles for vertical title */
+@media (max-width: 480px) {
+    .verticalTitle .stationName {
+        font-size: 0.9em;
+    }
+    
+    .verticalTitle .arrow {
+        font-size: 1em;
+        margin: 0.1em 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .verticalTitle .stationName {
+        font-size: 0.8em;
+    }
+    
+    .verticalTitle .arrow {
+        font-size: 0.9em;
+    }
 }
 
 .lightLogo {
-    position: absolute;
-    left: 1.5rem;
+    margin-right: auto;
+    margin-left: 2rem;
+    border: none;
+    /* justify-content: flex-start; */
 }
 
 .mapButton {
@@ -35,7 +102,8 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-left: auto;
-    margin-right: 2.5rem;
+    margin-right: 2rem;
+    /* justify-content: flex-end; */
 }
 
 .mapButton:hover {
@@ -50,5 +118,47 @@
 @media (prefers-color-scheme: light) {
     .lightLogo {
         position: inherit;
+    }
+}
+
+/* Adjust responsive sizes now that we have shorter station names */
+@media (max-width: 768px) {
+    .navBar h1 {
+        font-size: 1.2rem;
+        max-width: 75%;
+    }
+}
+
+@media (max-width: 480px) {
+    .navBar h1 {
+        font-size: 0.95rem;
+        max-width: 80%;
+        letter-spacing: -0.01em;
+    }
+}
+
+@media (max-width: 360px) {
+    .navBar h1 {
+        font-size: 0.85rem;
+        max-width: 85%;
+        letter-spacing: -0.02em;
+    }
+}
+
+/* Add extra small screen breakpoint */
+@media (max-width: 320px) {
+    .navBar h1 {
+        font-size: 0.75rem;
+        max-width: 90%;
+        letter-spacing: -0.03em;
+    }
+}
+
+/* For extremely small screens or extremely long station names */
+@media (max-width: 280px) {
+    .navBar h1 {
+        font-size: 0.7rem;
+        max-width: 90%;
+        letter-spacing: -0.03em;
     }
 }
