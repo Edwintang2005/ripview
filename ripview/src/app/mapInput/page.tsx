@@ -1,7 +1,7 @@
 'use client';
 import styles from './mapInput.module.css';
 import MySVG from '../../../public/map/Sydney_Trains_Network_Map.svg';
-import { useCallback, MouseEvent } from 'react';
+import { useCallback, MouseEvent, DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -52,8 +52,6 @@ export default function MapInput() {
     };
     const handleSVGClick = useCallback((event: MouseEvent<SVGSVGElement>) => {
         let target = event.target;
-        const targetStore = event.target as SVGElement;
-        console.log(targetStore);
         let clickedId = '';
         while (target instanceof SVGElement) {
             if (target.id) {
@@ -91,14 +89,20 @@ export default function MapInput() {
         }
     }, []);
 
+    const handleSVGDrag = useCallback((event: DragEvent<SVGElement>) => { 
+        const targetStore = event.target as SVGElement;
+        console.log(targetStore);
+        console.log(event);
+    }, []);
+
     return (
         <div className={styles.page}>
             <Header text='Home' link='/'/>
             <main className={styles.main}>
                 <div className={styles.zoomButtons}>
                     Zoom:
-                    <button onClick={() => zoom(-0.1)}>+</button>
-                    <button onClick={() => zoom(0.1)}>-</button>
+                    <button onClick={() => zoom(-0.4)}>+</button>
+                    <button onClick={() => zoom(0.4)}>-</button>
                 </div>
                 <div className={styles.panButtons}>
                     Pan:
@@ -112,8 +116,8 @@ export default function MapInput() {
                 <MySVG className={styles.map}
                     viewBox={viewBox}
                     onClick={handleSVGClick}
+                    onDragStart={handleSVGDrag}
                 />
-                
             </main>
             <Footer/>
         </div>

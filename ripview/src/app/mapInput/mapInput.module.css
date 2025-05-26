@@ -11,8 +11,9 @@
     justify-items: center;
     min-height: 100svh;
     padding: 0 0 2rem 0;
-    gap: 4rem;
     font-family: var(--font-geist-sans);
+
+    overflow-x: hidden;
 }
 
 .main {
