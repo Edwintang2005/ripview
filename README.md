@@ -8,129 +8,163 @@ RipView is a **web app first**: it is served over HTTPS, works in any modern bro
 
 ## Table of contents
 
+- [What it does](#what-it-does)
 - [Project status](#project-status)
 - [Architecture](#architecture)
   - [Directory layout](#directory-layout)
   - [Routes](#routes)
   - [Data flow](#data-flow)
+  - [The domain model](#the-domain-model)
 - [The Transport for NSW APIs](#the-transport-for-nsw-apis)
   - [Endpoints available](#endpoints-available)
-  - [Which endpoints RipView uses today](#which-endpoints-ripview-uses-today)
+  - [Which endpoints RipView uses](#which-endpoints-ripview-uses)
   - [Stop identifiers](#stop-identifiers)
   - [Real-time data](#real-time-data)
   - [Fares](#fares)
   - [Date and time parameters](#date-and-time-parameters)
-  - [The generated API client](#the-generated-api-client)
+  - [Where the API differs from its own documentation](#where-the-api-differs-from-its-own-documentation)
 - [Station reference data](#station-reference-data)
 - [The SVG network map](#the-svg-network-map)
 - [Setting up the TfNSW API key](#setting-up-the-tfnsw-api-key)
 - [Development workflows](#development-workflows)
+- [Testing](#testing)
 - [Deployment and PWA notes](#deployment-and-pwa-notes)
-- [Known issues](#known-issues)
+- [Known limitations](#known-limitations)
 - [Roadmap](#roadmap)
 - [Contributors](#contributors)
 - [Sources and documentation used](#sources-and-documentation-used)
 
 ---
 
+## What it does
+
+| | |
+|---|---|
+| **Saved trips** | Station pairs pinned to the home screen, one tap to the next departures, one tap to reverse for the trip home. Stored per-device in `localStorage`; no account needed. |
+| **Trip planning** | Multi-modal journeys with real-time delays, per-leg platforms, expandable stopping patterns, interchange counts and Opal fares where TfNSW provides them. Depart-at or arrive-by. |
+| **Departure board** | The next services from any stop, counting down, ordered by when they will actually leave rather than by timetable. Auto-refreshes while the page is visible. |
+| **Mode filter** | Include or exclude train, metro, bus, ferry, light rail, coach and school bus. Optional wheelchair-accessible-only. |
+| **Network map** | The schematic Sydney rail map, pan and pinch to zoom, tap two stations to plan between them. A secondary way in — see [the map section](#the-svg-network-map) for its coverage limits. |
+
 ## Project status
 
-**Prototype / paused.** The core loop works end to end — pick two stations, get a list of journey options from the live TfNSW trip planner — but the project is not production-ready. Before anything else:
+**Working.** The core loop runs end to end against the live TfNSW APIs.
 
 | | Status |
 |---|---|
-| `npm run dev` | ✅ works |
-| `npm run build` | ❌ **fails** — 4 lint errors are treated as build errors (see [Known issues](#known-issues)) |
-| `npm run lint` | ❌ 4 errors, 2 warnings |
-| `npm test` | ❌ exits 1 — Jest is configured but **there are no test files** |
-| TfNSW API connectivity | ✅ verified working (`/trip`, `/departure_mon`, `/add_info` all return HTTP 200 with live data) |
-| Installable PWA | ⚠️ partial — manifest is incomplete and there is no service worker |
-
-The APIs themselves are **not** the blocker. They were re-verified against production and behave as documented. The fragility is in RipView's own layer between the API and the UI — see [Known issues](#known-issues).
+| `npm run dev` | ✅ |
+| `npm run build` | ✅ |
+| `npm run lint` | ✅ no warnings or errors |
+| `npm test` | ✅ 165 tests, offline and deterministic |
+| `npm run test:live` | ✅ 8 integration checks against the production API |
+| TfNSW connectivity | ✅ `/trip`, `/departure_mon` and `/stop_finder` all verified live |
+| Installable PWA | ⚠️ manifest is complete; **no service worker**, so no offline mode |
 
 ---
 
 ## Architecture
 
-Next.js 15 (App Router) + React 19 + TypeScript (`strict`) + CSS Modules. No state-management or data-fetching library; no database; no backend of its own. All dynamic data comes from TfNSW at request time, and all station reference data is a static file vendored into the repo.
+Next.js 15 (App Router) + React 19 + TypeScript (`strict`) + CSS Modules. No state-management or data-fetching library; no database; no backend of its own. Dynamic data comes from TfNSW at request time; a small station list is bundled as an offline fallback.
+
+The organising principle is a single mapping boundary. The TfNSW response is converted into typed domain objects exactly once, in `src/lib/tfnsw/map.ts`. Nothing downstream sees a raw API shape, and nothing re-derives a value by parsing text that was formatted for display.
 
 ### Directory layout
 
 ```
-ripview/                            # the Next.js app (note: repo root contains this subdirectory)
+ripview/                            # the Next.js app (the repo root contains this subdirectory)
 ├── src/
+│   ├── lib/                        # everything that is not a React component
+│   │   ├── types.ts                # the domain model: Journey, Leg, StopCall, Departure, Result
+│   │   ├── time.ts                 # all date handling, in Australia/Sydney
+│   │   ├── modes.ts                # product.class <-> mode, line colours, exclMOT_* construction
+│   │   ├── storage.ts              # saved trips, saved stops, preferences (localStorage)
+│   │   ├── stations.ts             # bundled station list + offline search
+│   │   ├── stations.json           # generated by `npm run data:stations` (33 KB)
+│   │   └── tfnsw/
+│   │       ├── responses.ts        # narrow types for the raw rapidJSON responses
+│   │       ├── client.ts           # native-fetch HTTP client; the only reader of the API key
+│   │       ├── queries.ts          # request builders, one per endpoint
+│   │       ├── map.ts              # pure API -> domain mapping (the heart of the app)
+│   │       └── __fixtures__/       # responses captured from production, for tests
 │   ├── app/
-│   │   ├── layout.tsx              # root layout: fonts, viewport, manifest link, Font Awesome CDN
-│   │   ├── page.tsx                # "/"            – trip planning form
-│   │   ├── globals.css             # CSS custom properties + light/dark colour scheme
-│   │   ├── api/
-│   │   │   └── apiCalls.tsx        # 'use server' — the ONLY place the API key is used
-│   │   ├── data/
-│   │   │   ├── stationsInformation.json   # vendored station snapshot (297 KB) — imported by the app
-│   │   │   └── stationsInformation.csv    # same data as CSV (283 KB) — currently unused
-│   │   ├── mapInput/               # "/mapInput"    – clickable SVG network map
-│   │   └── tripPlanning/           # "/tripPlanning" – journey results
-│   ├── components/                 # Header, Footer, StationSelect, BackButton, ScrollToTop, ...
-│   ├── config/
-│   │   └── trainLineColours.ts     # line name → brand colour (currently unused, keys are stale)
-│   └── utils/
-│       ├── getData.ts              # station lookup helpers over the vendored JSON
-│       └── navigation.ts           # PAGE_PATHS route constants (partially unused)
+│   │   ├── layout.tsx              # fonts, viewport, metadata, manifest
+│   │   ├── globals.css             # design tokens; light and dark in one place
+│   │   ├── actions/transport.ts    # 'use server' — the only entry points the browser can call
+│   │   ├── page.tsx                # "/"            – saved trips + planner
+│   │   ├── tripPlanning/           # "/tripPlanning" – journey results
+│   │   ├── departures/             # "/departures"   – departure board
+│   │   └── map/                    # "/map"          – schematic network map
+│   └── components/                 # AppHeader, StopSearch, JourneyCard, StopTime, LineBadge, ...
+├── data/stationsInformation.json   # the vendored TfNSW dataset (source for the generator)
 ├── public/
-│   ├── map/Sydney_Trains_Network_Map.svg   # hand-authored schematic map, station ids embedded
-│   ├── favicon/                    # icons + a second, unused webmanifest
-│   └── site.webmanifest            # the manifest actually linked from layout.tsx
-├── typescript-fetch-client/        # Swagger-codegen 2.4.43 client for TfNSW Trip Planner v10.2.1.42
-├── next.config.ts                  # SVGR webpack rule + env passthrough
-├── eslint.config.mjs               # large hand-tuned ruleset (4-space indent, single quotes, semicolons)
-└── jest.config.ts                  # configured, but no tests exist yet
+│   ├── map/Sydney_Trains_Network_Map.svg
+│   └── manifest.webmanifest
+├── scripts/build-stations.mjs      # projects the dataset down to what the app needs
+└── next.config.ts                  # SVGR rule + the /mapInput -> /map redirect
 ```
 
 ### Routes
 
-| Route | File | Rendering | Purpose |
-|---|---|---|---|
-| `/` | `src/app/page.tsx` | Client | From/To station autocomplete, "current time" vs "specific time", depart-at / arrive-by. Submits a `GET` form to `/tripPlanning`. |
-| `/tripPlanning` | `src/app/tripPlanning/page.tsx` | Client | Reads the query string, calls the `FetchtripData` server action, renders journey options. |
-| `/mapInput` | `src/app/mapInput/page.tsx` | Client | Renders the schematic SVG. First station tapped becomes origin, second becomes destination, then redirects to `/tripPlanning`. |
-
-There is no `/about` or `/settings` yet, though `PAGE_PATHS` in `src/utils/navigation.ts` reserves them.
+| Route | Rendering | Purpose |
+|---|---|---|
+| `/` | Client | Saved trips, then the planner: from/to search, depart-at or arrive-by, mode options. |
+| `/tripPlanning` | Client | Journey results. Reads `from`, `to`, `fromName`, `toName`, `when`, `depArr`, `modes`, `wheelchair` from the query string, so any search is a shareable link. |
+| `/departures` | Client | Departure board. With no `stop` parameter, offers search and saved stops. |
+| `/map` | Client | Schematic network map. `/mapInput` 308-redirects here. |
 
 ### Data flow
 
 ```
-                        ┌──────────────────────────────────────┐
-  station list ────────►│  "/"  form   OR   "/mapInput" SVG    │
-  (static JSON,         │  produces: fromStations, toStations,  │
-   bundled)             │  timePreference, depOrArr, time       │
-                        └───────────────────┬──────────────────┘
-                                            │ GET query string
-                                            ▼
-                        ┌──────────────────────────────────────┐
-                        │  "/tripPlanning" (client component)  │
-                        └───────────────────┬──────────────────┘
-                                            │ server action: FetchtripData()
-                                            ▼
-                        ┌──────────────────────────────────────┐
-                        │  src/app/api/apiCalls.tsx            │
-                        │  'use server' — holds TPNSWAPIKEY    │
-                        │  planTrip() → typescript-fetch-client│
-                        └───────────────────┬──────────────────┘
-                                            │ HTTPS GET, Authorization header
-                                            ▼
-                          api.transport.nsw.gov.au/v1/tp/trip
-                                            │
-                                            ▼
-                        ┌──────────────────────────────────────┐
-                        │  tripResponseToJson()                │
-                        │  ⚠️ flattens the typed response into  │
-                        │     string[][] display strings       │
-                        └──────────────────────────────────────┘
+  saved trip, planner form, or map tap
+                 │  query string
+                 ▼
+  page (client component)
+                 │  server action
+                 ▼
+  src/app/actions/transport.ts        'use server'
+                 │
+                 ▼
+  src/lib/tfnsw/queries.ts            builds named parameters
+                 │
+                 ▼
+  src/lib/tfnsw/client.ts             reads TPNSWAPIKEY, returns Result<T>
+                 │  HTTPS, Authorization header
+                 ▼
+        api.transport.nsw.gov.au/v1/tp
+                 │  rapidJSON
+                 ▼
+  src/lib/tfnsw/map.ts                pure; the only interpreter of raw shapes
+                 │  Journey[] / Departure[] / StopSuggestion[]
+                 ▼
+  components                          format for display, and only here
 ```
 
-The API key never reaches the browser: `apiCalls.tsx` is marked `'use server'`, so `FetchtripData` is invoked as a React Server Action and the outbound HTTPS request is made from the server. See [Known issues](#known-issues) for why the `next.config.ts` `env` block makes this more fragile than it needs to be.
+The API key never reaches the browser. `client.ts` is imported only from a `'use server'` module and throws if it ever finds itself running in a browser. `next.config.ts` deliberately has no `env` block — see [Known limitations](#known-limitations) for why that matters.
 
----
+### The domain model
+
+Every fetch returns a `Result<T>`, never a thrown exception:
+
+```ts
+type Result<T> = { ok: true; data: T } | { ok: false; error: RipViewError };
+```
+
+`RipViewError` carries a `kind` (`auth`, `rateLimit`, `network`, `noResults`, `badRequest`, `unknown`) and a message safe to show a user. A rejected promise inside a `useEffect` becomes a spinner that never stops, so failures are values here rather than control flow.
+
+Times are ISO 8601 UTC strings exactly as the API returns them, with `planned` and `estimated` kept separate:
+
+```ts
+interface StopCall {
+    name: string;
+    shortName: string;        // 'Central Station'
+    platform?: string;        // '18'
+    planned: string;          // the timetable; always present
+    estimated?: string;       // the live estimate; absent when there is none
+    delayMinutes?: number;    // derived; undefined means "no live data", not "on time"
+}
+```
+
+That last distinction matters throughout the UI: *on time* and *no real-time data available* are different claims, and showing one as the other is how a timetable app loses trust.
 
 ## The Transport for NSW APIs
 
@@ -148,43 +182,57 @@ Reference: *Trip Planning APIs: Technical Documentation*, TfNSW, v3.3 (April 202
 | `/add_info` | Service Alert API | Service status, incidents, trackwork, delays. Filterable by date, mode and stop. | `AdditionalInfoResponse` |
 | `/coord` | Coordinate Request | Stops / POIs / Opal resellers near a lat-lon. | `CoordRequestResponse` |
 
-All five are already present in the generated client (`typescript-fetch-client/api.ts`).
+All five are reachable through `tfnswGet()` in `src/lib/tfnsw/client.ts`; three have request builders in `queries.ts`.
 
-### Which endpoints RipView uses today
+### Which endpoints RipView uses
 
-Only **`/trip`**, via `planTrip()` in `src/app/api/apiCalls.tsx`. The other four are untouched, which is why RipView currently cannot show a departure board, live disruptions, or search for anything that isn't a train or metro station in the vendored file.
+Three of the five, each behind a builder in `src/lib/tfnsw/queries.ts`:
 
-The call RipView makes:
+| Endpoint | Builder | Used by |
+|---|---|---|
+| `/trip` | `fetchJourneys` | `/tripPlanning` |
+| `/departure_mon` | `fetchDepartures` | `/departures` |
+| `/stop_finder` | `fetchStopSuggestions` | every stop search box |
+
+`/add_info` and `/coord` are not called yet — see [Roadmap](#roadmap).
+
+The trip request:
 
 ```
 GET /v1/tp/trip
   ?outputFormat=rapidJSON
   &coordOutputFormat=EPSG:4326
+  &version=10.2.1.42
   &depArrMacro=dep|arr
-  &type_origin=any&name_origin=<TSN>
-  &type_destination=any&name_destination=<TSN>
+  &type_origin=any&name_origin=<stop id>
+  &type_destination=any&name_destination=<stop id>
   &itdDate=YYYYMMDD
   &itdTime=HHMM
   &calcNumberOfTrips=10
-  &excludedMeans=checkbox
-  &exclMOT_4=1&exclMOT_5=1&exclMOT_7=1&exclMOT_9=1&exclMOT_11=1
-  &TfNSWTR=true
+  &TfNSWTR=true                       # enables real-time estimates
+  [&wheelchair=on]                    # accessible journeys only
+  [&excludedMeans=checkbox&exclMOT_<n>=1 ...]   # one per mode the user turned off
 ```
 
-The `exclMOT_*` flags exclude light rail, bus, coach, ferry and school bus, leaving **train and metro only** — which is why RipView cannot currently plan a trip involving any other mode. `TfNSWTR=true` is what enables real-time.
+Modes work by **exclusion**: anything not excluded is allowed, and the
+`exclMOT_<n>` flags only take effect alongside `excludedMeans=checkbox`. So
+"trains only" means excluding the other six, and "everything" means sending no
+exclusions at all. `exclusionsForModes()` in `src/lib/modes.ts` does this, and
+`queries.test.ts` pins it — a wrong value here produces an empty result rather
+than an error, which is exactly the kind of bug that hides.
 
-The mode codes, from `transportation.product.class` (and the matching `exclMOT_<n>` parameters):
+The mode codes, from `transportation.product.class`:
 
-| Class | Mode | Excluded by RipView today? |
+| Class | Mode | `exclMOT_<n>` |
 |---|---|---|
-| 1 | Train | no |
-| 2 | Metro | no |
-| 4 | Light rail | yes |
-| 5 | Bus | yes |
-| 7 | Coach | yes |
-| 9 | Ferry | yes |
-| 11 | School bus | yes |
-| 99, 100 | Walk | n/a (always returned) |
+| 1 | Train | `exclMOT_1` |
+| 2 | Metro | `exclMOT_2` |
+| 4 | Light rail | `exclMOT_4` |
+| 5 | Bus | `exclMOT_5` |
+| 7 | Coach | `exclMOT_7` |
+| 9 | Ferry | `exclMOT_9` |
+| 11 | School bus | `exclMOT_11` |
+| 99, 100 | Walk | n/a — always returned |
 | 107 | Cycle | n/a |
 
 Class 2 (Metro) is not listed in the v3.3 documentation but is returned in production — e.g. `Sydney Metro Network M1 Metro North West & Bankstown Line` at Central.
@@ -201,7 +249,7 @@ TfNSW has two id schemes and this trips people up:
 Two consequences worth knowing:
 
 - TSNs are *parent* stops. `200060` means "Central Station" as a whole, not a specific platform. Platform-level ids exist (returned in leg `origin.id` / `destination.id`) and are needed for a per-platform departure board.
-- `type_origin=any` lets the API resolve free text too, so `/stop_finder` can replace the vendored station file entirely if you want live autocomplete across all modes.
+- `type_origin=any` lets the API resolve free text too, which is what makes `/stop_finder` results — including bus stands, wharves and street addresses — usable directly as trip endpoints.
 
 ### Real-time data
 
@@ -216,7 +264,7 @@ The rule from the TfNSW docs: if the estimated field is present and parses to a 
 
 Each non-walking leg also has a `stopSequence` array — the ordered list of stops the vehicle calls at, first element equal to the leg's `origin` and last equal to its `destination`, with platform names included (`"Central Station, Platform 21"`). This is what you need for an expandable "all stops" view.
 
-**RipView currently reads only `departureTimePlanned` and `arrivalTimePlanned`**, so despite passing `TfNSWTR=true` it displays a pure timetable and never shows a delay. Verified: the API *is* returning `departureTimeEstimated` for these requests.
+RipView reads both, keeps them separate all the way through the domain model, and shows the estimate where one exists. `stopSequence` becomes the expandable all-stops view on each leg.
 
 ### Fares
 
@@ -228,7 +276,7 @@ Each non-walking leg also has a `stopSequence` array — the ordered list of sto
 | `nswFarePartiallyEnabled` | Some legs (e.g. a private ferry) can't be priced — the total is a partial. |
 | `nswFareNotAvailable` | No leg has a calculable fare. |
 
-RipView does not request or display fares.
+RipView maps this into a `Fare` and renders it when present, marking a partial total as `$4.80+` rather than presenting it as final. In practice the ticket list comes back empty on the key this was developed against — see [Known limitations](#known-limitations).
 
 ### Date and time parameters
 
@@ -237,69 +285,62 @@ RipView does not request or display fares.
 - Times come back as UTC ISO 8601 (`2026-08-22T23:56:00Z`) and must be rendered in `Australia/Sydney`. `Intl.DateTimeFormat` with `timeZone: 'Australia/Sydney'` handles AEST/AEDT correctly — do not hardcode an offset.
 
 `depArrMacro=arr` ("arrive by") returns journeys arriving no later than the given time, **sorted latest-arrival-first**. `depArrMacro=dep` returns journeys departing no earlier than the time, earliest first. The API already applies the constraint, so client-side re-filtering of arrive-by results should not be necessary.
+### Where the API differs from its own documentation
 
-### The generated API client
+Three discrepancies cost real time to find. All are handled in `src/lib/tfnsw/responses.ts` and pinned by tests.
 
-`typescript-fetch-client/` was produced by Swagger Codegen 2.4.43 from the TfNSW OpenAPI spec (version `10.2.1.42`). It is checked in and should be treated as generated — the `.swagger-codegen-ignore` file is there for that reason.
+**1. `product.class` is `class`, not `_class`.** The vendored Swagger client (since removed) modelled it as `_class` to dodge the reserved word, but the JSON key really is `class`. Any mode detection built on the generated model read `undefined` for every leg and silently fell through to a default. This is the single most consequential one.
 
-It provides 50 typed response interfaces, including the full `TripRequestResponseJourneyLeg` shape (`stopSequence`, `transportation`, `origin`, `destination`, `coords`, `interchange`, `infos`, `duration`, `distance`). **These types already model everything the app is currently throwing away.**
+**2. The line name and the line number are the other way round.**
 
-Caveats:
-- It imports Node's `url` module and the `portable-fetch` polyfill, so it is **server-side only** as generated. That is fine while all calls go through server actions.
-- `DefaultApiFp.tfnswTripRequest2` contains a `console.log` of the request URL, which will log the full query string server-side on every request.
-- Method signatures are long positional parameter lists (29 parameters for `tfnswTripRequest2`). Wrapping each call in a small named-argument function is worth doing.
+| field | train | bus |
+|---|---|---|
+| `number` | `T1 North Shore & Western Line` | `440` |
+| `disassembledName` | `T1` | `440` |
+| `name` | `Sydney Trains Network T1 North Shore & Western Line` | `Sydney Buses Network 440` |
+
+So `disassembledName` — not `number` — is the short designator for a badge. The readable name comes from `name` with the network prefix stripped, and that prefix is exactly `product.name`, so it can be removed using the response's own value rather than a hardcoded list.
+
+**3. Several documented models are incomplete.** `TripRequestResponseJourney` omits `fare` and `interchanges`; `DepartureMonitorResponseStopEvent` omits `departureTimeEstimated`, `isRealtimeControlled` and `realtimeStatus` — that is, everything needed for a live departure board. Production returns all of them.
+
+The generated client has been removed from the request path entirely. `src/lib/tfnsw/client.ts` is about 120 lines of native `fetch` with typed errors, replacing 3,200 lines of generated code that also required the `portable-fetch` and `es6-promise` shims. If you ever want it back, regenerate from the TfNSW OpenAPI spec — nothing depends on it.
 
 ---
 
 ## Station reference data
 
-`src/app/data/stationsInformation.json` is a snapshot of the TfNSW [Public Transport Location Facilities and Operators](https://opendata.transport.nsw.gov.au/data/dataset/public-transport-location-facilities-and-operators/resource/e9d94351-f22d-46ea-b64d-10e7e238368a) dataset, captured **January 2025**. `stationsInformation.csv` is the same data in CSV form and is not read by any code.
+`data/stationsInformation.json` is a snapshot of the TfNSW [Public Transport Location Facilities and Operators](https://opendata.transport.nsw.gov.au/data/dataset/public-transport-location-facilities-and-operators/resource/e9d94351-f22d-46ea-b64d-10e7e238368a) dataset, captured **January 2025**. It carries phone numbers, addresses, facilities and accessibility prose for 775 locations across NSW — 291 KB the browser has no use for.
 
-Shape: `{ fields: [...], records: [[...], ...] }` — records are **positional arrays**, and the app indexes them by number:
+`npm run data:stations` projects it down to what the app needs and writes `src/lib/stations.json`:
 
-| Index | Field | Used as |
-|---|---|---|
-| 0 | `_id` | — |
-| 1 | `LOCATION_NAME` | display name |
-| 2 | `TSN` | the stop id sent to the API |
-| 3 | `LATITUDE` | — (needed for a geographic map) |
-| 4 | `LONGITUDE` | — (needed for a geographic map) |
-| 5 | `EFA_ID` | — (global stop id) |
-| 6–9 | `PHONE`, `ADDRESS`, `FACILITIES`, `ACCESSIBILITY` | — |
-| 10 | `TRANSPORT_MODE` | filtered with `/Train|Metro/` |
-| 11–13 | `MORNING_PEAK`, `AFTERNOON_PEAK`, `SHORT_PLATFORM` | — |
+```json
+{"id":"200060","name":"Central Station","metro":false,"lat":-33.88322,"lon":151.20653}
+```
 
-`getStationIdEntries()` filters to `Train|Metro`, leaving **382 stations** out of 775 rows.
+382 train and metro stations, 33 KB. Re-run it after refreshing the source dataset.
 
-Two things to be aware of:
-
-1. **The whole 297 KB file is imported into a client component** (`getData.ts` → `page.tsx`), so it ships to the browser on first load, including phone numbers, addresses and facility text the UI never uses.
-2. **It is a frozen snapshot.** The dataset only publishes 5 API calls per day on its Data API, which is presumably why it was vendored — but nothing refreshes it, so station openings, closures and mode changes drift out of date silently. `/stop_finder` is the live alternative.
+This bundled list is a **fallback, not the source of truth**. Live search through `/stop_finder` is the primary path — it covers every stop, wharf, interchange and address, and never goes stale. The bundled list is used when the query is too short for live search, when the API is unreachable, or when no key is configured, and the UI says so when it falls back. Anything the live search returns wins.
 
 ---
 
 ## The SVG network map
 
-`public/map/Sydney_Trains_Network_Map.svg` is a hand-authored schematic map (743 × 815 viewBox, ~1,755 lines) imported as a React component via [SVGR](https://react-svgr.com/) (configured in `next.config.ts`, typed in `svgr.d.ts`).
+`public/map/Sydney_Trains_Network_Map.svg` is a hand-authored schematic map (743 × 815 viewBox, ~1,755 lines) imported as a React component via [SVGR](https://react-svgr.com/).
 
-**How station picking works.** Each station node carries an `id` of the form `<letter><TSN>` or `<TSN>_<letter>` — for example `A200060` is Central Station (TSN `200060`), and `212110_A` is Epping. The letter prefix/suffix disambiguates a station that is drawn more than once because it sits on multiple lines. `handleSVGClick` walks up from the click target to the first ancestor with an `id`, strips every non-digit to recover the TSN, then paints the node green and stores it as origin or destination.
+**How station picking works.** Each station node carries an `id` of the form `<letter><TSN>` or `<TSN>_<letter>` — `A200060` is Central Station (TSN `200060`), and the letter disambiguates a station drawn more than once because it sits on several lines. SVGR prefixes every id when it inlines the file, so at runtime the id is `Sydney_Trains_Network_Map_svg__A200060`. A click walks up to the nearest ancestor whose id contains a run of five or more digits that resolves to a real station — which conveniently rejects the drawing's structural ids (`Layer_1`, `lines`, `transfers`).
 
-**Coverage.** This is the thing to know before deciding whether to keep it:
+**Coverage — read this before investing in it:**
 
 | | Count |
 |---|---|
 | `id` attributes in the SVG | 312 |
 | Distinct station TSNs | **177** |
-| Train/metro stations in the dataset | **382** |
+| Train and metro stations in the dataset | **382** |
 | Coverage | **~46%** |
 
-Entire corridors have no node on the map, including the Central Coast & Newcastle line (Gosford, Woy Woy, Ourimbah, Wondabyne, Point Clare, Tascott, Narara, Lisarow, Niagara Park, Koolewong), Hawkesbury River, Cowan, and the Bankstown corridor (Canterbury, Campsie, Belmore, Lakemba, Wiley Park, Punchbowl, Hurlstone Park, Marrickville, Dulwich Hill). Every id that *is* present resolves to a real TSN in the dataset, so what exists is correct — it is just incomplete, and extending it means more hand-editing.
+Entire corridors have no node: the Central Coast & Newcastle line (Gosford, Woy Woy, Ourimbah, Wondabyne, Point Clare, Tascott, Narara, Lisarow, Niagara Park, Koolewong), Hawkesbury River, Cowan, and the Bankstown corridor (Canterbury, Campsie, Belmore, Lakemba, Wiley Park, Punchbowl, Hurlstone Park, Marrickville, Dulwich Hill). Every id that *is* present resolves correctly, so what exists is accurate — it is just incomplete, and extending it is hand-editing that has to be repeated every time the network changes.
 
-**Interaction.** Pan and zoom are driven by on-screen buttons that mutate the `viewBox` string in React state (`zoom(±0.4)`, and `left`/`right`/`up`/`down(15)`). There is no pinch-zoom and no drag-to-pan — the `onDragStart` handler only logs. `userScalable: false` in the layout's viewport also disables the browser's own pinch-zoom, so on a phone the buttons are the only way to navigate. Zoom only grows the viewBox width/height and never adjusts x/y, so it is anchored to the top-left corner rather than the centre, and the initial state is `'0 0 800 800'` while the SVG's own viewBox is `0 0 743 815`, so the first paint is slightly mis-framed.
-
-See [Roadmap](#roadmap) for the alternatives.
-
----
+The page says as much, and links to search. See [Roadmap](#roadmap) for the options.
 
 ## Setting up the TfNSW API key
 
@@ -311,7 +352,7 @@ The API key used to query TfNSW servers is private, so it is not in the repo. Cr
 TPNSWAPIKEY="apikey {yourKeyHere}"
 ```
 
-Replace `{yourKeyHere}` with your key, keeping the `apikey ` prefix and the quotes — the whole string is sent verbatim as the `Authorization` header. If your key were `hello`, the file would read:
+Replace `{yourKeyHere}` with your key. Keeping the `apikey ` prefix is conventional — that whole string becomes the `Authorization` header — though `client.ts` adds the prefix for you if you paste a bare key. If your key were `hello`, the file would read:
 
 ```bash
 TPNSWAPIKEY="apikey hello"
@@ -323,33 +364,34 @@ Then rename the file so Next.js picks it up:
 cd ripview && mv env.dist .env
 ```
 
-`.env*` is gitignored, so your key will not be committed.
+`.env*` is gitignored, so your key will not be committed. It is read only on the server, in `src/lib/tfnsw/client.ts`, and never reaches the browser.
+
+Without a key the app still loads and station search still works from the bundled list, but no timetable or departure will resolve — you will get a clear "no API key is configured" message rather than a silent failure.
 
 ---
-
 ## Development workflows
 
 All commands run from the `ripview/` subdirectory, not the repository root.
 
-**Install dependencies** (first time only):
+**Install** (first time only):
 
 ```bash
 cd ripview && npm install
 ```
 
-**Start the dev server** on http://localhost:3000:
+**Dev server** on http://localhost:3000:
 
 ```bash
 cd ripview && npm run dev
 ```
 
-**Production build.** This currently fails — Next.js runs ESLint as part of `next build` and the repo has 4 lint errors:
+**Production build:**
 
 ```bash
 cd ripview && npm run build
 ```
 
-**Lint.** Uses `eslint` via `next lint` with the large hand-tuned config in `eslint.config.mjs`. House style is 4-space indent, single quotes, mandatory semicolons, no trailing whitespace, `===` over `==`:
+**Lint.** House style is 4-space indent, single quotes, mandatory semicolons, no trailing whitespace, `===` over `==`, enforced by the hand-tuned config in `eslint.config.mjs`:
 
 ```bash
 cd ripview && npm run lint
@@ -361,141 +403,96 @@ cd ripview && npm run lint
 cd ripview && npx tsc --noEmit
 ```
 
-**Tests.** Jest 29 with `jsdom` and Testing Library are installed and `jest.config.ts` exists, but no test files have been written, so this exits non-zero:
+**Regenerate the bundled station list** after refreshing `data/stationsInformation.json`:
+
+```bash
+cd ripview && npm run data:stations
+```
+
+## Testing
+
+Jest with `next/jest`, jsdom and Testing Library. `jest.setup.ts` pins the timezone to `Australia/Sydney` so time assertions behave the same locally and in CI.
+
+**Unit and component tests** — offline, deterministic, no API key required:
 
 ```bash
 cd ripview && npm test
 ```
 
-Note that `jest.config.ts` does not wire up `next/jest`, so TS/JSX transformation, CSS-module stubbing and `@/*` path aliases are not configured yet — that has to be added before the first component test will run.
+165 tests over the mapping layer, time handling, mode logic, storage, the bundled station list, request construction, and the components that carry behaviour. The mapping tests run against responses captured from production in `src/lib/tfnsw/__fixtures__/`.
 
----
+**Live integration checks** — these hit the real TfNSW API and need a valid `TPNSWAPIKEY`. They are excluded from `npm test` because they need the network and assert on data that changes minute to minute:
+
+```bash
+cd ripview && npm run test:live
+```
+
+Run them when you want to confirm the request layer still matches the real API — they are the counterpart to the fixture tests, which pin the mapping but cannot notice the API changing underneath them.
 
 ## Deployment and PWA notes
 
-RipView is a standard Next.js app and deploys to any Node host or to Vercel with no extra configuration. `TPNSWAPIKEY` must be set as a server environment variable in the hosting platform.
+A standard Next.js app: deploys to any Node host or to Vercel with no extra configuration. Set `TPNSWAPIKEY` as a server environment variable in the hosting platform — it is read only on the server.
 
-For the "save to home screen" experience to work properly, three things are needed and only partly present today:
+For "save to home screen":
 
-1. **A complete web app manifest.** `public/site.webmanifest` is the one linked from `layout.tsx`. It sets `display: standalone` and `short_name`, but is missing `name`, `start_url`, `scope`, `theme_color`, `background_color`, icon `type`s and a `maskable` icon. A second, stale manifest sits at `public/favicon/site.webmanifest` still saying `"MyWebSite"` and pointing at paths that do not resolve; it is unreferenced and should be deleted.
-2. **A service worker.** There is none, so RipView has no offline capability, no asset caching, and Android will not offer an install prompt. A service worker that pre-caches the shell and the station list, and serves a cached timetable when the network is unavailable, is the single highest-value addition for mobile.
-3. **iOS specifics.** `apple-mobile-web-app-status-bar-style: black-translucent` and `viewport-fit: cover` are already set. The layout uses `@media (display-mode: standalone)` to add top padding for the notch — a workable approach, though `env(safe-area-inset-top)` is the more robust one.
-
-Also note that `layout.tsx` loads Font Awesome from `cdnjs.cloudflare.com` for a handful of arrow icons. That is a render-blocking third-party request that cannot work offline; inlining those few icons as SVG would remove the dependency.
+- **Manifest** — `public/manifest.webmanifest` sets `name`, `short_name`, `start_url`, `scope`, `display: standalone`, `theme_color`, `background_color`, both `any` and `maskable` icons, and shortcuts to Departures and the map.
+- **Safe areas** — the header pads with `env(safe-area-inset-top)` and page bottoms with `env(safe-area-inset-bottom)`, paired with `viewport-fit: cover`. In a browser tab those insets are zero, so one rule covers both cases.
+- **Pinch-zoom is deliberately enabled.** Disabling it removes the browser's own accessibility zoom. Inputs use a 16px minimum font size, which is what actually stops iOS Safari zooming the page on focus.
+- **No third-party requests.** Icons are inline text and SVG; the Font Awesome CDN link is gone.
+- **No service worker yet** — see below.
 
 ---
 
-## Known issues
+## Known limitations
 
-Ordered roughly by how much they hurt.
+1. **No offline mode.** There is no service worker, so the app needs a connection. The bundled station list means search still works offline, but no timetable does. This is the largest remaining gap for a phone on a train in a tunnel.
 
-### Blocking
+2. **Fares are usually absent.** `journey.fare.tickets` comes back empty on the key this was developed against, and no combination of documented parameters changed that. The model and the UI handle fares correctly when they arrive — `evaluationTicket` is respected, so a partial total renders as `$4.80+` rather than being presented as final — but do not expect to see them without confirming your key includes Opal fare calculation.
 
-1. **`npm run build` fails.** Four ESLint errors are promoted to build errors: trailing whitespace in `mapInput/page.tsx:92` and `tripPlanning/page.tsx:217`, an undefined `NodeJS` global in `ScrollToTop.tsx:11`, and `==` instead of `===` in `getData.ts:14`. Until these are fixed the app cannot be deployed.
+3. **Next.js 15.1.4 is behind** (16.x is current). React is 19.0.0. Worth a planned bump.
 
-2. **No tests exist.** For an app whose whole value is correct times, there is no test asserting that a known API response renders the right departure.
+4. **The map covers 46% of stations** and is hand-maintained. See [the map section](#the-svg-network-map).
 
-### Correctness
+5. **The station snapshot is frozen** at January 2025. It only matters for the offline fallback and for resolving a station name from a bookmarked URL — live search is unaffected.
 
-3. **Journeys are modelled as `string[][]`.** `tripResponseToJson` converts the typed `TripRequestResponse` into arrays of pre-formatted display strings like `"From: Central Station, Platform 18. Departing at: 22/08/2026, 09:56:00"`. `tripPlanning/page.tsx` then **re-parses those strings** with `split('Departing at:')`, `split(', ')` and regex to recover the data it needs. This is the root cause of the app feeling unreliable: it is locale-dependent (an `en-AU` format string is parsed by position), it breaks on the `'Unknown time'` fallback, and the arrive-by filter `return false`s — silently dropping the journey — whenever a line doesn't match the expected shape. It also discards real-time estimates, fares, `stopSequence`, platform ids, leg mode and service alerts, all of which the generated types already model. **Replacing this with typed domain objects is the most valuable single change in the codebase.**
+6. **No service alert screen.** `/add_info` is not called. Alerts attached to a journey leg *are* shown, but there is no network-wide disruption view.
 
-4. **Client-side arrive-by filtering is redundant and lossy.** `depArrMacro=arr` already guarantees journeys arrive no later than the requested time. The extra filter in `tripPlanning/page.tsx` re-derives arrival times from formatted strings and can empty out a perfectly good result set.
+### Two things worth not regressing
 
-5. **Map selection state is lost on any re-render.** `mapInput/page.tsx` holds `fromId` and `toId` as plain `let` bindings at component scope and mutates them inside `useCallback`. Any state update — i.e. pressing any zoom or pan button — resets both to `''`. The green highlight is written directly to the DOM, so it *survives*, leaving stations that look selected but are not. There is also no way to deselect a mistake short of reloading. (ESLint already warns about this at `mapInput/page.tsx:79` and `:83`.)
+**Do not add an `env` block to `next.config.ts`.** The original config declared `env: { TPNSWAPIKEY }`, which inlines the value into any bundle that references `process.env.TPNSWAPIKEY`. Nothing leaked, because only the server module read it — but one stray reference from a client component would have published the key in the JavaScript sent to every browser. Next.js reads `.env` server-side without it.
 
-6. **`getStationNameFromId` throws on an unknown id.** `records.filter(...)[0][1]` indexes into `undefined` when nothing matches, so a bad or missing `fromStations` query parameter takes down `/tripPlanning` with a `TypeError` rather than showing a message.
-
-7. **No error or empty states.** `FetchtripData` is not wrapped in `try`/`catch`. A 401 (bad key), 429 (rate limit), network failure or `journeys: null` surfaces as a stuck `"Loading..."` or the sentinel string `'ERROR'` rendered as a trip option.
-
-8. **`trainLineColours.ts` keys can never match.** The config keys on full line names like `'T1 North Shores & Western Line'`, but the live API returns `'Sydney Trains Network T1 North Shore & Western Line'` — "Shore", not "Shores", with a network prefix. `'T2 Inner West & Leppington Line'` is likewise `'T2 Leppington & Inner West Line'` upstream. The file is currently unused, which is the only reason this isn't visible. Colours should be keyed off `transportation.product.class` plus the line number (`disassembledName`), not the display string.
-
-### Security and configuration
-
-9. **`next.config.ts` `env` block is a foot-gun.** `env: { TPNSWAPIKEY }` inlines the value into any bundle that references `process.env.TPNSWAPIKEY`. Today only the `'use server'` module references it so nothing leaks — but a single stray reference in a client component would silently publish the key in the JS bundle. Next.js already reads `.env` server-side without this block; deleting it removes the hazard.
-
-10. **The generated client logs the full request URL** (`api.ts`, in `DefaultApiFp.tfnswTripRequest2`). The API key is in a header, not the URL, so the key itself is not logged, but this is noise on every request and should go.
-
-### Performance and UX
-
-11. **The 297 KB station dataset ships to the browser** because `getData.ts` is imported by a client component. Only name and TSN are ever used. Projecting it to `{ name, tsn }` at build time would cut this by well over 90%.
-
-12. **Full page reloads on back navigation.** `page.tsx` calls `window.location.reload()` on `popstate` and `tripPlanning/page.tsx` reloads on `pageshow` when `event.persisted` — both are workarounds for a font-loading glitch. They defeat client-side routing and the back-forward cache, and make navigation feel slow on mobile. The underlying font issue should be fixed instead.
-
-13. **`position: -webkit-sticky` without the standard property.** `Header.module.css` sets only the prefixed value, so the header is not sticky in Firefox.
-
-14. **`StationSelect` has no keyboard support beyond Tab.** No arrow-key navigation, no `role="combobox"`/`aria-activedescendant`, no `aria-expanded`, and the dropdown renders all 382 stations unvirtualised when the input is empty. The `<li>` options are click-only, so the control is not usable by keyboard or screen reader.
-
-15. **Duplication and dead code.** `getCurrentDateTime` is defined identically in `page.tsx` and `tripPlanning/page.tsx`. The `viewport` export is repeated in all three layouts. `HomeButton.tsx` imports `./HomeButton.module.css`, **which does not exist** — it only builds because nothing imports `HomeButton`. `NavigationHandler`, `CsvHandler`, `trainLineColours` and most of `PAGE_PATHS` are also unreferenced.
-
-16. **Stale copyright.** The footer reads "© 2021 RipView".
-
-### Dependencies
-
-17. **Next.js 15.1.4 is well behind** (16.x is current). React is 19.0.0. Worth planning a bump, particularly since Next 15.3+ moved lint out of `next build` by default, which changes issue #1.
-
-18. **`es6-promise` and `portable-fetch` are legacy shims** required only by the Swagger 2.x generated client. Regenerating the client with a modern generator that targets native `fetch` would drop both.
+**Do not format in the fetch layer.** The reason this app was hard to make reliable is that its predecessor converted API responses into display strings and then re-parsed them to recover the data. Formatting is one-way. Map to typed values once, format in the component.
 
 ---
 
 ## Roadmap
 
-### Phase 0 — make it green
+### Next: offline support
 
-Fix the four lint errors so `npm run build` passes. Wire `next/jest` into `jest.config.ts`. Add a first test that feeds a captured `/trip` response fixture through the response mapper and asserts the rendered times. Delete `HomeButton.tsx` (or add its missing stylesheet) and the other dead files. This is a short, high-leverage pass and everything below depends on it.
+A service worker that pre-caches the shell and station list and serves the last-known timetable when the network is unavailable. This is the difference between a bookmark and something that works underground, and it is the single highest-value remaining addition for mobile.
 
-### Phase 1 — a real domain model
+### Then: service alerts
 
-Replace `string[][]` with typed objects mapped once, at the boundary:
+`/add_info` with `filterDateValid` and `filterPublicationStatus=current`, filtered to the user's saved lines and stops. The client already types the response; only the screen is missing.
 
-```ts
-type Journey = { legs: Leg[]; fare?: Fare };
-type Leg = {
-  mode: 'train' | 'metro' | 'bus' | 'ferry' | 'lightRail' | 'walk' | 'coach';
-  line?: { number: string; name: string; colour: string };
-  origin: StopCall;
-  destination: StopCall;
-  stops: StopCall[];        // from stopSequence
-  durationSeconds: number;
-};
-type StopCall = {
-  name: string;
-  platform?: string;
-  planned: Date;
-  estimated?: Date;         // real-time, when available
-  delayMinutes?: number;    // derived
-};
-```
+### The map question
 
-Everything after this becomes straightforward: real-time delays, an expandable all-stops view, per-line colours, correct interchange counts, and formatting that happens in the component rather than in the fetch layer. Delete the client-side arrive-by filter and trust `depArrMacro=arr`. Wrap the fetch in `try`/`catch` and give `/tripPlanning` explicit loading, empty and error states.
-
-### Phase 2 — the features that make it TripView
-
-TripView's actual daily loop is not trip planning, it is *"what's the next train home"*. In rough order of value:
-
-- **Saved trips / favourites.** A short list of station pairs on the home screen, each showing the next few departures. `localStorage` is enough; no accounts needed.
-- **Departure board** via `/departure_mon` — the "next trains from here" view, optionally per-platform.
-- **Live delays** surfaced from the estimated-vs-planned difference already in the response.
-- **Service alerts** via `/add_info`, filtered to the user's saved lines and stops.
-- **Live station search** via `/stop_finder`, which retires the vendored snapshot and extends the app past trains and metro. Note this also needs the hardcoded `exclMOT_*` exclusions in `planTrip()` relaxed — ideally into a user-facing mode filter — since they currently block bus, ferry, light rail and coach legs outright.
-- **Fares** from `journey.fare.tickets`, respecting `evaluationTicket`.
-
-### Phase 3 — the map question
-
-The hand-drawn SVG covers 46% of stations and every extension is manual work. Three ways forward:
+Three ways forward, unchanged by the work so far:
 
 | Option | What it means | Trade-off |
 |---|---|---|
-| **Keep and finish the SVG** | Hand-add the ~205 missing stations, add pinch/drag via a pan-zoom wrapper, centre the zoom, fix the initial viewBox. | Preserves the schematic look users like, and no new dependencies — but it stays a manual artefact that goes stale every time the network changes, and it is a lot of tedious work. |
-| **Geographic map** | MapLibre GL JS with vector tiles; station markers generated from the `LATITUDE`/`LONGITUDE` columns already in the dataset; route shapes from the TfNSW GTFS feed. | Complete coverage automatically, native pinch/zoom/pan on every platform, and route geometry can be drawn from `leg.coords`. But it loses the schematic clarity of a transit diagram, and adds a tile source and a real dependency. |
-| **Demote the map** | Make search and saved trips the primary input, and treat the map as a secondary "browse the network" view. | Cheapest, and matches how the app is actually used — the map was never the fast path for a commuter. |
+| **Leave it as a secondary view** (current) | Search and saved trips are the fast path; the map is for browsing, and states its own coverage. | Free. The map stays 46% complete. |
+| **Go geographic** | MapLibre GL JS with vector tiles; markers from the `lat`/`lon` already in `stations.json`; route geometry from `leg.coords`. | Complete coverage automatically and native gestures — but loses the schematic clarity and adds a tile source. |
+| **Finish the SVG by hand** | Add the ~205 missing stations. | Preserves the look, no new dependencies, but it is tedious and goes stale with every network change. |
 
-**Recommendation: demote the map now, then go geographic later if it still earns its place.** The map is where this project consumed the most effort for the least daily value; search plus favourites is the loop that makes the app worth installing. If a schematic map does come back, generate it from data rather than maintaining it by hand.
+If a schematic map does come back properly, generate it from data rather than maintaining it by hand.
 
-Regardless of the choice, drop `userScalable: false` from the viewport so the browser's own pinch-zoom works — that alone makes the current map far more usable on a phone.
+### Smaller things
 
-### Phase 4 — make it a proper installable app
-
-Consolidate to one complete manifest (`name`, `start_url`, `scope`, `theme_color`, `background_color`, typed and maskable icons) and delete the stale one. Add a service worker that pre-caches the shell and station list and serves the last-known timetable offline — the difference between a bookmark and something that works on a train in a tunnel. Inline the Font Awesome icons. Fix the safe-area padding with `env(safe-area-inset-top)`, and remove the `reload()` workarounds.
+- Per-platform departure boards (leg `origin.id` is already a platform-level id).
+- A "leave in N minutes" alarm for a saved trip.
+- Upgrade Next.js and React.
+- Wider component test coverage for the page-level components, which are currently verified by hand and by the live integration checks.
 
 ---
 
