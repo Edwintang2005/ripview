@@ -11,5 +11,5 @@ export function getStationNameFromId(id: string) {
         return null;
     }
     const records = getStationIdEntries();
-    return records.filter((a) => (a[2] as string) == id)[0][1];
+    return records.filter((a) => (a[2] as string) === id)[0][1];
 }

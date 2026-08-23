@@ -8,7 +8,7 @@ export default function ScrollToTop() {
 
     // Debounced scroll handler
     const toggleVisibility = useCallback(() => {
-        let scrollTimeout: NodeJS.Timeout;
+        let scrollTimeout: ReturnType<typeof setTimeout>;
 
         return () => {
             const scrollPosition = window.scrollY || document.documentElement.scrollTop;

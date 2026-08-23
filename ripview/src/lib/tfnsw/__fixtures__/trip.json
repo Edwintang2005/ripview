@@ -1,0 +1,874 @@
+{
+  "journeys": [
+    {
+      "interchanges": 0,
+      "fare": {
+        "tickets": []
+      },
+      "legs": [
+        {
+          "origin": {
+            "id": "2000338",
+            "name": "Central Station, Platform 18, Sydney",
+            "disassembledName": "Central Station, Platform 18",
+            "type": "platform",
+            "parent": {
+              "id": "200060",
+              "name": "Central Station, Platform 18, Sydney",
+              "disassembledName": "Central Station, Platform 18",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-22T23:56:00Z",
+            "departureTimeEstimated": "2026-08-22T23:56:00Z"
+          },
+          "destination": {
+            "id": "2147424",
+            "name": "Seven Hills Station, Platform 4, Seven Hills",
+            "disassembledName": "Seven Hills Station, Platform 4",
+            "type": "platform",
+            "parent": {
+              "id": "214710",
+              "name": "Seven Hills Station, Platform 4, Seven Hills",
+              "disassembledName": "Seven Hills Station, Platform 4",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95308035:1",
+                "name": "Seven Hills",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-23T00:37:30Z",
+            "arrivalTimeEstimated": "2026-08-23T00:37:30Z"
+          },
+          "duration": 2490,
+          "stopSequence": [
+            {
+              "id": "2000338",
+              "name": "Central Station, Platform 18, Sydney",
+              "disassembledName": "Central Station, Platform 18",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-22T23:56:00Z"
+            },
+            {
+              "id": "2015134",
+              "name": "Redfern Station, Platform 4, Eveleigh",
+              "disassembledName": "Redfern Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-22T23:58:18Z",
+              "departureTimePlanned": "2026-08-22T23:58:48Z"
+            },
+            {
+              "id": "204831",
+              "name": "Stanmore Station, Platform 1, Stanmore",
+              "disassembledName": "Stanmore Station, Platform 1",
+              "type": "platform"
+            },
+            {
+              "id": "213051",
+              "name": "Summer Hill Station, Platform 1, Summer Hill",
+              "disassembledName": "Summer Hill Station, Platform 1",
+              "type": "platform"
+            },
+            {
+              "id": "2131122",
+              "name": "Ashfield Station, Platform 2, Ashfield",
+              "disassembledName": "Ashfield Station, Platform 2",
+              "type": "platform"
+            },
+            {
+              "id": "213283",
+              "name": "Croydon Station, Platform 3, Croydon",
+              "disassembledName": "Croydon Station, Platform 3",
+              "type": "platform"
+            },
+            {
+              "id": "213494",
+              "name": "Burwood Station, Platform 4, Burwood",
+              "disassembledName": "Burwood Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2135236",
+              "name": "Strathfield Station, Platform 6, Strathfield",
+              "disassembledName": "Strathfield Station, Platform 6",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:09:00Z",
+              "departureTimePlanned": "2026-08-23T00:10:00Z"
+            },
+            {
+              "id": "214075",
+              "name": "Homebush Station, Platform 5, Homebush",
+              "disassembledName": "Homebush Station, Platform 5",
+              "type": "platform"
+            },
+            {
+              "id": "214064",
+              "name": "Flemington Station, Platform 4, Homebush West",
+              "disassembledName": "Flemington Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2141314",
+              "name": "Lidcombe Station, Platform 4, Lidcombe",
+              "disassembledName": "Lidcombe Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:16:00Z",
+              "departureTimePlanned": "2026-08-23T00:16:30Z"
+            },
+            {
+              "id": "2144244",
+              "name": "Auburn Station, Platform 4, Auburn",
+              "disassembledName": "Auburn Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:19:12Z",
+              "departureTimePlanned": "2026-08-23T00:19:42Z"
+            },
+            {
+              "id": "2142315",
+              "name": "Clyde Station, Platform 5, Granville",
+              "disassembledName": "Clyde Station, Platform 5",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:22:06Z",
+              "departureTimePlanned": "2026-08-23T00:22:36Z"
+            },
+            {
+              "id": "2142324",
+              "name": "Granville Station, Platform 4, Granville",
+              "disassembledName": "Granville Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:23:42Z",
+              "departureTimePlanned": "2026-08-23T00:24:12Z"
+            },
+            {
+              "id": "2150404",
+              "name": "Harris Park Station, Platform 4, Harris Park",
+              "disassembledName": "Harris Park Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:26:18Z",
+              "departureTimePlanned": "2026-08-23T00:26:48Z"
+            },
+            {
+              "id": "2150414",
+              "name": "Parramatta Station, Platform 4, Parramatta",
+              "disassembledName": "Parramatta Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:28:00Z",
+              "departureTimePlanned": "2026-08-23T00:29:00Z"
+            },
+            {
+              "id": "2145664",
+              "name": "Westmead Station, Platform 4, Westmead",
+              "disassembledName": "Westmead Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:31:42Z",
+              "departureTimePlanned": "2026-08-23T00:32:12Z"
+            },
+            {
+              "id": "2145654",
+              "name": "Wentworthville Station, Platform 4, Wentworthville",
+              "disassembledName": "Wentworthville Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2145644",
+              "name": "Pendle Hill Station, Platform 4, Pendle Hill",
+              "disassembledName": "Pendle Hill Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2146114",
+              "name": "Toongabbie Station, Platform 4, Toongabbie",
+              "disassembledName": "Toongabbie Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2147424",
+              "name": "Seven Hills Station, Platform 4, Seven Hills",
+              "disassembledName": "Seven Hills Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:37:30Z"
+            }
+          ],
+          "transportation": {
+            "id": "nsw:020T1:W:H:sj2",
+            "name": "Sydney Trains Network T1 North Shore & Western Line",
+            "disassembledName": "T1",
+            "number": "T1 North Shore & Western Line",
+            "product": {
+              "id": 1,
+              "class": 1,
+              "name": "Sydney Trains Network",
+              "iconId": 1
+            },
+            "destination": {
+              "id": "10101252",
+              "name": "Penrith via Parramatta",
+              "type": "stop"
+            }
+          },
+          "infos": [
+            {
+              "priority": "normal",
+              "subtitle": "T1 Western Line: Richmond trains run between Richmond and Liverpool",
+              "type": "lineInfo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "interchanges": 2,
+      "fare": {
+        "tickets": []
+      },
+      "legs": [
+        {
+          "origin": {
+            "id": "2000337",
+            "name": "Central Station, Platform 17, Sydney",
+            "disassembledName": "Central Station, Platform 17",
+            "type": "platform",
+            "parent": {
+              "id": "200060",
+              "name": "Central Station, Platform 17, Sydney",
+              "disassembledName": "Central Station, Platform 17",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-22T23:57:00Z",
+            "departureTimeEstimated": "2026-08-22T23:57:00Z"
+          },
+          "destination": {
+            "id": "2000396",
+            "name": "Town Hall Station, Platform 6, Sydney",
+            "disassembledName": "Town Hall Station, Platform 6",
+            "type": "platform",
+            "parent": {
+              "id": "200070",
+              "name": "Town Hall Station, Platform 6, Sydney",
+              "disassembledName": "Town Hall Station, Platform 6",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-22T23:59:42Z",
+            "arrivalTimeEstimated": "2026-08-22T23:59:42Z"
+          },
+          "duration": 162,
+          "stopSequence": [
+            {
+              "id": "2000337",
+              "name": "Central Station, Platform 17, Sydney",
+              "disassembledName": "Central Station, Platform 17",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-22T23:57:00Z"
+            },
+            {
+              "id": "2000396",
+              "name": "Town Hall Station, Platform 6, Sydney",
+              "disassembledName": "Town Hall Station, Platform 6",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-22T23:59:42Z"
+            }
+          ],
+          "transportation": {
+            "id": "nsw:020T8: :H:sj2",
+            "name": "Sydney Trains Network T8 Airport & South Line",
+            "disassembledName": "T8",
+            "number": "T8 Airport & South Line",
+            "product": {
+              "id": 1,
+              "class": 1,
+              "name": "Sydney Trains Network",
+              "iconId": 1
+            },
+            "destination": {
+              "id": "10101326",
+              "name": "City Circle via Town Hall",
+              "type": "stop"
+            }
+          },
+          "infos": [
+            {
+              "priority": "normal",
+              "subtitle": "Station Update - Central",
+              "type": "stopInfo"
+            }
+          ]
+        },
+        {
+          "origin": {
+            "id": "2000396",
+            "name": "Town Hall Station, Platform 6, Sydney",
+            "disassembledName": "Platform 6",
+            "type": "platform",
+            "parent": {
+              "id": "200070",
+              "name": "Town Hall Station, Sydney",
+              "disassembledName": "Town Hall Station",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-22T23:59:42Z",
+            "departureTimeEstimated": "2026-08-22T23:59:42Z"
+          },
+          "destination": {
+            "id": "200043",
+            "name": "QVB, QVB, York St, Stand C, Sydney",
+            "disassembledName": "QVB, York St, Stand C",
+            "type": "platform",
+            "parent": {
+              "id": "2000171",
+              "name": "QVB, Sydney",
+              "disassembledName": "QVB",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-23T00:04:42Z",
+            "arrivalTimeEstimated": "2026-08-23T00:04:42Z"
+          },
+          "duration": 300,
+          "stopSequence": [
+            {
+              "id": "2000396",
+              "name": "Town Hall Station, Sydney",
+              "disassembledName": "Town Hall Station",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-22T23:59:42Z"
+            },
+            {
+              "id": "200043",
+              "name": "QVB, Sydney",
+              "disassembledName": "QVB",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:04:42Z"
+            }
+          ],
+          "transportation": {
+            "product": {
+              "class": 99,
+              "name": "footpath",
+              "iconId": 99
+            }
+          },
+          "infos": []
+        },
+        {
+          "origin": {
+            "id": "200043",
+            "name": "QVB, York St, Stand C, Sydney",
+            "disassembledName": "QVB, York St, Stand C",
+            "type": "platform",
+            "parent": {
+              "id": "2000171",
+              "name": "QVB, York St, Stand C, Sydney",
+              "disassembledName": "QVB, York St, Stand C",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-23T00:05:00Z",
+            "departureTimeEstimated": "2026-08-23T00:05:00Z"
+          },
+          "destination": {
+            "id": "212512",
+            "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+            "disassembledName": "M2 Motorway, Oakes Rd",
+            "type": "platform",
+            "parent": {
+              "id": "2125171",
+              "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+              "disassembledName": "M2 Motorway, Oakes Rd",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95325032:1",
+                "name": "West Pennant Hills",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-23T00:27:00Z",
+            "arrivalTimeEstimated": "2026-08-23T00:27:00Z"
+          },
+          "duration": 1320,
+          "stopSequence": [
+            {
+              "id": "200043",
+              "name": "QVB, York St, Stand C, Sydney",
+              "disassembledName": "QVB, York St, Stand C",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-23T00:05:00Z",
+              "departureTimeEstimated": "2026-08-23T00:05:00Z"
+            },
+            {
+              "id": "2000427",
+              "name": "Clarence St at King St, Sydney",
+              "disassembledName": "Clarence St at King St",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:07:00Z",
+              "departureTimePlanned": "2026-08-23T00:07:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:07:00Z",
+              "departureTimeEstimated": "2026-08-23T00:07:00Z"
+            },
+            {
+              "id": "2000221",
+              "name": "Wynyard Station, Clarence St, Stand Q, Sydney",
+              "disassembledName": "Wynyard Station, Clarence St, Stand Q",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:09:00Z",
+              "departureTimePlanned": "2026-08-23T00:09:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:09:00Z",
+              "departureTimeEstimated": "2026-08-23T00:09:00Z"
+            },
+            {
+              "id": "212512",
+              "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+              "disassembledName": "M2 Motorway, Oakes Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:27:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:27:00Z"
+            }
+          ],
+          "transportation": {
+            "id": "nsw:14607:X:H:sj2",
+            "name": "Sydney Buses Network 607X",
+            "disassembledName": "607X",
+            "number": "607X",
+            "product": {
+              "id": 5,
+              "class": 5,
+              "name": "Sydney Buses Network",
+              "iconId": 5
+            },
+            "destination": {
+              "id": "10101503",
+              "name": "Bella Vista Station",
+              "type": "stop"
+            }
+          },
+          "infos": []
+        },
+        {
+          "origin": {
+            "id": "212512",
+            "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+            "disassembledName": "M2 Motorway, Oakes Rd",
+            "type": "platform",
+            "parent": {
+              "id": "2125171",
+              "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+              "disassembledName": "M2 Motorway, Oakes Rd",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95325032:1",
+                "name": "West Pennant Hills",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-23T00:29:00Z",
+            "departureTimeEstimated": "2026-08-23T00:29:36Z"
+          },
+          "destination": {
+            "id": "214733",
+            "name": "Seven Hills Station, Stand B, Seven Hills",
+            "disassembledName": "Seven Hills Station, Stand B",
+            "type": "platform",
+            "parent": {
+              "id": "214710",
+              "name": "Seven Hills Station, Stand B, Seven Hills",
+              "disassembledName": "Seven Hills Station, Stand B",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95308035:1",
+                "name": "Seven Hills",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-23T00:42:00Z",
+            "arrivalTimeEstimated": "2026-08-23T00:42:36Z"
+          },
+          "duration": 780,
+          "stopSequence": [
+            {
+              "id": "212512",
+              "name": "M2 Motorway, Oakes Rd, West Pennant Hills",
+              "disassembledName": "M2 Motorway, Oakes Rd",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-23T00:29:00Z",
+              "departureTimeEstimated": "2026-08-23T00:29:36Z"
+            },
+            {
+              "id": "2151153",
+              "name": "M2 Motorway, Barclay Rd, North Rocks",
+              "disassembledName": "M2 Motorway, Barclay Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:32:00Z",
+              "departureTimePlanned": "2026-08-23T00:32:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:32:36Z",
+              "departureTimeEstimated": "2026-08-23T00:32:36Z"
+            },
+            {
+              "id": "215320",
+              "name": "M2 Motorway, Cropley Dr, Baulkham Hills",
+              "disassembledName": "M2 Motorway, Cropley Dr",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:35:00Z",
+              "departureTimePlanned": "2026-08-23T00:35:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:35:36Z",
+              "departureTimeEstimated": "2026-08-23T00:35:36Z"
+            },
+            {
+              "id": "215325",
+              "name": "M2 Motorway, Gooden Reserve, Baulkham Hills",
+              "disassembledName": "M2 Motorway, Gooden Reserve",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:36:00Z",
+              "departureTimePlanned": "2026-08-23T00:36:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:36:36Z",
+              "departureTimeEstimated": "2026-08-23T00:36:36Z"
+            },
+            {
+              "id": "2147273",
+              "name": "Abbott Rd after Foundry Rd, Seven Hills",
+              "disassembledName": "Abbott Rd after Foundry Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:38:00Z",
+              "departureTimePlanned": "2026-08-23T00:38:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:38:36Z",
+              "departureTimeEstimated": "2026-08-23T00:38:36Z"
+            },
+            {
+              "id": "2147238",
+              "name": "Abbott Rd after Costello Pl, Seven Hills",
+              "disassembledName": "Abbott Rd after Costello Pl",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:39:00Z",
+              "departureTimePlanned": "2026-08-23T00:39:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:39:36Z",
+              "departureTimeEstimated": "2026-08-23T00:39:36Z"
+            },
+            {
+              "id": "2147239",
+              "name": "Abbott Rd at Stanton Rd, Seven Hills",
+              "disassembledName": "Abbott Rd at Stanton Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:39:00Z",
+              "departureTimePlanned": "2026-08-23T00:39:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:39:36Z",
+              "departureTimeEstimated": "2026-08-23T00:39:36Z"
+            },
+            {
+              "id": "2147240",
+              "name": "Abbott Rd before Station Rd, Seven Hills",
+              "disassembledName": "Abbott Rd before Station Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:40:00Z",
+              "departureTimePlanned": "2026-08-23T00:40:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:40:36Z",
+              "departureTimeEstimated": "2026-08-23T00:40:36Z"
+            },
+            {
+              "id": "2147241",
+              "name": "Prospect Hwy after Station Rd, Seven Hills",
+              "disassembledName": "Prospect Hwy after Station Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:40:00Z",
+              "departureTimePlanned": "2026-08-23T00:40:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:40:36Z",
+              "departureTimeEstimated": "2026-08-23T00:40:36Z"
+            },
+            {
+              "id": "2147242",
+              "name": "Prospect Hwy opp Lucas Rd, Seven Hills",
+              "disassembledName": "Prospect Hwy opp Lucas Rd",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:41:00Z",
+              "departureTimePlanned": "2026-08-23T00:41:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:41:36Z",
+              "departureTimeEstimated": "2026-08-23T00:41:36Z"
+            },
+            {
+              "id": "2147243",
+              "name": "Prospect Hwy opp Hope St, Seven Hills",
+              "disassembledName": "Prospect Hwy opp Hope St",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:41:00Z",
+              "departureTimePlanned": "2026-08-23T00:41:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:41:36Z",
+              "departureTimeEstimated": "2026-08-23T00:41:36Z"
+            },
+            {
+              "id": "214733",
+              "name": "Seven Hills Station, Stand B, Seven Hills",
+              "disassembledName": "Seven Hills Station, Stand B",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:42:00Z",
+              "arrivalTimeEstimated": "2026-08-23T00:42:36Z"
+            }
+          ],
+          "transportation": {
+            "id": "nsw:14611: :H:sj2",
+            "name": "Sydney Buses Network 611",
+            "disassembledName": "611",
+            "number": "611",
+            "product": {
+              "id": 5,
+              "class": 5,
+              "name": "Sydney Buses Network",
+              "iconId": 5
+            },
+            "destination": {
+              "id": "10101235",
+              "name": "Blacktown Station",
+              "type": "stop"
+            }
+          },
+          "infos": []
+        }
+      ]
+    },
+    {
+      "interchanges": 0,
+      "fare": {
+        "tickets": []
+      },
+      "legs": [
+        {
+          "origin": {
+            "id": "2000338",
+            "name": "Central Station, Platform 18, Sydney",
+            "disassembledName": "Central Station, Platform 18",
+            "type": "platform",
+            "parent": {
+              "id": "200060",
+              "name": "Central Station, Platform 18, Sydney",
+              "disassembledName": "Central Station, Platform 18",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95301001:1",
+                "name": "Sydney",
+                "type": "locality"
+              }
+            },
+            "departureTimePlanned": "2026-08-23T00:11:00Z",
+            "departureTimeEstimated": "2026-08-23T00:11:00Z"
+          },
+          "destination": {
+            "id": "2147424",
+            "name": "Seven Hills Station, Platform 4, Seven Hills",
+            "disassembledName": "Seven Hills Station, Platform 4",
+            "type": "platform",
+            "parent": {
+              "id": "214710",
+              "name": "Seven Hills Station, Platform 4, Seven Hills",
+              "disassembledName": "Seven Hills Station, Platform 4",
+              "type": "stop",
+              "parent": {
+                "id": "placeID:95308035:1",
+                "name": "Seven Hills",
+                "type": "locality"
+              }
+            },
+            "arrivalTimePlanned": "2026-08-23T00:52:30Z",
+            "arrivalTimeEstimated": "2026-08-23T00:52:30Z"
+          },
+          "duration": 2490,
+          "stopSequence": [
+            {
+              "id": "2000338",
+              "name": "Central Station, Platform 18, Sydney",
+              "disassembledName": "Central Station, Platform 18",
+              "type": "platform",
+              "departureTimePlanned": "2026-08-23T00:11:00Z"
+            },
+            {
+              "id": "2015134",
+              "name": "Redfern Station, Platform 4, Eveleigh",
+              "disassembledName": "Redfern Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:13:18Z",
+              "departureTimePlanned": "2026-08-23T00:13:48Z"
+            },
+            {
+              "id": "204831",
+              "name": "Stanmore Station, Platform 1, Stanmore",
+              "disassembledName": "Stanmore Station, Platform 1",
+              "type": "platform"
+            },
+            {
+              "id": "213051",
+              "name": "Summer Hill Station, Platform 1, Summer Hill",
+              "disassembledName": "Summer Hill Station, Platform 1",
+              "type": "platform"
+            },
+            {
+              "id": "2131122",
+              "name": "Ashfield Station, Platform 2, Ashfield",
+              "disassembledName": "Ashfield Station, Platform 2",
+              "type": "platform"
+            },
+            {
+              "id": "213283",
+              "name": "Croydon Station, Platform 3, Croydon",
+              "disassembledName": "Croydon Station, Platform 3",
+              "type": "platform"
+            },
+            {
+              "id": "213494",
+              "name": "Burwood Station, Platform 4, Burwood",
+              "disassembledName": "Burwood Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2135236",
+              "name": "Strathfield Station, Platform 6, Strathfield",
+              "disassembledName": "Strathfield Station, Platform 6",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:24:00Z",
+              "departureTimePlanned": "2026-08-23T00:25:00Z"
+            },
+            {
+              "id": "214075",
+              "name": "Homebush Station, Platform 5, Homebush",
+              "disassembledName": "Homebush Station, Platform 5",
+              "type": "platform"
+            },
+            {
+              "id": "214064",
+              "name": "Flemington Station, Platform 4, Homebush West",
+              "disassembledName": "Flemington Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2141314",
+              "name": "Lidcombe Station, Platform 4, Lidcombe",
+              "disassembledName": "Lidcombe Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:31:00Z",
+              "departureTimePlanned": "2026-08-23T00:32:00Z"
+            },
+            {
+              "id": "2144244",
+              "name": "Auburn Station, Platform 4, Auburn",
+              "disassembledName": "Auburn Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:34:30Z",
+              "departureTimePlanned": "2026-08-23T00:35:00Z"
+            },
+            {
+              "id": "2142315",
+              "name": "Clyde Station, Platform 5, Granville",
+              "disassembledName": "Clyde Station, Platform 5",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:37:18Z",
+              "departureTimePlanned": "2026-08-23T00:37:48Z"
+            },
+            {
+              "id": "2142324",
+              "name": "Granville Station, Platform 4, Granville",
+              "disassembledName": "Granville Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:38:48Z",
+              "departureTimePlanned": "2026-08-23T00:39:18Z"
+            },
+            {
+              "id": "2150404",
+              "name": "Harris Park Station, Platform 4, Harris Park",
+              "disassembledName": "Harris Park Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:41:18Z",
+              "departureTimePlanned": "2026-08-23T00:41:48Z"
+            },
+            {
+              "id": "2150414",
+              "name": "Parramatta Station, Platform 4, Parramatta",
+              "disassembledName": "Parramatta Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:43:00Z",
+              "departureTimePlanned": "2026-08-23T00:44:00Z"
+            },
+            {
+              "id": "2145664",
+              "name": "Westmead Station, Platform 4, Westmead",
+              "disassembledName": "Westmead Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:46:42Z",
+              "departureTimePlanned": "2026-08-23T00:47:12Z"
+            },
+            {
+              "id": "2145654",
+              "name": "Wentworthville Station, Platform 4, Wentworthville",
+              "disassembledName": "Wentworthville Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2145644",
+              "name": "Pendle Hill Station, Platform 4, Pendle Hill",
+              "disassembledName": "Pendle Hill Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2146114",
+              "name": "Toongabbie Station, Platform 4, Toongabbie",
+              "disassembledName": "Toongabbie Station, Platform 4",
+              "type": "platform"
+            },
+            {
+              "id": "2147424",
+              "name": "Seven Hills Station, Platform 4, Seven Hills",
+              "disassembledName": "Seven Hills Station, Platform 4",
+              "type": "platform",
+              "arrivalTimePlanned": "2026-08-23T00:52:30Z"
+            }
+          ],
+          "transportation": {
+            "id": "nsw:020T1:W:H:sj2",
+            "name": "Sydney Trains Network T1 North Shore & Western Line",
+            "disassembledName": "T1",
+            "number": "T1 North Shore & Western Line",
+            "product": {
+              "id": 1,
+              "class": 1,
+              "name": "Sydney Trains Network",
+              "iconId": 1
+            },
+            "destination": {
+              "id": "10101252",
+              "name": "Penrith via Parramatta",
+              "type": "stop"
+            }
+          },
+          "infos": [
+            {
+              "priority": "normal",
+              "subtitle": "T1 Western Line: Richmond trains run between Richmond and Liverpool",
+              "type": "lineInfo"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

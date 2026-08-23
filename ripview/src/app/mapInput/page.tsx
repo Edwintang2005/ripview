@@ -89,7 +89,7 @@ export default function MapInput() {
         }
     }, []);
 
-    const handleSVGDrag = useCallback((event: DragEvent<SVGElement>) => { 
+    const handleSVGDrag = useCallback((event: DragEvent<SVGElement>) => {
         const targetStore = event.target as SVGElement;
         console.log(targetStore);
         console.log(event);

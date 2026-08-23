@@ -1,0 +1,332 @@
+{
+  "stopEvents": [
+    {
+      "location": {
+        "id": "200053",
+        "name": "Central Station, Eddy Ave, Stand C, Sydney",
+        "disassembledName": "Central Station, Eddy Ave, Stand C, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Eddy Ave, Stand C, Sydney",
+          "disassembledName": "Central Station, Eddy Ave, Stand C",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:74440: :H:sj2",
+        "name": "Sydney Buses Network 440",
+        "disassembledName": "440",
+        "number": "440",
+        "product": {
+          "id": 5,
+          "class": 5,
+          "name": "Sydney Buses Network",
+          "iconId": 5
+        },
+        "destination": {
+          "id": "10101109",
+          "name": "Grafton Street Bondi Jct",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:46:00Z",
+      "departureTimeEstimated": "2026-08-22T23:51:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "201016",
+        "name": "Central Station, Chalmers St, Stand G, Sydney",
+        "disassembledName": "Central Station, Chalmers St, Stand G, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Chalmers St, Stand G, Sydney",
+          "disassembledName": "Central Station, Chalmers St, Stand G",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:30343: :R:sj2",
+        "name": "Sydney Buses Network 343",
+        "disassembledName": "343",
+        "number": "343",
+        "product": {
+          "id": 5,
+          "class": 5,
+          "name": "Sydney Buses Network",
+          "iconId": 5
+        },
+        "destination": {
+          "id": "10111066",
+          "name": "City Circular Quay",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:47:00Z",
+      "departureTimeEstimated": "2026-08-22T23:51:36Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "2000448",
+        "name": "Central Station, Central Chalmers Street Light Rail, Sydney",
+        "disassembledName": "Central Station, Central Chalmers Street Light Rail, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Sydney",
+          "disassembledName": "Central Station",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:780L3: :R:sj2",
+        "name": "Sydney Light Rail Network L3 Kingsford Line",
+        "disassembledName": "L3",
+        "number": "L3 Kingsford Line",
+        "product": {
+          "id": 13,
+          "class": 4,
+          "name": "Sydney Light Rail Network",
+          "iconId": 4
+        },
+        "destination": {
+          "id": "10101103",
+          "name": "Circular Quay",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:50:00Z",
+      "departureTimeEstimated": "2026-08-22T23:51:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "2000343",
+        "name": "Central Station, Platform 23, Sydney",
+        "disassembledName": "Central Station, Platform 23, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Platform 23, Sydney",
+          "disassembledName": "Central Station, Platform 23",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:020T8: :H:sj2",
+        "name": "Sydney Trains Network T8 Airport & South Line",
+        "disassembledName": "T8",
+        "number": "T8 Airport & South Line",
+        "product": {
+          "id": 1,
+          "class": 1,
+          "name": "Sydney Trains Network",
+          "iconId": 1
+        },
+        "destination": {
+          "id": "10101297",
+          "name": "Macarthur via Airport",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:51:00Z",
+      "departureTimeEstimated": "2026-08-22T23:51:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "200053",
+        "name": "Central Station, Eddy Ave, Stand C, Sydney",
+        "disassembledName": "Central Station, Eddy Ave, Stand C, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Eddy Ave, Stand C, Sydney",
+          "disassembledName": "Central Station, Eddy Ave, Stand C",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:30311: :R:sj2",
+        "name": "Sydney Buses Network 311",
+        "disassembledName": "311",
+        "number": "311",
+        "product": {
+          "id": 5,
+          "class": 5,
+          "name": "Sydney Buses Network",
+          "iconId": 5
+        },
+        "destination": {
+          "id": "10111099",
+          "name": "City Millers Point",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:51:00Z",
+      "departureTimeEstimated": "2026-08-22T23:51:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "2000345",
+        "name": "Central Station, Platform 25, Sydney",
+        "disassembledName": "Central Station, Platform 25, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Platform 25, Sydney",
+          "disassembledName": "Central Station, Platform 25",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:020T4: :H:sj2",
+        "name": "Sydney Trains Network T4 Eastern Suburbs & Illawarra Line",
+        "disassembledName": "T4",
+        "number": "T4 Eastern Suburbs & Illawarra Line",
+        "product": {
+          "id": 1,
+          "class": 1,
+          "name": "Sydney Trains Network",
+          "iconId": 1
+        },
+        "destination": {
+          "id": "10101351",
+          "name": "Cronulla via Kogarah",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:52:00Z",
+      "departureTimeEstimated": "2026-08-22T23:52:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "2000337",
+        "name": "Central Station, Platform 17, Sydney",
+        "disassembledName": "Central Station, Platform 17, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Platform 17, Sydney",
+          "disassembledName": "Central Station, Platform 17",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:020T8: :H:sj2",
+        "name": "Sydney Trains Network T8 Airport & South Line",
+        "disassembledName": "T8",
+        "number": "T8 Airport & South Line",
+        "product": {
+          "id": 1,
+          "class": 1,
+          "name": "Sydney Trains Network",
+          "iconId": 1
+        },
+        "destination": {
+          "id": "10101417",
+          "name": "City Circle via Town Hall",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:52:00Z",
+      "departureTimeEstimated": "2026-08-22T23:52:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    },
+    {
+      "location": {
+        "id": "2000336",
+        "name": "Central Station, Platform 16, Sydney",
+        "disassembledName": "Central Station, Platform 16, Sydney",
+        "type": "platform",
+        "parent": {
+          "id": "200060",
+          "name": "Central Station, Platform 16, Sydney",
+          "disassembledName": "Central Station, Platform 16",
+          "type": "stop",
+          "parent": {
+            "name": "Sydney",
+            "type": "locality"
+          }
+        }
+      },
+      "transportation": {
+        "id": "nsw:020T1:N:H:sj2",
+        "name": "Sydney Trains Network T1 North Shore & Western Line",
+        "disassembledName": "T1",
+        "number": "T1 North Shore & Western Line",
+        "product": {
+          "id": 1,
+          "class": 1,
+          "name": "Sydney Trains Network",
+          "iconId": 1
+        },
+        "destination": {
+          "id": "10101119",
+          "name": "Lindfield",
+          "type": "stop"
+        }
+      },
+      "departureTimePlanned": "2026-08-22T23:53:00Z",
+      "departureTimeEstimated": "2026-08-22T23:53:00Z",
+      "isRealtimeControlled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ]
+    }
+  ]
+}
