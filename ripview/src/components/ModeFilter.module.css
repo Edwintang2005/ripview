@@ -1,0 +1,71 @@
+.fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    border: none;
+}
+
+.legend {
+    padding: 0;
+    color: var(--foreground-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    /* Comfortable enough to tap without being a full-height button. */
+    padding: var(--space-2) var(--space-3);
+    color: var(--foreground-muted);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+.chip:hover {
+    border-color: var(--accent);
+}
+
+.chipSelected {
+    color: var(--accent);
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+}
+
+/*
+ * The checkbox stays in the accessibility tree and keeps the label association,
+ * but the chip itself carries the visual state.
+ */
+.checkbox {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.accessible {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.accessible input {
+    accent-color: var(--accent);
+}

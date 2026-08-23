@@ -1,0 +1,118 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--surface);
+    border-bottom: 0.0625rem solid var(--border-color);
+    /*
+     * Pads for the iOS status bar when installed to the home screen. In a
+     * browser tab the inset is zero, so one rule covers both cases — no
+     * `display-mode` media queries and no hardcoded notch heights.
+     */
+    padding-top: env(safe-area-inset-top, 0);
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    max-width: var(--content-width);
+    height: var(--header-height);
+    padding: 0 var(--space-4);
+    margin: 0 auto;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--foreground);
+    text-decoration: none;
+}
+
+.brand:hover {
+    text-decoration: none;
+}
+
+.brandName {
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.title {
+    /* Takes the remaining space and truncates, rather than overlapping the nav. */
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.iconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    /* 2.75rem meets the minimum comfortable touch target. */
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: calc(var(--space-3) * -1);
+    color: var(--foreground);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.iconButton:hover {
+    background: var(--surface-sunken);
+}
+
+.nav {
+    display: flex;
+    gap: var(--space-1);
+    margin-left: auto;
+}
+
+.navLink {
+    padding: var(--space-2) var(--space-3);
+    color: var(--foreground-muted);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navLink:hover {
+    color: var(--foreground);
+    background: var(--surface-sunken);
+    text-decoration: none;
+}
+
+.navLinkCurrent {
+    color: var(--accent);
+    background: var(--accent-subtle);
+}
+
+@media (max-width: 26rem) {
+    .bar {
+        gap: var(--space-2);
+        padding: 0 var(--space-3);
+    }
+
+    .navLink {
+        padding: var(--space-2);
+    }
+
+    /* On the narrowest screens the wordmark yields to the navigation. */
+    .brandName {
+        display: none;
+    }
+}

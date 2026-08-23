@@ -1,43 +1,174 @@
+/**
+ * Design tokens and base styles.
+ *
+ * Colours are defined once here as custom properties and referenced everywhere
+ * else, so light and dark mode are a single set of overrides rather than a
+ * `prefers-color-scheme` block in every module. Spacing and radii are tokens
+ * too, which is what keeps the app looking like one app.
+ */
+
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
-    --border-color: #ddd;
+    /* Surfaces, from furthest back to nearest front. */
+    --background: #f4f5f7;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eceef1;
+
+    /* Text. */
+    --foreground: #16191d;
+    --foreground-muted: #5c6470;
+    --foreground-subtle: #838c99;
+
+    --border-color: #dcdfe4;
+    --border-strong: #c2c8d0;
+
+    /* Accent, used for primary actions and focus. */
+    --accent: #005ba4;
+    --accent-hover: #00477f;
+    --accent-contrast: #ffffff;
+    --accent-subtle: rgba(0, 91, 164, 0.09);
+
+    /* Status. */
+    --status-late: #c0392b;
+    --status-early: #8a5a00;
+    --status-live: #1d7a3e;
+    --status-live-subtle: rgba(29, 122, 62, 0.12);
+    --status-danger: #c0392b;
+    --status-danger-subtle: rgba(192, 57, 43, 0.1);
+
+    --shadow-card: 0 0.0625rem 0.125rem rgba(16, 24, 40, 0.06),
+        0 0.0625rem 0.1875rem rgba(16, 24, 40, 0.1);
+
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 0.875rem;
+    --radius-pill: 999rem;
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+
+    /* Header height, referenced by page padding so nothing hides underneath. */
+    --header-height: 3.5rem;
+
+    /* Widest comfortable measure for a list of trips. */
+    --content-width: 46rem;
+
+    color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-        --border-color: #333;
+        --background: #0c0e11;
+        --surface: #16191e;
+        --surface-raised: #1d2127;
+        --surface-sunken: #101317;
+
+        --foreground: #e8eaed;
+        --foreground-muted: #a2abb8;
+        --foreground-subtle: #78818e;
+
+        --border-color: #2a2f37;
+        --border-strong: #3a414b;
+
+        --accent: #4d9fe0;
+        --accent-hover: #6cb2e8;
+        --accent-contrast: #06121d;
+        --accent-subtle: rgba(77, 159, 224, 0.14);
+
+        --status-late: #ff8a7a;
+        --status-early: #e0b04a;
+        --status-live: #5ed48a;
+        --status-live-subtle: rgba(94, 212, 138, 0.14);
+        --status-danger: #ff8a7a;
+        --status-danger-subtle: rgba(255, 138, 122, 0.13);
+
+        --shadow-card: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.4);
+
+        color-scheme: dark;
     }
 }
 
-html {
-    max-width: 100vw;
-    color-scheme: light;
-}
-
-body {
-    color: var(--foreground);
-    background: var(--background);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    max-width: 100vw;
-}
-
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     padding: 0;
     margin: 0;
 }
 
+html {
+    /* Prevent iOS Safari from inflating text in landscape. */
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100svh;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Vertical scrolling only; a horizontal overflow on mobile is always a bug. */
+    overflow-x: hidden;
+}
+
 a {
-    color: inherit;
+    color: var(--accent);
     text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-    html {
-        color-scheme: dark;
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+/**
+ * One focus style for the whole app. `:focus-visible` shows it for keyboard
+ * users without putting a ring on every tapped button.
+ */
+:focus-visible {
+    outline: 0.1875rem solid var(--accent);
+    outline-offset: 0.125rem;
+    border-radius: var(--radius-sm);
+}
+
+/** Visually hidden but announced by screen readers. */
+.srOnly {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    padding: 0;
+    margin: -0.0625rem;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
     }
 }

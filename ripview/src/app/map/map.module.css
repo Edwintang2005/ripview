@@ -1,0 +1,127 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+    /* The map earns more width than a list of trips. */
+    max-width: 62rem;
+    padding: var(--space-4);
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    margin: 0 auto;
+}
+
+.controlBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.instruction {
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+}
+
+.controls {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    padding: 0 var(--space-3);
+    color: var(--foreground);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.control:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.clear {
+    align-self: flex-start;
+    padding: var(--space-2) var(--space-3);
+    color: var(--foreground-muted);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mapViewport {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-color);
+    border-radius: var(--radius-md);
+    /*
+     * Claims all gestures for the map so a drag pans the drawing rather than
+     * scrolling the page. Without this, one-finger panning on a phone scrolls
+     * the document instead.
+     */
+    touch-action: none;
+    cursor: grab;
+}
+
+.mapViewport:active {
+    cursor: grabbing;
+}
+
+.map {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Selection highlighting is applied to nodes, so clicks must reach them. */
+    pointer-events: all;
+}
+
+/*
+ * Selected stations. `ripviewSelected` is toggled on SVG nodes from an effect,
+ * so it must not be hashed by CSS modules.
+ */
+.map :global(.ripviewSelected) circle,
+.map :global(.ripviewSelected) path,
+.map :global(.ripviewSelected) rect {
+    fill: var(--accent);
+    stroke: var(--accent);
+}
+
+.map :global(.ripviewSelected) text {
+    font-weight: 700;
+}
+
+.coverageNote {
+    color: var(--foreground-muted);
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 30rem) {
+    .main {
+        padding: var(--space-3);
+    }
+
+    .controlBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -10,6 +10,23 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Test files run under Jest, whose globals are injected rather than imported.
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "jest.setup.ts"],
+    languageOptions: {
+      globals: {
+        describe: "readonly",
+        it: "readonly",
+        test: "readonly",
+        expect: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        jest: "readonly",
+      },
+    },
+  },
   ...compat.config({
     extends: ["next/core-web-vitals", "next/typescript"],
     rules: {

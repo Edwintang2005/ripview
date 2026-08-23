@@ -1,0 +1,72 @@
+.notice {
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.error {
+    background: var(--status-danger-subtle);
+    border-color: var(--status-danger);
+}
+
+.title {
+    font-weight: 600;
+}
+
+.body {
+    margin-top: var(--space-1);
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+}
+
+.action {
+    margin-top: var(--space-3);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.skeleton {
+    display: block;
+    height: 4.5rem;
+    background: linear-gradient(
+        90deg,
+        var(--surface-sunken) 25%,
+        var(--surface) 50%,
+        var(--surface-sunken) 75%
+    );
+    background-size: 200% 100%;
+    border-radius: var(--radius-md);
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton:nth-child(3) {
+    opacity: 0.65;
+}
+
+.skeleton:nth-child(4) {
+    opacity: 0.4;
+}
+
+@keyframes shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+.srOnly {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

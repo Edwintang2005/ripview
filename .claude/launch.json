@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ripview-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "ripview", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

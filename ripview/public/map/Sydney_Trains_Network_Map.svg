@@ -22,8 +22,15 @@
 	.st18{fill:#D32030;}
 	.st19{fill:#00959B;}
 	.st20{fill:#6E838D;}
-  .name{fill: #FFFFFF; font-family: Arial, sans-serif; font-size: 7px; white-space: pre;}
-  .boldName{fill: #FFFFFF; font-family: Arial, sans-serif; font-size: 7px; font-weight: 700;}
+  @media (prefers-color-scheme: light) {
+    .name{fill:rgb(0, 0, 0); font-family: Arial, sans-serif; font-size: 7px; white-space: pre;}
+    .boldName{fill:rgb(0, 0, 0); font-family: Arial, sans-serif; font-size: 7px; font-weight: 700;}
+  }
+  @media (prefers-color-scheme: dark) {
+    .name{fill: #FFFFFF; font-family: Arial, sans-serif; font-size: 7px; white-space: pre;}
+    .boldName{fill: #FFFFFF; font-family: Arial, sans-serif; font-size: 7px; font-weight: 700;}
+  }
+  
 </style>
   <g id="lines" style="">
     <title>Train Lines</title>
