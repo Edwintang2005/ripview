@@ -6,6 +6,7 @@ import {
     formatDelay,
     formatDuration,
     isSameSydneyDay,
+    localInputToInstant,
     minutesUntil,
     nowAsLocalInputValue,
     parseIso,
@@ -62,6 +63,40 @@ describe('apiDateTimeFromLocalInput', () => {
         expect(apiDateTimeFromLocalInput('2026-13-01T10:00')).toBeNull();
         expect(apiDateTimeFromLocalInput('2026-08-23T25:00')).toBeNull();
         expect(apiDateTimeFromLocalInput('2026-08-23T10:99')).toBeNull();
+    });
+});
+
+describe('localInputToInstant', () => {
+    it('resolves a wall-clock value using the AEST offset in winter', () => {
+        // 23 August is AEST (UTC+10), so 18:00 Sydney is 08:00 UTC.
+        expect(localInputToInstant('2026-08-23T18:00')?.toISOString()).toBe(
+            '2026-08-23T08:00:00.000Z'
+        );
+    });
+
+    it('resolves a wall-clock value using the AEDT offset in summer', () => {
+        // 15 January is AEDT (UTC+11), so 18:00 Sydney is 07:00 UTC.
+        expect(localInputToInstant('2026-01-15T18:00')?.toISOString()).toBe(
+            '2026-01-15T07:00:00.000Z'
+        );
+    });
+
+    it('round-trips through the formatter it will be displayed with', () => {
+        const instant = localInputToInstant('2026-08-23T18:00');
+        expect(formatClock(instant?.toISOString())).toBe('18:00');
+    });
+
+    it('returns null for a malformed or missing value', () => {
+        expect(localInputToInstant('')).toBeNull();
+        expect(localInputToInstant(null)).toBeNull();
+        expect(localInputToInstant(undefined)).toBeNull();
+        expect(localInputToInstant('next tuesday')).toBeNull();
+    });
+
+    it('returns null for a local time that does not exist', () => {
+        // Clocks jump 02:00 -> 03:00 on the first Sunday of October, so
+        // 02:30 never happens that morning and cannot be resolved.
+        expect(localInputToInstant('2026-10-04T02:30')).toBeNull();
     });
 });
 
