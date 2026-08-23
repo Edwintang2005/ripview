@@ -1,0 +1,270 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.summary {
+    display: grid;
+    /* Times on the left, everything else stacked on the right. */
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+}
+
+.times {
+    grid-row: 1 / span 2;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    /* Never wrap: `10:25 -> 10:46` is one unit of meaning. */
+    white-space: nowrap;
+}
+
+.time,
+.timeAdjusted {
+    font-size: 1.375rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.timeAdjusted {
+    color: var(--status-late);
+}
+
+.arrow {
+    color: var(--foreground-subtle);
+    font-size: 1rem;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.late {
+    color: var(--status-late);
+}
+
+.early {
+    color: var(--status-early);
+}
+
+.onTime {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--status-live);
+}
+
+.liveDot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--status-live);
+    border-radius: 50%;
+}
+
+.scheduledOnly {
+    color: var(--foreground-subtle);
+    font-weight: 500;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+}
+
+.duration {
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.dot {
+    width: 0.1875rem;
+    height: 0.1875rem;
+    background: var(--foreground-subtle);
+    border-radius: 50%;
+}
+
+.route {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.routeStep {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.routeArrow {
+    color: var(--foreground-subtle);
+    font-size: 1rem;
+}
+
+.toggle {
+    align-self: flex-start;
+    padding: var(--space-2) 0;
+    color: var(--accent);
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle:hover {
+    text-decoration: underline;
+}
+
+.legs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+    border-top: 0.0625rem solid var(--border-color);
+    list-style: none;
+}
+
+.leg {
+    display: flex;
+    gap: var(--space-3);
+}
+
+/* The coloured spine down the left of a leg, in the line's own colour. */
+.legStripe {
+    flex: 0 0 0.25rem;
+    border-radius: var(--radius-pill);
+}
+
+.legBody {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.legHeading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.legName {
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+}
+
+.legStop {
+    /*
+     * A deliberate two-line block: time on one line, station and platform on
+     * the next. Laying them out on one row with flex-wrap made some rows fit
+     * and others break, so a station name would appear beneath the *next*
+     * stop's time.
+     */
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.stopName {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-weight: 500;
+}
+
+.platform {
+    padding: 0 0.375rem;
+    color: var(--foreground-muted);
+    background: var(--surface-sunken);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.stopsToggle {
+    align-self: flex-start;
+    padding: 0;
+    color: var(--foreground-muted);
+    background: none;
+    border: none;
+    font-size: 0.8125rem;
+    text-align: left;
+    text-decoration: underline dotted;
+    cursor: pointer;
+}
+
+.stopsToggle:hover {
+    color: var(--foreground);
+}
+
+.stopList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-left: var(--space-3);
+    border-left: 0.0625rem dashed var(--border-strong);
+    list-style: none;
+}
+
+.intermediateStop {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    color: var(--foreground-muted);
+    font-size: 0.875rem;
+}
+
+.intermediateName {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.legDuration {
+    color: var(--foreground-muted);
+    font-size: 0.8125rem;
+}
+
+.notices {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    background: var(--status-danger-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    list-style: none;
+}
+
+@media (max-width: 30rem) {
+    .card {
+        padding: var(--space-3);
+    }
+
+    .summary {
+        /* Stack once the times and metadata no longer fit side by side. */
+        grid-template-columns: 1fr;
+    }
+
+    .times {
+        grid-row: auto;
+    }
+}

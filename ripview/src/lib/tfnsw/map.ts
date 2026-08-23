@@ -271,14 +271,24 @@ export function toJourney(raw: RawJourney): Journey | null {
         return null;
     }
 
-    const durationSeconds = legs.reduce((total, leg) => total + leg.durationSeconds, 0);
+    /*
+     * End-to-end, not the sum of the legs.
+     *
+     * Summing leg durations omits the time spent waiting at an interchange, so
+     * a journey departing 10:29 and arriving 10:46 reported "9m" — it counted
+     * a 3-minute bus and a 6-minute metro ride and silently dropped the 8
+     * minutes standing on the platform between them. Falling back to the sum
+     * covers the case where an endpoint has no usable timestamp.
+     */
+    const endToEnd = fallbackDuration(departure, arrival);
+    const legSum = legs.reduce((total, leg) => total + leg.durationSeconds, 0);
 
     return {
         id: `${departure.planned}-${arrival.planned}-${legs.length}`,
         legs: legs,
         departure: departure,
         arrival: arrival,
-        durationSeconds: durationSeconds || fallbackDuration(departure, arrival),
+        durationSeconds: endToEnd || legSum,
         interchanges: countInterchanges(legs),
         isRealtime: legs.some((leg) => leg.isRealtime),
         fare: toFare(raw.fare),
@@ -364,16 +374,42 @@ function effectiveTime(departure: Departure): number {
     return instant ? instant.getTime() : Number.MAX_SAFE_INTEGER;
 }
 
-/** Location types worth offering as a trip endpoint. */
-const USEFUL_STOP_TYPES = new Set(['stop', 'platform', 'poi', 'singlehouse', 'street', 'locality']);
+/**
+ * Location types worth offering as a trip endpoint, and how to rank them.
+ *
+ * `/stop_finder` with `type_sf=any` also matches streets, addresses and points
+ * of interest, which is what makes door-to-door planning possible — but a
+ * search for "Wynyard" returns eight streets before the station. Ranking by
+ * type first puts the transport stop at the top where it belongs, while keeping
+ * the rest reachable further down.
+ */
+const TYPE_PRIORITY: Record<string, number> = {
+    stop: 0,
+    platform: 1,
+    poi: 2,
+    locality: 3,
+    street: 4,
+    singlehouse: 5,
+};
 
 export function toStopSuggestions(response: RawStopFinderResponse): StopSuggestion[] {
     const locations = response.locations ?? [];
     return locations
         .filter((location) => location.id && (location.name ?? location.disassembledName))
-        .filter((location) => !location.type || USEFUL_STOP_TYPES.has(location.type))
-        .map(toStopSuggestion)
-        .sort((a, b) => b.matchQuality - a.matchQuality);
+        .filter((location) => !location.type || location.type in TYPE_PRIORITY)
+        .map((location) => ({
+            suggestion: toStopSuggestion(location),
+            priority: TYPE_PRIORITY[location.type ?? 'stop'] ?? 9,
+            // TfNSW's own "this is the one you meant" flag outranks everything.
+            isBest: location.isBest === true,
+        }))
+        .sort(
+            (a, b) =>
+                Number(b.isBest) - Number(a.isBest) ||
+                a.priority - b.priority ||
+                b.suggestion.matchQuality - a.suggestion.matchQuality
+        )
+        .map((entry) => entry.suggestion);
 }
 
 function toStopSuggestion(raw: RawStopFinderLocation): StopSuggestion {

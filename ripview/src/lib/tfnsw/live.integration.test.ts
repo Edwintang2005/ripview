@@ -1,76 +1,178 @@
 /**
+ * Integration checks against the live Transport for NSW API.
+ *
+ * These are excluded from `npm test` — they need network access and a valid
+ * `TPNSWAPIKEY`, and they assert on data that changes minute to minute. Run
+ * them deliberately when you want to confirm the request layer still matches
+ * the real API:
+ *
+ *     npm run test:live
+ *
+ * They are the counterpart to `map.test.ts`: that file pins the mapping against
+ * frozen fixtures, this one confirms the fixtures still resemble production.
+ *
  * @jest-environment node
  */
-import { fetchDepartures, fetchJourneys, fetchStopSuggestions } from './queries';
+
 import { toApiDateTime } from '../time';
+import { fetchDepartures, fetchJourneys, fetchStopSuggestions } from './queries';
+import type { SelectableMode } from '../types';
 
 jest.setTimeout(45_000);
 
 const { date, time } = toApiDateTime(new Date());
 
-describe('live TfNSW', () => {
-    it('plans a trip with all modes', async () => {
-        const r = await fetchJourneys({
-            fromId: '200060', toId: '214710', depOrArr: 'dep', date, time,
-            modes: ['train', 'metro', 'bus', 'ferry', 'lightRail', 'coach'],
+/** Central Station and Seven Hills Station, as TSNs. */
+const CENTRAL = '200060';
+const SEVEN_HILLS = '214710';
+
+const ALL_MODES: SelectableMode[] = [
+    'train',
+    'metro',
+    'bus',
+    'ferry',
+    'lightRail',
+    'coach',
+];
+
+describe('live Transport for NSW API', () => {
+    it('plans a multi-modal trip', async () => {
+        const result = await fetchJourneys({
+            fromId: CENTRAL,
+            toId: SEVEN_HILLS,
+            depOrArr: 'dep',
+            date: date,
+            time: time,
+            modes: ALL_MODES,
         });
-        console.log('TRIP ok=', r.ok, r.ok ? '' : r.error);
-        if (r.ok) {
-            for (const j of r.data.slice(0, 3)) {
-                console.log(`  dep ${j.departure.planned} arr ${j.arrival.planned} ${Math.round(j.durationSeconds / 60)}min changes=${j.interchanges} rt=${j.isRealtime} fare=${JSON.stringify(j.fare)}`);
-                for (const l of j.legs) {
-                    console.log(`     ${l.mode.padEnd(9)} ${(l.line?.number ?? '-').padEnd(8)} ${l.origin.shortName} p${l.origin.platform ?? '-'} -> ${l.destination.shortName} | stops=${l.stops.length} delay=${l.origin.delayMinutes} notices=${l.notices.length}`);
-                }
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.data.length).toBeGreaterThan(0);
+
+        for (const journey of result.data) {
+            // Every journey must have a usable departure time and at least one leg.
+            expect(journey.legs.length).toBeGreaterThan(0);
+            expect(Date.parse(journey.departure.planned)).not.toBeNaN();
+            expect(journey.durationSeconds).toBeGreaterThan(0);
+            for (const leg of journey.legs) {
+                // 'unknown' means a product class we failed to recognise.
+                expect(leg.mode).not.toBe('unknown');
             }
         }
-        expect(r.ok).toBe(true);
     });
 
-    it('restricts to trains only', async () => {
-        const r = await fetchJourneys({
-            fromId: '200060', toId: '214710', depOrArr: 'dep', date, time, modes: ['train'],
+    it('returns real-time estimates, not only the timetable', async () => {
+        const result = await fetchJourneys({
+            fromId: CENTRAL,
+            toId: SEVEN_HILLS,
+            depOrArr: 'dep',
+            date: date,
+            time: time,
+            modes: ALL_MODES,
         });
-        console.log('TRAIN-ONLY ok=', r.ok, r.ok ? r.data.flatMap(j => j.legs.map(l => l.mode)).join(',') : r.error);
-        expect(r.ok).toBe(true);
-        if (r.ok) {
-            const modes = new Set(r.data.flatMap(j => j.legs.map(l => l.mode)));
-            expect([...modes].every(m => m === 'train' || m === 'walk')).toBe(true);
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        // TfNSWTR=true should yield a live estimate on at least one journey.
+        expect(result.data.some((journey) => journey.isRealtime)).toBe(true);
+    });
+
+    it('honours the mode filter', async () => {
+        const result = await fetchJourneys({
+            fromId: CENTRAL,
+            toId: SEVEN_HILLS,
+            depOrArr: 'dep',
+            date: date,
+            time: time,
+            modes: ['train'],
+        });
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        const modes = new Set(result.data.flatMap((journey) => journey.legs.map((leg) => leg.mode)));
+        // Walking legs are always allowed; no other vehicle mode should appear.
+        expect([...modes].every((mode) => mode === 'train' || mode === 'walk')).toBe(true);
+    });
+
+    it('rejects a same-origin-and-destination request without calling the API', async () => {
+        const result = await fetchJourneys({
+            fromId: CENTRAL,
+            toId: CENTRAL,
+            depOrArr: 'dep',
+            date: date,
+            time: time,
+            modes: ALL_MODES,
+        });
+
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+            expect(result.error.kind).toBe('badRequest');
         }
     });
 
-    it('rejects same origin and destination without calling the API', async () => {
-        const r = await fetchJourneys({ fromId: '200060', toId: '200060', depOrArr: 'dep', date, time, modes: ['train'] });
-        expect(r.ok).toBe(false);
-        if (!r.ok) { expect(r.error.kind).toBe('badRequest'); }
+    it('fetches a departure board with live delays', async () => {
+        const result = await fetchDepartures({
+            stopId: CENTRAL,
+            date: date,
+            time: time,
+            modes: ALL_MODES,
+        });
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.data.length).toBeGreaterThan(0);
+        for (const departure of result.data) {
+            // Departures already gone are filtered out.
+            expect(departure.minutesUntil).toBeGreaterThanOrEqual(-1);
+            expect(departure.line.number).toBeTruthy();
+            expect(departure.towards).toBeTruthy();
+        }
     });
 
-    it('fetches a departure board', async () => {
-        const r = await fetchDepartures({ stopId: '200060', date, time, modes: ['train', 'metro', 'bus', 'ferry', 'lightRail', 'coach'] });
-        console.log('DEPARTURES ok=', r.ok, r.ok ? '' : r.error);
-        if (r.ok) {
-            for (const d of r.data.slice(0, 8)) {
-                console.log(`  ${String(d.minutesUntil).padStart(3)}min ${d.line.number.padEnd(6)} ${d.line.mode.padEnd(9)} -> ${d.towards} | p${d.call.platform ?? '-'} delay=${d.call.delayMinutes} cancelled=${d.isCancelled}`);
+    it('searches stops across every mode', async () => {
+        const result = await fetchStopSuggestions('Wynyard');
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.data.length).toBeGreaterThan(0);
+        expect(result.data[0].id).toBeTruthy();
+    });
+
+    it('does not call the API for a query below the minimum length', async () => {
+        const result = await fetchStopSuggestions('Wy');
+        expect(result).toEqual({ ok: true, data: [] });
+    });
+
+    it('reports a bad API key as an auth error rather than throwing', async () => {
+        const realKey = process.env.TPNSWAPIKEY;
+        process.env.TPNSWAPIKEY = 'apikey definitely-not-a-valid-key';
+        try {
+            const result = await fetchJourneys({
+                fromId: CENTRAL,
+                toId: SEVEN_HILLS,
+                depOrArr: 'dep',
+                date: date,
+                time: time,
+                modes: ALL_MODES,
+            });
+            expect(result.ok).toBe(false);
+            if (!result.ok) {
+                expect(result.error.kind).toBe('auth');
+                expect(result.error.message).toContain('TPNSWAPIKEY');
             }
+        } finally {
+            process.env.TPNSWAPIKEY = realKey;
         }
-        expect(r.ok).toBe(true);
-    });
-
-    it('searches stops live', async () => {
-        const r = await fetchStopSuggestions('Wynyard');
-        console.log('STOPS ok=', r.ok, r.ok ? '' : r.error);
-        if (r.ok) {
-            for (const s of r.data.slice(0, 6)) { console.log(`  ${s.id.padEnd(10)} ${s.name} | ${s.locality ?? '-'} | ${s.modes.join(',')} q=${s.matchQuality}`); }
-        }
-        expect(r.ok).toBe(true);
-    });
-
-    it('returns a typed auth error for a bad key', async () => {
-        const real = process.env.TPNSWAPIKEY;
-        process.env.TPNSWAPIKEY = 'apikey definitely-not-valid';
-        const r = await fetchJourneys({ fromId: '200060', toId: '214710', depOrArr: 'dep', date, time, modes: ['train'] });
-        process.env.TPNSWAPIKEY = real;
-        console.log('BAD KEY ->', r.ok ? 'unexpectedly ok' : r.error);
-        expect(r.ok).toBe(false);
-        if (!r.ok) { expect(r.error.kind).toBe('auth'); }
     });
 });

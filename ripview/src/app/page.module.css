@@ -1,405 +1,275 @@
+/** Shared page shell for the home screen. */
+
 .page {
-    --gray-rgb: 0, 0, 0;
-    --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
-    --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
-
-    --button-primary-hover: #383838;
-    --button-secondary-hover: #f2f2f2;
-
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    align-items: start;
-    justify-items: center;
+    display: flex;
+    flex-direction: column;
     min-height: 100svh;
-    padding: 0 0 2rem 0;
-    gap: 4rem;
-    font-family: var(--font-geist-sans);
-    overflow-x: hidden;
 }
 
 .main {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    grid-row-start: 2;
-    width: 100%;
-    max-width: 37.5rem;
-}
-
-.main h2 {
-    text-align: center;
-}
-
-.main ol {
-    font-family: var(--font-geist-mono);
-    padding-left: 0;
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.5rem;
-    letter-spacing: -0.01em;
-    list-style-position: inside;
-}
-
-.main li:not(:last-of-type) {
-    margin-bottom: 0.5rem;
-}
-
-.main code {
-    font-family: inherit;
-    background: var(--gray-alpha-100);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    font-weight: 600;
-}
-
-.main form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.ctas {
-    display: flex;
-    gap: 1rem;
-}
-
-.ctas a {
-    appearance: none;
-    border-radius: 8rem;
-    height: 3rem;
-    padding: 0 1.25rem;
-    border: none;
-    border: 0.0625rem solid transparent;
-    transition:
-        background 0.2s,
-        color 0.2s,
-        border-color 0.2s;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-}
-
-a.primary {
-    background: var(--foreground);
-    color: var(--background);
-    gap: 0.5rem;
-}
-
-a.secondary {
-    border-color: var(--gray-alpha-200);
-    min-width: 11.25rem;
-}
-
-.navBar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background-color: var(--background);
-    border-bottom: 0.0625rem solid var(--gray-alpha-200);
-    z-index: 10;
-    width: 100%;
-}
-
-
-.navBar h1 {
     flex: 1;
-    text-align: center;
-    font-size: 1.5rem;
-    margin: 0;
-    padding-right: 180px; /* Match the logo width to maintain true center */
-}
-
-.logoContainer {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.header {
-    float: left;
-    text-align: center;
-    grid-row-start: auto;
-    align-items: center;
-    display: flex;
-    gap: 0;
-}
-
-.header {
-    float: left;
-    text-align: center;
-    grid-row-start: auto;
-    align-items: center;
-    display: flex;
-    gap: 0;
-}
-
-.footer {
-    grid-row-start: 3;
-    display: flex;
-    gap: 1.5rem;
-}
-
-.footer a {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.csvContainer {
-    width: 100%;
-    max-width: 75rem;
-    margin: 2rem auto;
-    padding: 1rem;
-    background-color: var(--container-bg);
-    color: var(--foreground);
-    border-radius: 0.5rem;
-}
-
-.listInput {
-    display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: var(--space-6);
     width: 100%;
-}
-
-.listInput label {
-    display: grid;
-    grid-template-columns: 4rem 1fr;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-}
-
-.listInput select {
-    padding: 0.75rem;
-    border: 0.0625rem solid var(--gray-alpha-200);
-    border-radius: 0.5rem;
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-geist-sans);
-    width: 100%;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-    appearance: none;
-}
-
-.listInput select:focus {
-    outline: none;
-    border-color: var(--foreground);
-}
-
-.timePreference {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin: 1rem 0;
-    width: 100%;
-}
-
-.radioGroup {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    padding: 0.5rem 0;
-    justify-content: center;
-}
-
-.radioGroup input[type="radio"] {
-    margin: 0;
-    width: 1.125rem;
-    height: 1.125rem;
-    cursor: pointer;
-    accent-color: var(--foreground);
-}
-
-.radioGroup label {
-    cursor: pointer;
-    user-select: none;
-    font-size: 0.95rem;
-}
-
-.timeSelection {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    background-color: var(--gray-alpha-100);
-    border: 0.0625rem solid var(--gray-alpha-200);
-    transition: background-color 0.2s ease;
-}
-
-.dateTimeInput {
-    margin-top: 0.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.dateTimeInput input {
-    padding: 0.75rem;
-    border: 0.0625rem solid var(--gray-alpha-200);
-    border-radius: 0.5rem;
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-geist-sans);
-    width: 100%;
-    max-width: 12.5rem;
-    transition: border-color 0.2s ease;
+    max-width: var(--content-width);
+    padding: var(--space-5) var(--space-4);
+    /* Clears the iOS home indicator when installed to the home screen. */
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
     margin: 0 auto;
 }
 
-.dateTimeInput input:focus {
-    outline: none;
-    border-color: var(--foreground);
-}
-
-.buttonContainer {
+.section {
     display: flex;
-    justify-content: center;
-    width: 100%;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
-.submitButton {
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
+.sectionHeading {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+/* Saved trips */
+
+.savedList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    list-style: none;
+}
+
+.savedItem {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.savedMain {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    background: none;
     border: none;
-    border-radius: 2rem;
-    background-color: var(--foreground);
-    color: var(--background);
-    font-family: var(--font-geist-sans);
-    font-size: 1rem;
-    font-weight: 500;
+    text-align: left;
     cursor: pointer;
-    transition: all 0.2s ease;
-    width: fit-content;
 }
 
-.submitButton:hover {
-    background-color: var(--button-primary-hover);
-    transform: translateY(-0.0625rem);
+.savedMain:hover {
+    background: var(--accent-subtle);
 }
 
-.submitButton:active {
-    transform: translateY(0);
+.savedRoute {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-weight: 600;
 }
 
-.listInput,
-.timePreference,
-.timeSelection {
-    width: 100%;
+.savedArrow {
+    color: var(--foreground-subtle);
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-    a.primary:hover {
-        background: var(--button-primary-hover);
-        border-color: transparent;
-    }
-
-    a.secondary:hover {
-        background: var(--button-secondary-hover);
-        border-color: transparent;
-    }
-
-    .footer a:hover {
-        text-decoration: underline;
-        text-underline-offset: 0.25rem;
-    }
+.savedHint {
+    color: var(--foreground-muted);
+    font-size: 0.8125rem;
 }
 
-@media (max-width: 37.5rem) { /* 600px */
-
-    .main {
-        align-items: center;
-        padding: 2rem;
-        padding-bottom: 5rem;
-    }
-
-    .main ol {
-        text-align: center;
-    }
-
-    .ctas {
-        flex-direction: column;
-    }
-
-    .ctas a {
-        font-size: 0.875rem;
-        height: 2.5rem;
-        padding: 0 1rem;
-    }
-
-    a.secondary {
-        min-width: auto;
-    }
-
-    .footer {
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .timeSelection {
-        padding: 1rem;
-    }
-
-    .dateTimeInput input {
-        max-width: 100%;
-    }
-
-    .radioGroup {
-        gap: 1rem;
-    }
-
-    .submitButton {
-        width: 100%;
-        max-width: 18.75rem;
-    }
+.savedActions {
+    display: flex;
+    align-items: center;
+    padding-right: var(--space-2);
 }
 
-@media (prefers-color-scheme: dark) {
-    .page {
-        --gray-rgb: 255, 255, 255;
-        --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-        --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-        --button-primary-hover: #ccc;
-        --button-secondary-hover: #1a1a1a;
-    }
-
-    .logo {
-        position: inherit;
-    }
-
-    .timeSelection {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .dateTimeInput input,
-    .listInput select {
-        background-color: var(--background);
-        border-color: var(--gray-alpha-200);
-    }
-
-    .dateTimeInput input:focus,
-    .listInput select:focus {
-        border-color: var(--foreground);
-    }
+.savedAction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--foreground-muted);
+    background: none;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
 }
 
+.savedAction:hover {
+    color: var(--foreground);
+    background: var(--surface-sunken);
+}
 
-@media (prefers-color-scheme: light) {
-    .lightLogo {
-        position: inherit;
+/* Planner form */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.stops {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.swap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    width: 2.5rem;
+    height: 2.5rem;
+    /* Pulls the button into the gap between the two fields. */
+    margin: calc(var(--space-3) * -1) 0;
+    color: var(--foreground-muted);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    font-size: 1.125rem;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.swap:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.timeRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.switch {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9375rem;
+    cursor: pointer;
+}
+
+.switch input {
+    accent-color: var(--accent);
+}
+
+.timeControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.segmented {
+    display: inline-flex;
+    padding: 0.1875rem;
+    background: var(--surface-sunken);
+    border-radius: var(--radius-pill);
+}
+
+.segment,
+.segmentActive {
+    padding: var(--space-2) var(--space-4);
+    background: none;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.segment {
+    color: var(--foreground-muted);
+}
+
+.segmentActive {
+    color: var(--accent);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+}
+
+.dateTime {
+    flex: 1;
+    min-width: 12rem;
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface);
+    border: 0.0625rem solid var(--border-strong);
+    border-radius: var(--radius-md);
+    /* 16px keeps iOS Safari from zooming the page when the field is focused. */
+    font-size: 1rem;
+}
+
+.optionsToggle {
+    align-self: flex-start;
+    padding: 0;
+    color: var(--accent);
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.optionsToggle:hover {
+    text-decoration: underline;
+}
+
+.submit {
+    padding: var(--space-3) var(--space-5);
+    color: var(--accent-contrast);
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.submit:hover {
+    background: var(--accent-hover);
+}
+
+.srOnly {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@media (min-width: 34rem) {
+    .stops {
+        /* Side by side once there is room, with the swap button between. */
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .stops > *:first-child,
+    .stops > *:last-child {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .swap {
+        align-self: flex-end;
+        margin: 0 0 var(--space-1) 0;
     }
 }

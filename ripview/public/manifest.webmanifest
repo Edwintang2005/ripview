@@ -1,0 +1,56 @@
+{
+    "name": "RipView — Sydney transport times",
+    "short_name": "RipView",
+    "description": "Live Sydney public transport times: trip planning, departure boards and real-time delays.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#f4f5f7",
+    "theme_color": "#ffffff",
+    "categories": ["travel", "navigation", "utilities"],
+    "icons": [
+        {
+            "src": "/favicon/favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon/web-app-manifest-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon/web-app-manifest-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon/web-app-manifest-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/favicon/web-app-manifest-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Departures",
+            "short_name": "Departures",
+            "url": "/departures"
+        },
+        {
+            "name": "Network map",
+            "short_name": "Map",
+            "url": "/map"
+        }
+    ]
+}

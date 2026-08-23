@@ -1,0 +1,74 @@
+.wrapper {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.time {
+    font-size: 1rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.large .time,
+.large .adjusted {
+    font-size: 1.375rem;
+}
+
+/* The live estimate, when it differs from the timetable. */
+.adjusted {
+    color: var(--status-late);
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The scheduled time, kept visible but clearly superseded. */
+.scheduled {
+    color: var(--foreground-subtle);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    text-decoration: line-through;
+}
+
+.onTime {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--status-live);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.liveDot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--status-live);
+    border-radius: 50%;
+}
+
+.late {
+    color: var(--status-late);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.early {
+    color: var(--status-early);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/*
+ * Compact form for a stopping-pattern row: a fixed-width, tabular time so the
+ * station names line up in a column instead of each row wrapping differently.
+ */
+.compact {
+    display: inline-block;
+    flex: 0 0 3rem;
+    width: 3rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}

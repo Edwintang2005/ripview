@@ -95,6 +95,47 @@ export function apiDateTimeFromLocalInput(
     return { date: `${year}${month}${day}`, time: `${hour}${minute}` };
 }
 
+/**
+ * Resolves a `datetime-local` value to the instant it names in Sydney.
+ *
+ * The value carries no timezone, and the app treats it as Sydney wall-clock
+ * throughout, so the offset has to be discovered rather than assumed. Sydney is
+ * UTC+10 (AEST) or UTC+11 (AEDT); we try both and keep whichever renders back
+ * to the wall-clock time that was asked for.
+ *
+ * Returns `null` for a malformed value, and for the hour that does not exist on
+ * the spring-forward morning — where neither candidate round-trips, because
+ * that local time simply never occurs.
+ */
+export function localInputToInstant(value: string | null | undefined): Date | null {
+    if (!value) {
+        return null;
+    }
+    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+    if (!match) {
+        return null;
+    }
+    const [, year, month, day, hour, minute] = match;
+    for (const offsetHours of [10, 11]) {
+        const candidate = new Date(
+            Date.UTC(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hour) - offsetHours,
+                Number(minute)
+            )
+        );
+        if (Number.isNaN(candidate.getTime())) {
+            continue;
+        }
+        if (CLOCK_FORMATTER.format(candidate) === `${hour}:${minute}`) {
+            return candidate;
+        }
+    }
+    return null;
+}
+
 /** The current Sydney wall-clock time as a `datetime-local` input value. */
 export function nowAsLocalInputValue(now: Date = new Date()): string {
     const parts = sydneyParts(now);

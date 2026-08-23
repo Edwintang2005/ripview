@@ -85,9 +85,41 @@ describe('toJourneys', () => {
         expect(stops[stops.length - 1].shortName).toBe('Seven Hills Station');
     });
 
-    it('sums leg durations into a journey duration', () => {
+    it('measures journey duration end to end, including interchange waits', () => {
+        // A single-leg journey matches its leg exactly.
         expect(journeys[0].durationSeconds).toBe(2490);
-        expect(journeys[1].durationSeconds).toBe(162 + 300 + 1320 + 780);
+
+        // The four-leg journey rides for 162+300+1320+780 = 2562 seconds, but
+        // the time between leaving and arriving is longer, because part of it
+        // is spent waiting between services. Summing the legs under-reports it.
+        const legSum = journeys[1].legs.reduce((total, leg) => total + leg.durationSeconds, 0);
+        expect(legSum).toBe(2562);
+        expect(journeys[1].durationSeconds).toBeGreaterThan(legSum);
+
+        // Measured from the live estimates where they exist, so the duration
+        // shown reflects what will actually happen rather than the timetable.
+        const departure = Date.parse(
+            journeys[1].departure.estimated ?? journeys[1].departure.planned
+        );
+        const arrival = Date.parse(journeys[1].arrival.estimated ?? journeys[1].arrival.planned);
+        expect(journeys[1].durationSeconds).toBe(Math.round((arrival - departure) / 1000));
+    });
+
+    it('falls back to the sum of legs when an endpoint has no timestamp', () => {
+        const noArrival = toJourneys({
+            journeys: [
+                {
+                    legs: [
+                        {
+                            origin: { name: 'A', departureTimePlanned: '2026-08-22T23:00:00Z' },
+                            destination: { name: 'B' },
+                            duration: 600,
+                        },
+                    ],
+                },
+            ],
+        });
+        expect(noArrival[0].durationSeconds).toBe(600);
     });
 
     it('returns an empty list rather than throwing on a null journeys field', () => {
@@ -346,7 +378,7 @@ describe('toDepartures', () => {
 });
 
 describe('toStopSuggestions', () => {
-    it('ranks by match quality and reads the modes served', () => {
+    it('ranks by match quality within a type, and reads the modes served', () => {
         const suggestions = toStopSuggestions({
             locations: [
                 {
@@ -370,6 +402,45 @@ describe('toStopSuggestions', () => {
         // De-duplicated, and class 5 appears once.
         expect(suggestions[1].modes).toEqual(['train', 'metro', 'lightRail', 'bus']);
         expect(suggestions[1].locality).toBe('Sydney');
+    });
+
+    it('puts transport stops above streets and points of interest', () => {
+        // A live search for "Wynyard" returns eight streets scoring 238-239
+        // before the station itself. Type has to outrank raw match quality.
+        const suggestions = toStopSuggestions({
+            locations: [
+                { id: 's1', disassembledName: 'Wynyard Lane', type: 'street', matchQuality: 239 },
+                { id: 'p1', disassembledName: 'Wynyard Park', type: 'poi', matchQuality: 239 },
+                { id: 'st1', disassembledName: 'Wynyard Station', type: 'stop', matchQuality: 100 },
+            ],
+        });
+        expect(suggestions.map((suggestion) => suggestion.name)).toEqual([
+            'Wynyard Station',
+            'Wynyard Park',
+            'Wynyard Lane',
+        ]);
+    });
+
+    it('respects TfNSW\'s own isBest flag above everything', () => {
+        const suggestions = toStopSuggestions({
+            locations: [
+                { id: 'st1', disassembledName: 'A Station', type: 'stop', matchQuality: 900 },
+                {
+                    id: 's1',
+                    disassembledName: 'Exactly What You Typed',
+                    type: 'street',
+                    matchQuality: 100,
+                    isBest: true,
+                },
+            ],
+        });
+        expect(suggestions[0].name).toBe('Exactly What You Typed');
+    });
+
+    it('drops location types that cannot be a trip endpoint', () => {
+        expect(
+            toStopSuggestions({ locations: [{ id: 'x', name: 'Some Suburb', type: 'unknown' }] })
+        ).toEqual([]);
     });
 
     it('drops entries with no id', () => {
